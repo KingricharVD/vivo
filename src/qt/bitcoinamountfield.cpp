@@ -1,155 +1,162 @@
-// Copyright (c) 2011-2015 The Bitcoin Core developers
+// Copyright (c) 2011-2021 The Bitcoin Core developers
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
-#include "bitcoinamountfield.h"
+#include <qt/bitcoinamountfield.h>
 
-#include "bitcoinunits.h"
-#include "guiconstants.h"
-#include "qvaluecombobox.h"
+#include <qt/bitcoinunits.h>
+#include <qt/guiutil.h>
 
-#include <QApplication>
-#include <QAbstractSpinBox>
 #include <QHBoxLayout>
 #include <QKeyEvent>
 #include <QLineEdit>
+#include <QVariant>
 
-/** QSpinBox that uses fixed-point numbers internally and uses our own
- * formatting/parsing functions.
+#include <cassert>
+
+/**
+ * Parse a string into a number of base monetary units and
+ * return validity.
+ * @note Must return 0 if !valid.
  */
-class AmountSpinBox: public QAbstractSpinBox
+static CAmount parse(const QString &text, BitcoinUnit nUnit, bool *valid_out= nullptr)
+{
+    CAmount val = 0;
+    bool valid = BitcoinUnits::parse(nUnit, text, &val);
+    if(valid)
+    {
+        if(val < 0 || val > BitcoinUnits::maxMoney())
+            valid = false;
+    }
+    if(valid_out)
+        *valid_out = valid;
+    return valid ? val : 0;
+}
+
+/** Amount widget validator, checks for valid CAmount value.
+ */
+class AmountValidator : public QValidator
 {
     Q_OBJECT
+    BitcoinUnit currentUnit{BitcoinUnit::DASH};
 
 public:
-    explicit AmountSpinBox(QWidget *parent):
-        QAbstractSpinBox(parent),
-        currentUnit(BitcoinUnits::VIVO),
-        singleStep(100000) // satoshis
-    {
-        setAlignment(Qt::AlignRight);
+    explicit AmountValidator(QObject *parent) :
+        QValidator(parent)
+        {}
 
-        connect(lineEdit(), SIGNAL(textEdited(QString)), this, SIGNAL(valueChanged()));
-    }
-
-    QValidator::State validate(QString &text, int &pos) const
+    State validate(QString &input, int &pos) const override
     {
-        if(text.isEmpty())
+        if(input.isEmpty())
             return QValidator::Intermediate;
         bool valid = false;
-        parse(text, &valid);
+        parse(input, currentUnit, &valid);
         /* Make sure we return Intermediate so that fixup() is called on defocus */
         return valid ? QValidator::Intermediate : QValidator::Invalid;
     }
 
-    void fixup(QString &input) const
+    void updateUnit(BitcoinUnit nUnit)
     {
-        bool valid = false;
-        CAmount val = parse(input, &valid);
-        if(valid)
-        {
-            input = BitcoinUnits::format(currentUnit, val, false, BitcoinUnits::separatorAlways);
-            lineEdit()->setText(input);
+        currentUnit = nUnit;
+    }
+};
+
+/** QLineEdit that uses fixed-point numbers internally and uses our own
+ * formatting/parsing functions.
+ */
+class AmountLineEdit: public QLineEdit
+{
+    Q_OBJECT
+    AmountValidator* amountValidator;
+public:
+    explicit AmountLineEdit(QWidget *parent):
+        QLineEdit(parent)
+    {
+        setAlignment(Qt::AlignLeft);
+        amountValidator = new AmountValidator(this);
+        setValidator(amountValidator);
+        connect(this, &QLineEdit::textEdited, this, &AmountLineEdit::valueChanged);
+    }
+
+    void fixup(const QString &input)
+    {
+        bool valid;
+        CAmount val;
+
+        if (input.isEmpty() && !m_allow_empty) {
+            valid = true;
+            val = m_min_amount;
+        } else {
+            valid = false;
+            val = parse(input, currentUnit, &valid);
+        }
+
+        if (valid) {
+            val = qBound(m_min_amount, val, m_max_amount);
+            setText(BitcoinUnits::format(currentUnit, val, false, BitcoinUnits::SeparatorStyle::ALWAYS));
         }
     }
 
-    CAmount value(bool *valid_out=0) const
+    CAmount value(bool *valid_out=nullptr) const
     {
-        return parse(text(), valid_out);
+        return parse(text(), currentUnit, valid_out);
     }
 
     void setValue(const CAmount& value)
     {
-        lineEdit()->setText(BitcoinUnits::format(currentUnit, value, false, BitcoinUnits::separatorAlways));
+        setText(BitcoinUnits::format(currentUnit, value, false, BitcoinUnits::SeparatorStyle::ALWAYS));
         Q_EMIT valueChanged();
     }
 
-    void stepBy(int steps)
+    void SetAllowEmpty(bool allow)
     {
-        bool valid = false;
-        CAmount val = value(&valid);
-        val = val + steps * singleStep;
-        val = qMin(qMax(val, CAmount(0)), BitcoinUnits::maxMoney());
-        setValue(val);
+        m_allow_empty = allow;
     }
 
-    void setDisplayUnit(int unit)
+    void SetMinValue(const CAmount& value)
+    {
+        m_min_amount = value;
+    }
+
+    void SetMaxValue(const CAmount& value)
+    {
+        m_max_amount = value;
+    }
+
+    void setDisplayUnit(BitcoinUnit unit)
     {
         bool valid = false;
         CAmount val = value(&valid);
 
         currentUnit = unit;
+        amountValidator->updateUnit(unit);
 
+        setPlaceholderText(BitcoinUnits::format(currentUnit, m_min_amount, false, BitcoinUnits::SeparatorStyle::ALWAYS));
         if(valid)
             setValue(val);
         else
             clear();
     }
 
-    void setSingleStep(const CAmount& step)
+    QSize minimumSizeHint() const override
     {
-        singleStep = step;
-    }
-
-    QSize minimumSizeHint() const
-    {
-        if(cachedMinimumSizeHint.isEmpty())
-        {
-            ensurePolished();
-
-            const QFontMetrics fm(fontMetrics());
-            int h = lineEdit()->minimumSizeHint().height();
-            int w = fm.width(BitcoinUnits::format(BitcoinUnits::VIVO, BitcoinUnits::maxMoney(), false, BitcoinUnits::separatorAlways));
-            w += 2; // cursor blinking space
-
-            QStyleOptionSpinBox opt;
-            initStyleOption(&opt);
-            QSize hint(w, h);
-            QSize extra(35, 6);
-            opt.rect.setSize(hint + extra);
-            extra += hint - style()->subControlRect(QStyle::CC_SpinBox, &opt,
-                                                    QStyle::SC_SpinBoxEditField, this).size();
-            // get closer to final result by repeating the calculation
-            opt.rect.setSize(hint + extra);
-            extra += hint - style()->subControlRect(QStyle::CC_SpinBox, &opt,
-                                                    QStyle::SC_SpinBoxEditField, this).size();
-            hint += extra;
-            hint.setHeight(h);
-
-            opt.rect = rect();
-
-            cachedMinimumSizeHint = style()->sizeFromContents(QStyle::CT_SpinBox, &opt, hint, this)
-                                    .expandedTo(QApplication::globalStrut());
-        }
-        return cachedMinimumSizeHint;
+        ensurePolished();
+        const QFontMetrics fm(fontMetrics());
+        int h = 0;
+        int w = GUIUtil::TextWidth(fm, BitcoinUnits::format(BitcoinUnit::DASH, BitcoinUnits::maxMoney(), false, BitcoinUnits::SeparatorStyle::ALWAYS));
+        w += 2; // cursor blinking space
+        w += GUIUtil::vivoThemeActive() ? 24 : 0; // counteract padding from css
+        return QSize(w, h);
     }
 
 private:
-    int currentUnit;
-    CAmount singleStep;
-    mutable QSize cachedMinimumSizeHint;
-
-    /**
-     * Parse a string into a number of base monetary units and
-     * return validity.
-     * @note Must return 0 if !valid.
-     */
-    CAmount parse(const QString &text, bool *valid_out=0) const
-    {
-        CAmount val = 0;
-        bool valid = BitcoinUnits::parse(currentUnit, text, &val);
-        if(valid)
-        {
-            if(val < 0 || val > BitcoinUnits::maxMoney())
-                valid = false;
-        }
-        if(valid_out)
-            *valid_out = valid;
-        return valid ? val : 0;
-    }
+    BitcoinUnit currentUnit{BitcoinUnit::DASH};
+    bool m_allow_empty{true};
+    CAmount m_min_amount{CAmount(0)};
+    CAmount m_max_amount{BitcoinUnits::maxMoney()};
 
 protected:
-    bool event(QEvent *event)
+    bool event(QEvent *event) override
     {
         if (event->type() == QEvent::KeyPress || event->type() == QEvent::KeyRelease)
         {
@@ -158,54 +165,40 @@ protected:
             {
                 // Translate a comma into a period
                 QKeyEvent periodKeyEvent(event->type(), Qt::Key_Period, keyEvent->modifiers(), ".", keyEvent->isAutoRepeat(), keyEvent->count());
-                return QAbstractSpinBox::event(&periodKeyEvent);
+                return QLineEdit::event(&periodKeyEvent);
+            }
+            if(keyEvent->key() == Qt::Key_Enter || keyEvent->key() == Qt::Key_Return)
+            {
+                clearFocus();
             }
         }
-        return QAbstractSpinBox::event(event);
-    }
-
-    StepEnabled stepEnabled() const
-    {
-        if (isReadOnly()) // Disable steps when AmountSpinBox is read-only
-            return StepNone;
-        if (text().isEmpty()) // Allow step-up with empty field
-            return StepUpEnabled;
-
-        StepEnabled rv = 0;
-        bool valid = false;
-        CAmount val = value(&valid);
-        if(valid)
+        if (event->type() == QEvent::FocusOut)
         {
-            if(val > 0)
-                rv |= StepDownEnabled;
-            if(val < BitcoinUnits::maxMoney())
-                rv |= StepUpEnabled;
+            fixup(text());
         }
-        return rv;
+        return QLineEdit::event(event);
     }
 
 Q_SIGNALS:
     void valueChanged();
 };
 
-#include "bitcoinamountfield.moc"
+#include <qt/bitcoinamountfield.moc>
 
-BitcoinAmountField::BitcoinAmountField(QWidget *parent) :
-    QWidget(parent),
-    amount(0)
+BitcoinAmountField::BitcoinAmountField(QWidget* parent)
+    : QWidget(parent)
 {
-    amount = new AmountSpinBox(this);
+    amount = new AmountLineEdit(this);
     amount->setLocale(QLocale::c());
     amount->installEventFilter(this);
-    amount->setMaximumWidth(170);
+    amount->setMaximumWidth(300);
+
+    units = new BitcoinUnits(this);
 
     QHBoxLayout *layout = new QHBoxLayout(this);
+    layout->setSpacing(0);
+    layout->setMargin(0);
     layout->addWidget(amount);
-    unit = new QValueComboBox(this);
-    unit->setModel(new BitcoinUnits(this));
-    layout->addWidget(unit);
-    layout->addStretch(1);
-    layout->setContentsMargins(0,0,0,0);
 
     setLayout(layout);
 
@@ -213,23 +206,17 @@ BitcoinAmountField::BitcoinAmountField(QWidget *parent) :
     setFocusProxy(amount);
 
     // If one if the widgets changes, the combined content changes as well
-    connect(amount, SIGNAL(valueChanged()), this, SIGNAL(valueChanged()));
-    connect(unit, SIGNAL(currentIndexChanged(int)), this, SLOT(unitChanged(int)));
-
-    // Set default based on configuration
-    unitChanged(unit->currentIndex());
+    connect(amount, &AmountLineEdit::valueChanged, this, &BitcoinAmountField::valueChanged);
 }
 
 void BitcoinAmountField::clear()
 {
     amount->clear();
-    unit->setCurrentIndex(0);
 }
 
 void BitcoinAmountField::setEnabled(bool fEnabled)
 {
     amount->setEnabled(fEnabled);
-    unit->setEnabled(fEnabled);
 }
 
 bool BitcoinAmountField::validate()
@@ -245,7 +232,7 @@ void BitcoinAmountField::setValid(bool valid)
     if (valid)
         amount->setStyleSheet("");
     else
-        amount->setStyleSheet(STYLE_INVALID);
+        amount->setStyleSheet(GUIUtil::getThemedStyleQString(GUIUtil::ThemedStyle::TS_INVALID));
 }
 
 bool BitcoinAmountField::eventFilter(QObject *object, QEvent *event)
@@ -261,8 +248,7 @@ bool BitcoinAmountField::eventFilter(QObject *object, QEvent *event)
 QWidget *BitcoinAmountField::setupTabChain(QWidget *prev)
 {
     QWidget::setTabOrder(prev, amount);
-    QWidget::setTabOrder(amount, unit);
-    return unit;
+    return amount;
 }
 
 CAmount BitcoinAmountField::value(bool *valid_out) const
@@ -275,6 +261,21 @@ void BitcoinAmountField::setValue(const CAmount& value)
     amount->setValue(value);
 }
 
+void BitcoinAmountField::SetAllowEmpty(bool allow)
+{
+    amount->SetAllowEmpty(allow);
+}
+
+void BitcoinAmountField::SetMinValue(const CAmount& value)
+{
+    amount->SetMinValue(value);
+}
+
+void BitcoinAmountField::SetMaxValue(const CAmount& value)
+{
+    amount->SetMaxValue(value);
+}
+
 void BitcoinAmountField::setReadOnly(bool fReadOnly)
 {
     amount->setReadOnly(fReadOnly);
@@ -283,20 +284,16 @@ void BitcoinAmountField::setReadOnly(bool fReadOnly)
 void BitcoinAmountField::unitChanged(int idx)
 {
     // Use description tooltip for current unit for the combobox
-    unit->setToolTip(unit->itemData(idx, Qt::ToolTipRole).toString());
+    amount->setToolTip(units->data(idx, Qt::ToolTipRole).toString());
 
     // Determine new unit ID
-    int newUnit = unit->itemData(idx, BitcoinUnits::UnitRole).toInt();
-
-    amount->setDisplayUnit(newUnit);
+    QVariant new_unit = units->data(idx, BitcoinUnits::UnitRole);
+    assert(new_unit.isValid());
+    amount->setPlaceholderText(tr("Amount in %1").arg(units->data(idx, Qt::DisplayRole).toString()));
+    amount->setDisplayUnit(new_unit.value<BitcoinUnit>());
 }
 
-void BitcoinAmountField::setDisplayUnit(int newUnit)
+void BitcoinAmountField::setDisplayUnit(BitcoinUnit new_unit)
 {
-    unit->setValue(newUnit);
-}
-
-void BitcoinAmountField::setSingleStep(const CAmount& step)
-{
-    amount->setSingleStep(step);
+    unitChanged(QVariant::fromValue(new_unit).toInt());
 }

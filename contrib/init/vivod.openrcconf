@@ -1,7 +1,7 @@
 # /etc/conf.d/vivod: config file for /etc/init.d/vivod
 
 # Config file location
-#BITCOIND_CONFIGFILE="/etc/vivocore/vivo.conf"
+#BITCOIND_CONFIGFILE="/etc/vivo/vivo.conf"
 
 # What directory to write pidfile to?  (created and owned by $BITCOIND_USER)
 #BITCOIND_PIDDIR="/var/run/vivod"
@@ -23,9 +23,9 @@
 #BITCOIND_NICE=0
 
 # Additional options (avoid -conf and -datadir, use flags above)
-BITCOIND_OPTS="-disablewallet"
+#BITCOIND_OPTS=""
 
-# The timeout in seconds OpenRC will wait for bitcoind to terminate
+# The timeout in seconds OpenRC will wait for vivod to terminate
 # after a SIGTERM has been raised.
 # Note that this will be mapped as argument to start-stop-daemon's
 # '--retry' option, which means you can specify a retry schedule

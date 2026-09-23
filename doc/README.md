@@ -1,73 +1,90 @@
-Vivo Core 0.12.1
-=====================
+Vivo Core
+==========
 
 This is the official reference wallet for Vivo digital currency and comprises the backbone of the Vivo peer-to-peer network. You can [download Vivo Core](https://www.vivo.org/downloads/) or [build it yourself](#building) using the guides below.
 
 Running
 ---------------------
-The following are some helpful notes on how to run Vivo on your native platform.
+The following are some helpful notes on how to run Vivo Core on your native platform.
 
 ### Unix
 
 Unpack the files into a directory and run:
 
-- `bin/bitcoin-qt` (GUI) or
-- `bin/bitcoind` (headless)
+- `bin/vivo-qt` (GUI) or
+- `bin/vivod` (headless)
 
 ### Windows
 
 Unpack the files into a directory, and then run vivo-qt.exe.
 
-### OS X
+### macOS
 
-Drag Vivo-Qt to your applications folder, and then run Vivo-Qt.
+Drag Vivo Core to your applications folder, and then run Vivo Core.
 
 ### Need Help?
 
-* See the [Vivo documentation](https://vivocoin.atlassian.net/wiki/display/DOC)
+* See the [Vivo documentation](https://docs.vivo.org)
 for help and more information.
-* Ask for help on [#vivocoin](http://webchat.freenode.net?channels=vivocoin) on Freenode. If you don't have an IRC client use [webchat here](http://webchat.freenode.net?channels=vivocoin).
-* Ask for help on the [VivoTalk](https://vivotalk.org/) forums.
+* Ask for help on [Vivo Discord](http://stayvivoy.com)
+* Ask for help on the [Vivo Forum](https://vivo.org/forum)
 
 Building
 ---------------------
 The following are developer notes on how to build Vivo Core on your native platform. They are not complete guides, but include notes on the necessary libraries, compile flags, etc.
 
-- [OS X Build Notes](build-osx.md)
+- [Dependencies](dependencies.md)
+- [macOS Build Notes](build-osx.md)
 - [Unix Build Notes](build-unix.md)
 - [Windows Build Notes](build-windows.md)
 - [OpenBSD Build Notes](build-openbsd.md)
-- [Gitian Building Guide](gitian-building.md)
+- [NetBSD Build Notes](build-netbsd.md)
+- [Android Build Notes](build-android.md)
 
 Development
 ---------------------
 The Vivo Core repo's [root README](/README.md) contains relevant information on the development process and automated testing.
 
 - [Developer Notes](developer-notes.md)
-- [Multiwallet Qt Development](multiwallet-qt.md)
+- [Productivity Notes](productivity.md)
 - [Release Notes](release-notes.md)
 - [Release Process](release-process.md)
 - Source Code Documentation ***TODO***
 - [Translation Process](translation_process.md)
 - [Translation Strings Policy](translation_strings_policy.md)
-- [Unit Tests](unit-tests.md)
+- [JSON-RPC Interface](JSON-RPC-interface.md)
 - [Unauthenticated REST Interface](REST-interface.md)
 - [Shared Libraries](shared-libraries.md)
 - [BIPS](bips.md)
 - [Dnsseed Policy](dnsseed-policy.md)
+- [Benchmarking](benchmarking.md)
+- [Internal Design Docs](design/)
 
 ### Resources
-* Discuss on the [VivoTalk](https://vivotalk.org/) forums, in the Development & Technical Discussion board.
-* Discuss on [#vivocoin](http://webchat.freenode.net/?channels=vivocoin) on Freenode. If you don't have an IRC client use [webchat here](http://webchat.freenode.net/?channels=vivocoin).
+* See the [Vivo Developer Documentation](https://vivocore.readme.io/)
+  for technical specifications and implementation details.
+* Discuss on the [Vivo Forum](https://vivo.org/forum), in the Development & Technical Discussion board.
+* Discuss on [Vivo Discord](http://stayvivoy.com)
+* Discuss on [Vivo Developers Discord](http://chat.vivodevs.org/)
 
 ### Miscellaneous
 - [Assets Attribution](assets-attribution.md)
+- [vivo.conf Configuration File](vivo-conf.md)
+- [CJDNS Support](cjdns.md)
 - [Files](files.md)
-- [Tor Support](tor.md)
+- [Fuzz-testing](fuzzing.md)
+- [I2P Support](i2p.md)
 - [Init Scripts (systemd/upstart/openrc)](init.md)
+- [Managing Wallets](managing-wallets.md)
+- [Multisig Tutorial](multisig-tutorial.md)
+- [P2P bad ports definition and list](p2p-bad-ports.md)
+- [PSBT support](psbt.md)
+- [Reduce Memory](reduce-memory.md)
+- [Reduce Traffic](reduce-traffic.md)
+- [Tor Support](tor.md)
+- [Transaction Relay Policy](policy/README.md)
+- [ZMQ](zmq.md)
 
 License
 ---------------------
-Distributed under the [MIT software license](http://www.opensource.org/licenses/mit-license.php).
-This product includes software developed by the OpenSSL Project for use in the [OpenSSL Toolkit](https://www.openssl.org/). This product includes
-cryptographic software written by Eric Young ([eay@cryptsoft.com](mailto:eay@cryptsoft.com)), and UPnP software written by Thomas Bernard.
+Distributed under the [MIT software license](/COPYING).

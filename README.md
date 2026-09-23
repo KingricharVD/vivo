@@ -1,24 +1,32 @@
-Master Branch Contains the Latest Code
+Vivo Core staging tree
+===========================
 
-### Masternode install scripts are located at
+| `master` | `develop` |
+| -------- | --------- |
+| [![Build Status](https://github.com/KingricharVD/vivo/actions/workflows/build.yml/badge.svg?branch=master)](https://github.com/KingricharVD/vivo/tree/master) | [![Build Status](https://github.com/KingricharVD/vivo/actions/workflows/build.yml/badge.svg?branch=develop)](https://github.com/KingricharVD/vivo/tree/develop) |
 
-https://github.com/coolblock/vpsVivo
+https://github.com/KingricharVD/vivo
 
-Vivo Core staging tree 0.12.1 
-===============================
+For an immediately usable, binary version of the Vivo Core software, see
+https://github.com/KingricharVD/vivo/releases.
 
-`master:` [![Build Status](https://travis-ci.org/vivocoin/vivo.svg?branch=master)](https://travis-ci.org/vivocoin/vivo) `v0.12.0.x:` [![Build Status](https://travis-ci.org/vivocoin/vivo.svg?branch=v0.12.0.x)](https://travis-ci.org/vivocoin/vivo/branches) `v0.12.1.x:` [![Build Status](https://travis-ci.org/vivocoin/vivo.svg?branch=v0.12.1.x)](https://travis-ci.org/vivocoin/vivo/branches)
+Vivo Core connects to the Vivo peer-to-peer network to download and fully
+validate blocks and transactions. It also includes a wallet and graphical user
+interface, which can be optionally built.
 
-http://www.vivocoin.net
+Further information about Vivo Core is available in the [doc folder](/doc).
+
+What is Vivo?
+-------------
+
+Vivo is a digital currency that enables instant, private payments to anyone,
+anywhere in the world. Vivo uses peer-to-peer technology to operate with
+no central authority: managing transactions and issuing money are carried out
+collectively by the network. Vivo Core is the name of the open
+source software which enables the use of this currency.
 
 
-What is Vivocoin? (The alt-coin that promises to never go away)
-----------------
-
-VIVO is an advanced, decentralized and secure digital currency. Based on Dash, it's an enhanced and further developed version, featuring the masternode technology, near-instant and secure payments as well as anonymous transactions. With a fast block time of only 2 minutes, transactions will usually confirm and be successfully processed very quickly. VIVO's blockchain uses the advanced NeoScrypt Proof-of-Work algorithm to secure the network. NeoScrypt is ASIC resistant and ensures a fair and stable return on investment for the miners.
- 
-Additional information, wallets, specifications & roadmap: http://vivocoin.net
-
+For more information, see the project documentation in the `doc` directory.
 
 License
 -------
@@ -30,10 +38,27 @@ Development Process
 -------------------
 
 The `master` branch is meant to be stable. Development is normally done in separate branches.
-[Tags](https://github.com/vivocoin/vivo/tags) are created to indicate new official,
+[Tags](https://github.com/KingricharVD/vivo/tags) are created to indicate new official,
 stable release versions of Vivo Core.
 
-The contribution workflow is described in [CONTRIBUTING.md](CONTRIBUTING.md).
+The `develop` branch is regularly built (see doc/build-*.md for instructions) and tested, but is not guaranteed to be
+completely stable.
+
+The contribution workflow is described in [CONTRIBUTING.md](CONTRIBUTING.md)
+and useful hints for developers can be found in [doc/developer-notes.md](doc/developer-notes.md).
+
+Build / Compile from Source
+---------------------------
+
+The `./configure`, `make`, and `cmake` steps, as well as build dependencies, are in [./doc/](/doc) as well:
+
+- **Linux**: [./doc/build-unix.md](/doc/build-unix.md) \
+  Ubuntu, Debian, Fedora, Arch, and others
+- **macOS**: [./doc/build-osx.md](/doc/build-osx.md)
+- **Windows**: [./doc/build-windows.md](/doc/build-windows.md)
+- **OpenBSD**: [./doc/build-openbsd.md](/doc/build-openbsd.md)
+- **FreeBSD**: [./doc/build-freebsd.md](/doc/build-freebsd.md)
+- **NetBSD**: [./doc/build-netbsd.md](/doc/build-netbsd.md)
 
 Testing
 -------
@@ -45,16 +70,17 @@ lots of money.
 
 ### Automated Testing
 
-Developers are strongly encouraged to write [unit tests](/doc/unit-tests.md) for new code, and to
+Developers are strongly encouraged to write [unit tests](src/test/README.md) for new code, and to
 submit new unit tests for old code. Unit tests can be compiled and run
-(assuming they weren't disabled in configure) with: `make check`
+(assuming they weren't disabled in configure) with: `make check`. Further details on running
+and extending unit tests can be found in [/src/test/README.md](/src/test/README.md).
 
-There are also [regression and integration tests](/qa) of the RPC interface, written
-in Python, that are run automatically on the build server.
-These tests can be run (if the [test dependencies](/qa) are installed) with: `qa/pull-tester/rpc-tests.py`
+There are also [regression and integration tests](/test), written
+in Python.
+These tests can be run (if the [test dependencies](/test) are installed) with: `test/functional/test_runner.py`
 
-The Travis CI system makes sure that every pull request is built for Windows
-and Linux, OS X, and that unit and sanity tests are automatically run.
+The CI (Continuous Integration) systems make sure that every pull request is built for Windows, Linux, and macOS,
+and that unit/sanity tests are run automatically.
 
 ### Manual Quality Assurance (QA) Testing
 
@@ -63,3 +89,14 @@ code. This is especially important for large or high-risk changes. It is useful
 to add a test plan to the pull request description if testing the changes is
 not straightforward.
 
+Translations
+------------
+
+Changes to translations as well as new translations can be submitted to
+Translations are maintained in the source tree under `src/qt/locale`.
+
+Translations are periodically pulled from Transifex and merged into the git repository. See the
+[translation process](doc/translation_process.md) for details on how this works.
+
+**Important**: We do not accept translation changes as GitHub pull requests because the next
+pull from Transifex would automatically overwrite them again.

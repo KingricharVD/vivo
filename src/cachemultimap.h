@@ -1,18 +1,18 @@
-// Copyright (c) 2014-2017 The Vivo Core developers
+// Copyright (c) 2014-2025 The Vivo Core developers
 // Distributed under the MIT/X11 software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
-#ifndef CACHEMULTIMAP_H_
-#define CACHEMULTIMAP_H_
+#ifndef BITCOIN_CACHEMULTIMAP_H
+#define BITCOIN_CACHEMULTIMAP_H
 
 #include <cstddef>
 #include <map>
 #include <list>
 #include <set>
 
-#include "serialize.h"
+#include <serialize.h>
 
-#include "cachemap.h"
+#include <cachemap.h>
 
 /**
  * Map like container that keeps the N most recently added items
@@ -21,48 +21,44 @@ template<typename K, typename V, typename Size = uint32_t>
 class CacheMultiMap
 {
 public:
-    typedef Size size_type;
+    using size_type = Size;
 
-    typedef CacheItem<K,V> item_t;
+    using item_t = CacheItem<K,V>;
 
-    typedef std::list<item_t> list_t;
+    using list_t = std::list<item_t>;
 
-    typedef typename list_t::iterator list_it;
+    using list_it = typename list_t::iterator;
 
-    typedef typename list_t::const_iterator list_cit;
+    using list_cit = typename list_t::const_iterator;
 
-    typedef std::map<V,list_it> it_map_t;
+    using it_map_t = std::map<V,list_it>;
 
-    typedef typename it_map_t::iterator it_map_it;
+    using it_map_it = typename it_map_t::iterator;
 
-    typedef typename it_map_t::const_iterator it_map_cit;
+    using it_map_cit = typename it_map_t::const_iterator;
 
-    typedef std::map<K, it_map_t> map_t;
+    using map_t = std::map<K, it_map_t>;
 
-    typedef typename map_t::iterator map_it;
+    using map_it = typename map_t::iterator;
 
-    typedef typename map_t::const_iterator map_cit;
+    using map_cit = typename map_t::const_iterator;
 
 private:
     size_type nMaxSize;
-
-    size_type nCurrentSize;
 
     list_t listItems;
 
     map_t mapIndex;
 
 public:
-    CacheMultiMap(size_type nMaxSizeIn = 0)
+    explicit CacheMultiMap(size_type nMaxSizeIn = 0)
         : nMaxSize(nMaxSizeIn),
-          nCurrentSize(0),
           listItems(),
           mapIndex()
     {}
 
-    CacheMultiMap(const CacheMap<K,V>& other)
+    explicit CacheMultiMap(const CacheMap<K,V>& other)
         : nMaxSize(other.nMaxSize),
-          nCurrentSize(other.nCurrentSize),
           listItems(other.listItems),
           mapIndex()
     {
@@ -73,7 +69,6 @@ public:
     {
         mapIndex.clear();
         listItems.clear();
-        nCurrentSize = 0;
     }
 
     void SetMaxSize(size_type nMaxSizeIn)
@@ -86,17 +81,14 @@ public:
     }
 
     size_type GetSize() const {
-        return nCurrentSize;
+        return listItems.size();
     }
 
     bool Insert(const K& key, const V& value)
     {
-        if(nCurrentSize == nMaxSize) {
-            PruneLast();
-        }
         map_it mit = mapIndex.find(key);
         if(mit == mapIndex.end()) {
-            mit = mapIndex.insert(std::pair<K,it_map_t>(key, it_map_t())).first;
+            mit = mapIndex.emplace(key, it_map_t()).first;
         }
         it_map_t& mapIt = mit->second;
 
@@ -105,18 +97,17 @@ public:
             return false;
         }
 
+        if(listItems.size() == nMaxSize) {
+            PruneLast();
+        }
         listItems.push_front(item_t(key, value));
-        list_it lit = listItems.begin();
-
-        mapIt[value] = lit;
-        ++nCurrentSize;
+        mapIt.emplace(value, listItems.begin());
         return true;
     }
 
     bool HasKey(const K& key) const
     {
-        map_cit it = mapIndex.find(key);
-        return (it != mapIndex.end());
+        return (mapIndex.find(key) != mapIndex.end());
     }
 
     bool Get(const K& key, V& value) const
@@ -159,11 +150,10 @@ public:
         if(mit == mapIndex.end()) {
             return;
         }
-        it_map_t& mapIt = mit->second;
+        const it_map_t& mapIt = mit->second;
 
-        for(it_map_it it = mapIt.begin(); it != mapIt.end(); ++it) {
-            listItems.erase(it->second);
-            --nCurrentSize;
+        for (const auto& it : mapIt) {
+            listItems.erase(it.second);
         }
 
         mapIndex.erase(mit);
@@ -183,10 +173,9 @@ public:
         }
 
         listItems.erase(it->second);
-        --nCurrentSize;
         mapIt.erase(it);
 
-        if(mapIt.size() < 1) {
+        if(mapIt.empty()) {
             mapIndex.erase(mit);
         }
     }
@@ -198,29 +187,21 @@ public:
     CacheMap<K,V>& operator=(const CacheMap<K,V>& other)
     {
         nMaxSize = other.nMaxSize;
-        nCurrentSize = other.nCurrentSize;
         listItems = other.listItems;
         RebuildIndex();
         return *this;
     }
 
-    ADD_SERIALIZE_METHODS;
-
-    template <typename Stream, typename Operation>
-    inline void SerializationOp(Stream& s, Operation ser_action, int nType, int nVersion)
+    SERIALIZE_METHODS(CacheMultiMap, obj)
     {
-        READWRITE(nMaxSize);
-        READWRITE(nCurrentSize);
-        READWRITE(listItems);
-        if(ser_action.ForRead()) {
-            RebuildIndex();
-        }
+        READWRITE(obj.nMaxSize, obj.listItems);
+        SER_READ(obj, obj.RebuildIndex());
     }
 
 private:
     void PruneLast()
     {
-        if(nCurrentSize < 1) {
+        if(listItems.empty()) {
             return;
         }
 
@@ -235,13 +216,12 @@ private:
 
             mapIt.erase(item.value);
 
-            if(mapIt.size() < 1) {
+            if(mapIt.empty()) {
                 mapIndex.erase(item.key);
             }
         }
 
         listItems.pop_back();
-        --nCurrentSize;
     }
 
     void RebuildIndex()
@@ -251,12 +231,12 @@ private:
             item_t& item = *lit;
             map_it mit = mapIndex.find(item.key);
             if(mit == mapIndex.end()) {
-                mit = mapIndex.insert(std::pair<K,it_map_t>(item.key, it_map_t())).first;
+                mit = mapIndex.emplace(item.key, it_map_t()).first;
             }
             it_map_t& mapIt = mit->second;
-            mapIt[item.value] = lit;
+            mapIt.emplace(item.value, lit);
         }
     }
 };
 
-#endif /* CACHEMULTIMAP_H_ */
+#endif // BITCOIN_CACHEMULTIMAP_H

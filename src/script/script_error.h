@@ -1,10 +1,12 @@
 // Copyright (c) 2009-2010 Satoshi Nakamoto
-// Copyright (c) 2009-2014 The Bitcoin Core developers
+// Copyright (c) 2009-2020 The Bitcoin Core developers
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
 #ifndef BITCOIN_SCRIPT_SCRIPT_ERROR_H
 #define BITCOIN_SCRIPT_SCRIPT_ERROR_H
+
+#include <string>
 
 typedef enum ScriptError_t
 {
@@ -26,6 +28,7 @@ typedef enum ScriptError_t
     SCRIPT_ERR_EQUALVERIFY,
     SCRIPT_ERR_CHECKMULTISIGVERIFY,
     SCRIPT_ERR_CHECKSIGVERIFY,
+    SCRIPT_ERR_CHECKDATASIGVERIFY,
     SCRIPT_ERR_NUMEQUALVERIFY,
 
     /* Logical/Format/Canonical errors */
@@ -34,6 +37,16 @@ typedef enum ScriptError_t
     SCRIPT_ERR_INVALID_STACK_OPERATION,
     SCRIPT_ERR_INVALID_ALTSTACK_OPERATION,
     SCRIPT_ERR_UNBALANCED_CONDITIONAL,
+
+    /* Operands checks */
+    SCRIPT_ERR_INVALID_SPLIT_RANGE,
+    SCRIPT_ERR_INVALID_OPERAND_SIZE,
+    SCRIPT_ERR_INVALID_NUMBER_RANGE,
+    SCRIPT_ERR_IMPOSSIBLE_ENCODING,
+
+    /* Divisor errors */
+    SCRIPT_ERR_DIV_BY_ZERO,
+    SCRIPT_ERR_MOD_BY_ZERO,
 
     /* CHECKLOCKTIMEVERIFY and CHECKSEQUENCEVERIFY */
     SCRIPT_ERR_NEGATIVE_LOCKTIME,
@@ -48,15 +61,20 @@ typedef enum ScriptError_t
     SCRIPT_ERR_SIG_NULLDUMMY,
     SCRIPT_ERR_PUBKEYTYPE,
     SCRIPT_ERR_CLEANSTACK,
+    SCRIPT_ERR_SIG_NULLFAIL,
 
     /* softfork safeness */
     SCRIPT_ERR_DISCOURAGE_UPGRADABLE_NOPS,
+
+    /* Constant scriptCode */
+    SCRIPT_ERR_OP_CODESEPARATOR,
+    SCRIPT_ERR_SIG_FINDANDDELETE,
 
     SCRIPT_ERR_ERROR_COUNT
 } ScriptError;
 
 #define SCRIPT_ERR_LAST SCRIPT_ERR_ERROR_COUNT
 
-const char* ScriptErrorString(const ScriptError error);
+std::string ScriptErrorString(const ScriptError error);
 
 #endif // BITCOIN_SCRIPT_SCRIPT_ERROR_H

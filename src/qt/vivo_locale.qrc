@@ -1,5 +1,6 @@
 <!DOCTYPE RCC><RCC version="1.0">
     <qresource prefix="/translations">
+        <file alias="ar">locale/vivo_ar.qm</file>
         <file alias="bg">locale/vivo_bg.qm</file>
         <file alias="de">locale/vivo_de.qm</file>
         <file alias="en">locale/vivo_en.qm</file>
@@ -8,11 +9,15 @@
         <file alias="fr">locale/vivo_fr.qm</file>
         <file alias="it">locale/vivo_it.qm</file>
         <file alias="ja">locale/vivo_ja.qm</file>
+        <file alias="ko">locale/vivo_ko.qm</file>
+        <file alias="nl">locale/vivo_nl.qm</file>
         <file alias="pl">locale/vivo_pl.qm</file>
         <file alias="pt">locale/vivo_pt.qm</file>
+        <file alias="ro">locale/vivo_ro.qm</file>
         <file alias="ru">locale/vivo_ru.qm</file>
         <file alias="sk">locale/vivo_sk.qm</file>
-        <file alias="sv">locale/vivo_sv.qm</file>
+        <file alias="th">locale/vivo_th.qm</file>
+        <file alias="tr">locale/vivo_tr.qm</file>
         <file alias="vi">locale/vivo_vi.qm</file>
         <file alias="zh_CN">locale/vivo_zh_CN.qm</file>
         <file alias="zh_TW">locale/vivo_zh_TW.qm</file>

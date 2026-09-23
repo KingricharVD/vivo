@@ -1,14 +1,19 @@
-// Copyright (c) 2011-2015 The Bitcoin Core developers
-// Copyright (c) 2014-2017 The Vivo Core developers
+// Copyright (c) 2011-2021 The Bitcoin Core developers
+// Copyright (c) 2014-2025 The Vivo Core developers
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
-#include "bitcoinunits.h"
-#include "chainparams.h"
-#include "primitives/transaction.h"
+#include <qt/bitcoinunits.h>
+#include <chainparams.h>
+
+#include <consensus/amount.h>
 
 #include <QSettings>
 #include <QStringList>
+
+#include <cassert>
+
+static constexpr auto MAX_DIGITS_BTC = 16;
 
 BitcoinUnits::BitcoinUnits(QObject *parent):
         QAbstractListModel(parent),
@@ -16,126 +21,81 @@ BitcoinUnits::BitcoinUnits(QObject *parent):
 {
 }
 
-QList<BitcoinUnits::Unit> BitcoinUnits::availableUnits()
+QList<BitcoinUnit> BitcoinUnits::availableUnits()
 {
-    QList<BitcoinUnits::Unit> unitlist;
-    unitlist.append(VIVO);
-    unitlist.append(mVIVO);
-    unitlist.append(uVIVO);
-    unitlist.append(duffs);
+    QList<BitcoinUnit> unitlist;
+    unitlist.append(Unit::DASH);
+    unitlist.append(Unit::mDASH);
+    unitlist.append(Unit::uDASH);
+    unitlist.append(Unit::duffs);
     return unitlist;
 }
 
-bool BitcoinUnits::valid(int unit)
+QString BitcoinUnits::name(Unit unit)
 {
-    switch(unit)
-    {
-    case VIVO:
-    case mVIVO:
-    case uVIVO:
-    case duffs:
-        return true;
-    default:
-        return false;
-    }
+    const bool is_mainnet{Params().NetworkIDString() == CBaseChainParams::MAIN};
+    switch (unit) {
+    case Unit::DASH:  return is_mainnet ? QString("VIVO") : QString("tVIVO");
+    case Unit::mDASH: return is_mainnet ? QString("mVIVO") : QString("mtVIVO");
+    case Unit::uDASH: return is_mainnet ? QString::fromUtf8("μVIVO") : QString::fromUtf8("μtVIVO");
+    case Unit::duffs: return is_mainnet ? QString("duffs") : QString("tduffs");
+    } // no default case, so the compiler can warn about missing cases
+    assert(false);
 }
 
-QString BitcoinUnits::name(int unit)
+QString BitcoinUnits::description(Unit unit)
 {
-    if(Params().NetworkIDString() == CBaseChainParams::MAIN)
-    {
-        switch(unit)
-        {
-            case VIVO: return QString("VIVO");
-            case mVIVO: return QString("mVIVO");
-            case uVIVO: return QString::fromUtf8("μVIVO");
-            case duffs: return QString("duffs");
-            default: return QString("???");
-        }
-    }
-    else
-    {
-        switch(unit)
-        {
-            case VIVO: return QString("tVIVO");
-            case mVIVO: return QString("mtVIVO");
-            case uVIVO: return QString::fromUtf8("μtVIVO");
-            case duffs: return QString("tduffs");
-            default: return QString("???");
-        }
-    }
+    const QString maybe_prefix{Params().NetworkIDString() == CBaseChainParams::MAIN ? "" : "Test"};
+    switch(unit) {
+    case Unit::DASH:  return QString("%1Vivo");
+    case Unit::mDASH: return QString("Milli-%1Vivo (1 / 1" THIN_SP_UTF8 "000)").arg(maybe_prefix);
+    case Unit::uDASH: return QString("Micro-%1Vivo (1 / 1" THIN_SP_UTF8 "000" THIN_SP_UTF8 "000)").arg(maybe_prefix);
+    case Unit::duffs: return QString("Ten Nano-%1Vivo (1 / 100" THIN_SP_UTF8 "000" THIN_SP_UTF8 "000)").arg(maybe_prefix);
+    } // no default case, so the compiler can warn about missing cases
+    assert(false);
 }
 
-QString BitcoinUnits::description(int unit)
+qint64 BitcoinUnits::factor(Unit unit)
 {
-    if(Params().NetworkIDString() == CBaseChainParams::MAIN)
-    {
-        switch(unit)
-        {
-            case VIVO: return QString("Vivo");
-            case mVIVO: return QString("Milli-Vivo (1 / 1" THIN_SP_UTF8 "000)");
-            case uVIVO: return QString("Micro-Vivo (1 / 1" THIN_SP_UTF8 "000" THIN_SP_UTF8 "000)");
-            case duffs: return QString("Ten Nano-Vivo (1 / 100" THIN_SP_UTF8 "000" THIN_SP_UTF8 "000)");
-            default: return QString("???");
-        }
-    }
-    else
-    {
-        switch(unit)
-        {
-            case VIVO: return QString("TestVivos");
-            case mVIVO: return QString("Milli-TestVivo (1 / 1" THIN_SP_UTF8 "000)");
-            case uVIVO: return QString("Micro-TestVivo (1 / 1" THIN_SP_UTF8 "000" THIN_SP_UTF8 "000)");
-            case duffs: return QString("Ten Nano-TestVivo (1 / 100" THIN_SP_UTF8 "000" THIN_SP_UTF8 "000)");
-            default: return QString("???");
-        }
-    }
+    switch (unit) {
+    case Unit::DASH:  return 100'000'000;
+    case Unit::mDASH: return 100'000;
+    case Unit::uDASH: return 100;
+    case Unit::duffs: return 1;
+    } // no default case, so the compiler can warn about missing cases
+    assert(false);
 }
 
-qint64 BitcoinUnits::factor(int unit)
+int BitcoinUnits::decimals(Unit unit)
 {
-    switch(unit)
-    {
-    case VIVO:  return 100000000;
-    case mVIVO: return 100000;
-    case uVIVO: return 100;
-    case duffs: return 1;
-    default:   return 100000000;
-    }
+    switch (unit) {
+    case Unit::DASH:  return 8;
+    case Unit::mDASH: return 5;
+    case Unit::uDASH: return 2;
+    case Unit::duffs: return 0;
+    } // no default case, so the compiler can warn about missing cases
+    assert(false);
 }
 
-int BitcoinUnits::decimals(int unit)
-{
-    switch(unit)
-    {
-    case VIVO: return 8;
-    case mVIVO: return 5;
-    case uVIVO: return 2;
-    case duffs: return 0;
-    default: return 0;
-    }
-}
-
-QString BitcoinUnits::format(int unit, const CAmount& nIn, bool fPlus, SeparatorStyle separators)
+QString BitcoinUnits::format(Unit unit, const CAmount& nIn, bool fPlus, SeparatorStyle separators, bool justify)
 {
     // Note: not using straight sprintf here because we do NOT want
     // localized number formatting.
-    if(!valid(unit))
-        return QString(); // Refuse to format invalid unit
     qint64 n = (qint64)nIn;
     qint64 coin = factor(unit);
     int num_decimals = decimals(unit);
     qint64 n_abs = (n > 0 ? n : -n);
     qint64 quotient = n_abs / coin;
-    qint64 remainder = n_abs % coin;
     QString quotient_str = QString::number(quotient);
-    QString remainder_str = QString::number(remainder).rightJustified(num_decimals, '0');
+    if (justify) {
+        quotient_str = quotient_str.rightJustified(MAX_DIGITS_BTC - num_decimals, ' ');
+    }
 
     // Use SI-style thin space separators as these are locale independent and can't be
     // confused with the decimal marker.
     QChar thin_sp(THIN_SP_CP);
     int q_size = quotient_str.size();
-    if (separators == separatorAlways || (separators == separatorStandard && q_size > 4))
+    if (separators == SeparatorStyle::ALWAYS || (separators == SeparatorStyle::STANDARD && q_size > 4))
         for (int i = 3; i < q_size; i += 3)
             quotient_str.insert(q_size - i, thin_sp);
 
@@ -144,10 +104,13 @@ QString BitcoinUnits::format(int unit, const CAmount& nIn, bool fPlus, Separator
     else if (fPlus && n > 0)
         quotient_str.insert(0, '+');
 
-    if (num_decimals <= 0)
+    if (num_decimals > 0) {
+        qint64 remainder = n_abs % coin;
+        QString remainder_str = QString::number(remainder).rightJustified(num_decimals, '0');
+        return quotient_str + QString(".") + remainder_str;
+    } else {
         return quotient_str;
-
-    return quotient_str + QString(".") + remainder_str;
+    }
 }
 
 
@@ -159,19 +122,31 @@ QString BitcoinUnits::format(int unit, const CAmount& nIn, bool fPlus, Separator
 // Please take care to use formatHtmlWithUnit instead, when
 // appropriate.
 
-QString BitcoinUnits::formatWithUnit(int unit, const CAmount& amount, bool plussign, SeparatorStyle separators)
+QString BitcoinUnits::formatWithUnit(Unit unit, const CAmount& amount, bool plussign, SeparatorStyle separators)
 {
     return format(unit, amount, plussign, separators) + QString(" ") + name(unit);
 }
 
-QString BitcoinUnits::formatHtmlWithUnit(int unit, const CAmount& amount, bool plussign, SeparatorStyle separators)
+QString BitcoinUnits::formatHtmlWithUnit(Unit unit, const CAmount& amount, bool plussign, SeparatorStyle separators)
 {
     QString str(formatWithUnit(unit, amount, plussign, separators));
     str.replace(QChar(THIN_SP_CP), QString(THIN_SP_HTML));
     return QString("<span style='white-space: nowrap;'>%1</span>").arg(str);
 }
 
-QString BitcoinUnits::floorWithUnit(int unit, const CAmount& amount, bool plussign, SeparatorStyle separators)
+QString BitcoinUnits::formatWithPrivacy(Unit unit, const CAmount& amount, SeparatorStyle separators, bool privacy)
+{
+    assert(amount >= 0);
+    QString value;
+    if (privacy) {
+        value = format(unit, 0, false, separators, true).replace('0', '#');
+    } else {
+        value = format(unit, amount, false, separators, true);
+    }
+    return value + QString(" ") + name(unit);
+}
+
+QString BitcoinUnits::floorWithUnit(Unit unit, const CAmount& amount, bool plussign, SeparatorStyle separators)
 {
     QSettings settings;
     int digits = settings.value("digits").toInt();
@@ -182,17 +157,22 @@ QString BitcoinUnits::floorWithUnit(int unit, const CAmount& amount, bool plussi
     return result + QString(" ") + name(unit);
 }
 
-QString BitcoinUnits::floorHtmlWithUnit(int unit, const CAmount& amount, bool plussign, SeparatorStyle separators)
+QString BitcoinUnits::floorHtmlWithPrivacy(Unit unit, const CAmount& amount, SeparatorStyle separators, bool privacy)
 {
-    QString str(floorWithUnit(unit, amount, plussign, separators));
+    assert(amount >= 0);
+    QString str = privacy
+        ? floorWithUnit(unit, 0, false, separators).replace('0', '#')
+        : floorWithUnit(unit, amount, false, separators);
+
     str.replace(QChar(THIN_SP_CP), QString(THIN_SP_HTML));
     return QString("<span style='white-space: nowrap;'>%1</span>").arg(str);
 }
 
-bool BitcoinUnits::parse(int unit, const QString &value, CAmount *val_out)
+bool BitcoinUnits::parse(Unit unit, const QString& value, CAmount* val_out)
 {
-    if(!valid(unit) || value.isEmpty())
+    if (value.isEmpty()) {
         return false; // Refuse to parse invalid unit or empty string
+    }
     int num_decimals = decimals(unit);
 
     // Ignore spaces and thin spaces when parsing
@@ -202,7 +182,7 @@ bool BitcoinUnits::parse(int unit, const QString &value, CAmount *val_out)
     {
         return false; // More than one dot
     }
-    QString whole = parts[0];
+    const QString& whole = parts[0];
     QString decimals;
 
     if(parts.size() > 1)
@@ -228,14 +208,9 @@ bool BitcoinUnits::parse(int unit, const QString &value, CAmount *val_out)
     return ok;
 }
 
-QString BitcoinUnits::getAmountColumnTitle(int unit)
+QString BitcoinUnits::getAmountColumnTitle(Unit unit)
 {
-    QString amountTitle = QObject::tr("Amount");
-    if (BitcoinUnits::valid(unit))
-    {
-        amountTitle += " ("+BitcoinUnits::name(unit) + ")";
-    }
-    return amountTitle;
+    return QObject::tr("Amount") + " (" + name(unit) + ")";
 }
 
 int BitcoinUnits::rowCount(const QModelIndex &parent) const
@@ -246,7 +221,11 @@ int BitcoinUnits::rowCount(const QModelIndex &parent) const
 
 QVariant BitcoinUnits::data(const QModelIndex &index, int role) const
 {
-    int row = index.row();
+    return data(index.row(), role);
+}
+
+QVariant BitcoinUnits::data(const int &row, int role) const
+{
     if(row >= 0 && row < unitlist.size())
     {
         Unit unit = unitlist.at(row);
@@ -258,7 +237,7 @@ QVariant BitcoinUnits::data(const QModelIndex &index, int role) const
         case Qt::ToolTipRole:
             return QVariant(description(unit));
         case UnitRole:
-            return QVariant(static_cast<int>(unit));
+            return QVariant::fromValue(unit);
         }
     }
     return QVariant();
@@ -267,4 +246,41 @@ QVariant BitcoinUnits::data(const QModelIndex &index, int role) const
 CAmount BitcoinUnits::maxMoney()
 {
     return MAX_MONEY;
+}
+
+namespace {
+qint8 ToQint8(BitcoinUnit unit)
+{
+    switch (unit) {
+    case BitcoinUnit::DASH: return 0;
+    case BitcoinUnit::mDASH: return 1;
+    case BitcoinUnit::uDASH: return 2;
+    case BitcoinUnit::duffs: return 3;
+    } // no default case, so the compiler can warn about missing cases
+    assert(false);
+}
+
+BitcoinUnit FromQint8(qint8 num)
+{
+    switch (num) {
+    case 0: return BitcoinUnit::DASH;
+    case 1: return BitcoinUnit::mDASH;
+    case 2: return BitcoinUnit::uDASH;
+    case 3: return BitcoinUnit::duffs;
+    }
+    assert(false);
+}
+} // namespace
+
+QDataStream& operator<<(QDataStream& out, const BitcoinUnit& unit)
+{
+    return out << ToQint8(unit);
+}
+
+QDataStream& operator>>(QDataStream& in, BitcoinUnit& unit)
+{
+    qint8 input;
+    in >> input;
+    unit = FromQint8(input);
+    return in;
 }

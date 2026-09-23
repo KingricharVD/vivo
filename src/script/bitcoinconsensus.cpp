@@ -1,14 +1,14 @@
 // Copyright (c) 2009-2010 Satoshi Nakamoto
-// Copyright (c) 2009-2015 The Bitcoin Core developers
+// Copyright (c) 2009-2021 The Bitcoin Core developers
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
-#include "bitcoinconsensus.h"
+#include <script/bitcoinconsensus.h>
 
-#include "primitives/transaction.h"
-#include "pubkey.h"
-#include "script/interpreter.h"
-#include "version.h"
+#include <primitives/transaction.h>
+#include <pubkey.h>
+#include <script/interpreter.h>
+#include <version.h>
 
 namespace {
 
@@ -16,82 +16,87 @@ namespace {
 class TxInputStream
 {
 public:
-    TxInputStream(int nTypeIn, int nVersionIn, const unsigned char *txTo, size_t txToLen) :
-    m_type(nTypeIn),
+    TxInputStream(int nVersionIn, const unsigned char *txTo, size_t txToLen) :
     m_version(nVersionIn),
     m_data(txTo),
     m_remaining(txToLen)
     {}
 
-    TxInputStream& read(char* pch, size_t nSize)
+    void read(Span<std::byte> dst)
     {
-        if (nSize > m_remaining)
+        if (dst.size() > m_remaining) {
             throw std::ios_base::failure(std::string(__func__) + ": end of data");
+        }
 
-        if (pch == NULL)
+        if (dst.data() == nullptr) {
             throw std::ios_base::failure(std::string(__func__) + ": bad destination buffer");
+        }
 
-        if (m_data == NULL)
+        if (m_data == nullptr) {
             throw std::ios_base::failure(std::string(__func__) + ": bad source buffer");
+        }
 
-        memcpy(pch, m_data, nSize);
-        m_remaining -= nSize;
-        m_data += nSize;
-        return *this;
+        memcpy(dst.data(), m_data, dst.size());
+        m_remaining -= dst.size();
+        m_data += dst.size();
     }
 
     template<typename T>
-    TxInputStream& operator>>(T& obj)
+    TxInputStream& operator>>(T&& obj)
     {
-        ::Unserialize(*this, obj, m_type, m_version);
+        ::Unserialize(*this, obj);
         return *this;
     }
 
+    [[maybe_unused]] int GetVersion() const { return m_version; }
 private:
-    const int m_type;
     const int m_version;
     const unsigned char* m_data;
     size_t m_remaining;
 };
 
-inline int set_error(bitcoinconsensus_error* ret, bitcoinconsensus_error serror)
+inline int set_error(vivoconsensus_error* ret, vivoconsensus_error serror)
 {
     if (ret)
         *ret = serror;
     return 0;
 }
 
-struct ECCryptoClosure
-{
-    ECCVerifyHandle handle;
-};
+} // namespace
 
-ECCryptoClosure instance_of_eccryptoclosure;
+/** Check that all specified flags are part of the libconsensus interface. */
+static bool verify_flags(unsigned int flags)
+{
+    return (flags & ~(vivoconsensus_SCRIPT_FLAGS_VERIFY_ALL)) == 0;
 }
 
-int bitcoinconsensus_verify_script(const unsigned char *scriptPubKey, unsigned int scriptPubKeyLen,
+int vivoconsensus_verify_script(const unsigned char *scriptPubKey, unsigned int scriptPubKeyLen,
                                     const unsigned char *txTo        , unsigned int txToLen,
-                                    unsigned int nIn, unsigned int flags, bitcoinconsensus_error* err)
+                                    unsigned int nIn, unsigned int flags, vivoconsensus_error* err)
 {
+    if (!verify_flags(flags)) {
+        return set_error(err, vivoconsensus_ERR_INVALID_FLAGS);
+    }
     try {
-        TxInputStream stream(SER_NETWORK, PROTOCOL_VERSION, txTo, txToLen);
-        CTransaction tx;
-        stream >> tx;
+        TxInputStream stream(PROTOCOL_VERSION, txTo, txToLen);
+        CTransaction tx(deserialize, stream);
         if (nIn >= tx.vin.size())
-            return set_error(err, bitcoinconsensus_ERR_TX_INDEX);
-        if (tx.GetSerializeSize(SER_NETWORK, PROTOCOL_VERSION) != txToLen)
-            return set_error(err, bitcoinconsensus_ERR_TX_SIZE_MISMATCH);
+            return set_error(err, vivoconsensus_ERR_TX_INDEX);
+        if (GetSerializeSize(tx, PROTOCOL_VERSION) != txToLen)
+            return set_error(err, vivoconsensus_ERR_TX_SIZE_MISMATCH);
 
-         // Regardless of the verification result, the tx did not error.
-         set_error(err, bitcoinconsensus_ERR_OK);
+        // Regardless of the verification result, the tx did not error.
+        set_error(err, vivoconsensus_ERR_OK);
 
-        return VerifyScript(tx.vin[nIn].scriptSig, CScript(scriptPubKey, scriptPubKey + scriptPubKeyLen), flags, TransactionSignatureChecker(&tx, nIn), NULL);
+        PrecomputedTransactionData txdata(tx);
+		CAmount am(0);
+        return VerifyScript(tx.vin[nIn].scriptSig, CScript(scriptPubKey, scriptPubKey + scriptPubKeyLen), flags, TransactionSignatureChecker(&tx, nIn, am, txdata, MissingDataBehavior::FAIL), nullptr);
     } catch (const std::exception&) {
-        return set_error(err, bitcoinconsensus_ERR_TX_DESERIALIZE); // Error deserializing
+        return set_error(err, vivoconsensus_ERR_TX_DESERIALIZE); // Error deserializing
     }
 }
 
-unsigned int bitcoinconsensus_version()
+unsigned int vivoconsensus_version()
 {
     // Just use the API version for now
     return BITCOINCONSENSUS_API_VER;

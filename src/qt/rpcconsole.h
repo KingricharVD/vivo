@@ -1,27 +1,44 @@
-// Copyright (c) 2011-2015 The Bitcoin Core developers
+// Copyright (c) 2011-2021 The Bitcoin Core developers
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
 #ifndef BITCOIN_QT_RPCCONSOLE_H
 #define BITCOIN_QT_RPCCONSOLE_H
 
-#include "guiutil.h"
-#include "peertablemodel.h"
+#if defined(HAVE_CONFIG_H)
+#include <config/bitcoin-config.h>
+#endif
 
-#include "net.h"
+#include <qt/clientmodel.h>
+#include <qt/guiutil.h>
+#include <qt/peertablemodel.h>
+#include <qt/trafficgraphdata.h>
 
-#include <QWidget>
+#include <net.h>
+#include <uint256.h>
+
+#include <QByteArray>
 #include <QCompleter>
+#include <QThread>
+#include <QWidget>
 
-class ClientModel;
-class PlatformStyle;
+class MasternodeFeed;
+class RPCExecutor;
 class RPCTimerInterface;
+class WalletController;
+class WalletModel;
+
+namespace interfaces {
+    class Node;
+}
 
 namespace Ui {
     class RPCConsole;
 }
 
 QT_BEGIN_NAMESPACE
+class QButtonGroup;
+class QDateTime;
 class QMenu;
 class QItemSelection;
 QT_END_NAMESPACE
@@ -32,10 +49,21 @@ class RPCConsole: public QWidget
     Q_OBJECT
 
 public:
-    explicit RPCConsole(const PlatformStyle *platformStyle, QWidget *parent);
+    explicit RPCConsole(interfaces::Node& node, QWidget* parent, Qt::WindowFlags flags);
     ~RPCConsole();
 
-    void setClientModel(ClientModel *model);
+    static bool RPCParseCommandLine(interfaces::Node* node, std::string &strResult, const std::string &strCommand, bool fExecute, std::string * const pstrFilteredOut = nullptr, const WalletModel* wallet_model = nullptr);
+    static bool RPCExecuteCommandLine(interfaces::Node& node, std::string &strResult, const std::string &strCommand, std::string * const pstrFilteredOut = nullptr, const WalletModel* wallet_model = nullptr) {
+        return RPCParseCommandLine(&node, strResult, strCommand, true, pstrFilteredOut, wallet_model);
+    }
+
+    void setClientModel(ClientModel *model = nullptr, int bestblock_height = 0, int64_t bestblock_date = 0, uint256 bestblock_hash = uint256(), double verification_progress = 0.0);
+
+#ifdef ENABLE_WALLET
+    void setWalletController(WalletController* wallet_controller);
+    void addWallet(WalletModel* const walletModel);
+    void removeWallet(WalletModel* const walletModel);
+#endif // ENABLE_WALLET
 
     enum MessageClass {
         MC_ERROR,
@@ -45,30 +73,41 @@ public:
         CMD_ERROR
     };
 
-    enum TabTypes {
-        TAB_INFO = 0,
-        TAB_CONSOLE = 1,
-        TAB_GRAPH = 2,
-        TAB_PEERS = 3,
-        TAB_REPAIR = 4
+    enum class TabTypes {
+        INFO,
+        CONSOLE,
+        GRAPH,
+        PEERS,
+        REPAIR
     };
 
+    enum class InfoView : uint8_t {
+        General,
+        Network,
+        Governance,
+    };
+
+    std::vector<TabTypes> tabs() const { return {TabTypes::INFO, TabTypes::CONSOLE, TabTypes::GRAPH, TabTypes::PEERS, TabTypes::REPAIR}; }
+
+    QString tabTitle(TabTypes tab_type) const;
+    QKeySequence tabShortcut(TabTypes tab_type) const;
+
 protected:
-    virtual bool eventFilter(QObject* obj, QEvent *event);
-    void keyPressEvent(QKeyEvent *);
+    virtual bool eventFilter(QObject* obj, QEvent *event) override;
+    void keyPressEvent(QKeyEvent *) override;
 
 private Q_SLOTS:
+    /** custom tab buttons clicked */
+    void showPage(int index);
+    void showInfoView(int index);
     void on_lineEdit_returnPressed();
-    void on_tabWidget_currentChanged(int index);
-    /** open the debug.log from the current datadir */
-    void on_openDebugLogfileButton_clicked();
+    void on_stackedWidgetRPC_currentChanged(int index);
     /** change the time range of the network traffic graph */
     void on_sldGraphRange_valueChanged(int value);
-    /** update traffic statistics */
-    void updateTrafficStats(quint64 totalBytesIn, quint64 totalBytesOut);
-    void resizeEvent(QResizeEvent *event);
-    void showEvent(QShowEvent *event);
-    void hideEvent(QHideEvent *event);
+    void resizeEvent(QResizeEvent *event) override;
+    void showEvent(QShowEvent *event) override;
+    void hideEvent(QHideEvent *event) override;
+    void changeEvent(QEvent* e) override;
     /** Show custom context menu on Peers tab */
     void showPeersTableContextMenu(const QPoint& point);
     /** Show custom context menu on Bans tab */
@@ -77,36 +116,29 @@ private Q_SLOTS:
     void showOrHideBanTableIfRequired();
     /** clear the selected node */
     void clearSelectedNode();
+    /** show detailed information on ui about selected node */
+    void updateDetailWidget();
 
 public Q_SLOTS:
-    void clear();
-    
-    /** Wallet repair options */
-    void walletSalvage();
-    void walletRescan();
-    void walletZaptxes1();
-    void walletZaptxes2();
-    void walletUpgrade();
+    void clear(bool keep_prompt = false);
+    void fontBigger();
+    void fontSmaller();
+    void setFontSize(int newSize);
+
+    /** Repair options */
     void walletReindex();
-    
+#ifdef ENABLE_WALLET
+    void walletRescan1();
+    void walletRescan2();
+#endif // ENABLE_WALLET
+
     /** Append the message to the message widget */
-    void message(int category, const QString &message, bool html = false);
-    /** Set number of connections shown in the UI */
-    void setNumConnections(int count);
-    /** Set number of masternodes shown in the UI */
-    void setMasternodeCount(const QString &strMasternodes);
-    /** Set number of blocks and last block date shown in the UI */
-    void setNumBlocks(int count, const QDateTime& blockDate, double nVerificationProgress);
-    /** Set size (number of transactions and memory usage) of the mempool in the UI */
-    void setMempoolSize(long numberOfTxs, size_t dynUsage);
+    void message(int category, const QString &msg) { message(category, msg, false); }
+    void message(int category, const QString &message, bool html);
     /** Go forward or back in history */
     void browseHistory(int offset);
     /** Scroll console view to end */
     void scrollToEnd();
-    /** Handle selection of peer in peers list */
-    void peerSelected(const QItemSelection &selected, const QItemSelection &deselected);
-    /** Handle updated peer information */
-    void peerLayoutChanged();
     /** Disconnect a selected node on the Peers tab */
     void disconnectSelectedNode();
     /** Ban a selected node on the Peers tab */
@@ -115,22 +147,37 @@ public Q_SLOTS:
     void unbanSelectedNode();
     /** set which tab has the focus (is visible) */
     void setTabFocus(enum TabTypes tabType);
+    /** switch the info sub-view to the given InfoView */
+    void setInfoView(InfoView view);
+#ifdef ENABLE_WALLET
+    /** Set the current (ie - active) wallet */
+    void setCurrentWallet(WalletModel* const wallet_model);
+#endif // ENABLE_WALLET
 
 Q_SIGNALS:
-    // For RPC command executor
-    void stopExecutor();
-    void cmdRequest(const QString &command);
     /** Get restart command-line parameters and handle restart */
     void handleRestart(QStringList args);
 
 private:
-    static QString FormatBytes(quint64 bytes);
+    struct TranslatedStrings {
+        const QString yes{tr("Yes")}, no{tr("No")}, to{tr("To")}, from{tr("From")},
+            ban_for{tr("Ban for")}, na{tr("N/A")}, unknown{tr("Unknown")};
+    } const ts;
+
     void startExecutor();
-    void setTrafficGraphRange(int mins);
+    void setTrafficGraphRange(TrafficGraphData::GraphRange range);
     /** Build parameter list for restart */
     void buildParameterlist(QString arg);
-    /** show detailed information on ui about selected node */
-    void updateNodeDetail(const CNodeCombinedStats *stats);
+    /** Set required icons for buttons inside the dialog */
+    void setButtonIcons();
+    /** Reload some themes related widgets */
+    void reloadThemedWidgets();
+#ifdef ENABLE_WALLET
+    /** Initiate a wallet rescan */
+    void walletRescan(bool from_genesis);
+    /** Update wallet UI when selected wallet changes */
+    void onWalletChanged();
+#endif // ENABLE_WALLET
 
     enum ColumnWidths
     {
@@ -142,16 +189,36 @@ private:
 
     };
 
-    Ui::RPCConsole *ui;
-    ClientModel *clientModel;
+    interfaces::Node& m_node;
+    Ui::RPCConsole* const ui;
+    ClientModel *clientModel = nullptr;
+    WalletController* m_wallet_controller{nullptr};
+    QButtonGroup* pageButtons = nullptr;
     QStringList history;
-    int historyPtr;
-    NodeId cachedNodeid;
-    const PlatformStyle *platformStyle;
-    RPCTimerInterface *rpcTimerInterface;
-    QMenu *peersTableContextMenu;
-    QMenu *banTableContextMenu;
-    QCompleter *autoCompleter;
+    int historyPtr = 0;
+    QString cmdBeforeBrowsing;
+    QList<NodeId> cachedNodeids;
+    RPCTimerInterface *rpcTimerInterface = nullptr;
+    QMenu *peersTableContextMenu = nullptr;
+    QMenu *banTableContextMenu = nullptr;
+    int consoleFontSize = 0;
+    QCompleter *autoCompleter = nullptr;
+    QThread thread;
+    RPCExecutor* m_executor{nullptr};
+    WalletModel* m_last_wallet_model{nullptr};
+    bool m_is_executing{false};
+    QByteArray m_peer_widget_header_state;
+    QByteArray m_banlist_widget_header_state;
+    MasternodeFeed* m_feed_masternode{nullptr};
+
+    /** Helper for the output of a time duration field. Inputs are UNIX epoch times. */
+    QString TimeDurationField(std::chrono::seconds time_now, std::chrono::seconds time_at_event) const
+    {
+        return time_at_event.count() ? GUIUtil::formatDurationStr(time_now - time_at_event) : tr("Never");
+    }
+
+private Q_SLOTS:
+    void updateAlerts(const QString& warnings);
 };
 
 #endif // BITCOIN_QT_RPCCONSOLE_H

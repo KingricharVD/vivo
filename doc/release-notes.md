@@ -1,115 +1,161 @@
-Vivo Core version 0.12.1 is now available from:
+# Vivo Core version v23.1.8
 
-  <https://www.vivo.org/downloads/>
+This is a new patch version release, fixing three remotely reachable crashes and
+bringing further hardening of the peer-to-peer message handlers along with
+networking, RPC and build fixes.
+Upgrading is **strongly recommended** for all nodes, and required for
+masternodes.
 
+Please report bugs using the issue tracker at GitHub:
 
+  <https://github.com/vivopay/vivo/issues>
 
+# Upgrading and downgrading
 
-Older releases
---------------
+## How to Upgrade
 
-Vivo was previously known as Darkcoin.
+If you are running an older version, shut it down. Wait until it has completely
+shut down (which might take a few minutes for older versions), then run the
+installer (on Windows) or just copy over /Applications/Vivo-Qt (on Mac) or
+vivod/vivo-qt (on Linux).
 
-Darkcoin tree 0.8.x was a fork of Litecoin tree 0.8, original name was XCoin
-which was first released on Jan/18/2014.
+## Downgrade warning
 
-### Downgrade to a version < 0.12.0
+### Downgrade to a version < v23.0.0
 
-Because release 0.12.0 and later will obfuscate the chainstate on every
-fresh sync or reindex, the chainstate is not backwards-compatible with
-pre-0.12 versions of Bitcoin Core or other software.
+Downgrading to a version older than v23.0.0 is not supported, and will
+require a reindex.
 
-If you want to downgrade after you have done a reindex with 0.12.0 or later,
-you will need to reindex when you first start Bitcoin Core version 0.11 or
-earlier.
+# Release Notes
 
-Notable changes
-===============
+## Critical fixes
 
-Example item
----------------------------------------
+This release fixes three crashes that a remote party could trigger. None of
+them affect consensus rules or put funds at risk, but each one can take a node
+offline, so all operators should upgrade promptly.
 
-Example text.
+- Fixed a crash while removing provider transactions that a masternode's
+  operator-key change invalidates. Those transactions are collected before any
+  of them are removed, so when one was an in-mempool descendant of another it
+  was already erased along with its ancestor, and the stale entry was then
+  dereferenced. Such entries are now skipped. This is reachable whenever a block
+  carries a provider registrar update or revocation for a masternode that has
+  chained service updates pending in the mempool.
+- Fixed a crash caused by an unvalidated LLMQ type in a `qsigshare` message. A
+  masternode that received a signature share naming an LLMQ type its chain does
+  not register would index a per-type quorum cache that is only populated for
+  known types, aborting the process. Unregistered types are now rejected before
+  the lookup, and the affected cache lookups no longer create missing entries.
+- Fixed a crash caused by a quorum commitment naming a block with no parent,
+  such as the genesis block. The parentless block index reached a non-null
+  precondition and terminated the process instead of failing validation, which
+  no exception handler could contain. Commitments with a parentless quorum base
+  block are now rejected, and the LLMQ activation check treats a null
+  predecessor as "not enabled" rather than a contract violation.
 
-0.12.1 Change log
-=================
+## Security
 
-Detailed release notes follow. This overview includes changes that affect
-behavior, not code moves, refactors and string updates. For convenience in locating
-the code changes and accompanying discussion, both the pull request and
-git merge commit are mentioned.
+This release continues the hardening of peer-to-peer message handlers against
+denial-of-service from remote peers. These issues do not affect consensus and do
+not put funds at risk, but they could be used to crash or degrade nodes -
+masternodes in particular - so upgrading is recommended.
 
-### RPC and REST
+- LLMQ / signing: the queues of not-yet-verified recovered signatures and
+  signature shares are now bounded, and the vectors carried by the QSIGSHARE,
+  QSIGSESANN, QSIGSHARESINV, QGETSIGSHARES and QBSIGSHARES messages are bounded
+  before any allocation or decoding takes place. The number of signing share
+  sessions a single peer may announce is also capped, so a peer can no longer
+  grow that per-peer state without limit (vivo#7351).
+- LLMQ / DKG: the number of encrypted contribution blobs in a DKG contribution
+  is now checked against the quorum's lower bound as well as its upper bound.
+- LLMQ / quorum data: the verification vector and encrypted contribution
+  vectors in QDATA responses are validated against their expected sizes before
+  any BLS decoding is performed.
+- Transaction relay: an oversized `notfound` message is now penalised rather
+  than silently ignored (vivo#7348).
+- ChainLocks: the cache of seen ChainLock signatures is now bounded.
+- Governance: per-object vote sync requests are now throttled per peer, and
+  governance object and vote responses are only accepted from a peer if that
+  peer announced them or they were requested from it, using the net-layer
+  per-peer request tracker. Governance vote signatures are bounded when read
+  from the network and must use one of the two legitimate encodings.
+- CoinJoin: the vectors carried by CoinJoin mixing messages are bounded before
+  allocation, and a non-participant can no longer abort another session's
+  signing phase. An invalid `dstx` message now carries a misbehaviour score
+  instead of being dropped for free (vivo#7347).
+- Bloom filters: filterload and filteradd payloads are bounded before
+  allocation.
+- Sporks: spork signatures are bounded during deserialization, and malformed
+  spork messages now attribute misbehaviour to the sending peer.
+- Compact block relay: batched hardening backported from upstream Bitcoin Core
+  (vivo#7398), including detection of mutated blocks as a defence-in-depth
+  measure.
 
-Asm script outputs replacements for OP_NOP2 and OP_NOP3
--------------------------------------------------------
+## RPC
 
-OP_NOP2 has been renamed to OP_CHECKLOCKTIMEVERIFY by [BIP 
-65](https://github.com/bitcoin/bips/blob/master/bip-0065.mediawiki)
+- `protx listdiff` no longer reports an always-zero `platformP2PPort` /
+  `platformHTTPPort` for masternodes registered with extended addresses; the
+  live Platform ports are reported instead.
 
-OP_NOP3 has been renamed to OP_CHECKSEQUENCEVERIFY by [BIP 
-112](https://github.com/bitcoin/bips/blob/master/bip-0112.mediawiki)
+## GUI
 
-The following outputs are affected by this change:
-- RPC `getrawtransaction` (in verbose mode)
-- RPC `decoderawtransaction`
-- RPC `decodescript`
-- REST `/rest/tx/` (JSON format)
-- REST `/rest/block/` (JSON format when including extended tx details)
-- `bitcoin-tx -json`
+- The PoSe score column is no longer hidden together with banned masternodes in
+  the masternode list.
+- Fixed an abort when scaling widgets whose font was set in pixels rather than
+  points (for example by a stylesheet's `font-size: Npx`); such fonts are now
+  converted to a point size instead of being assumed to have one (vivo#7465).
 
-### ZMQ
+## Build and CI
 
-Each ZMQ notification now contains an up-counting sequence number that allows
-listeners to detect lost notifications.
-The sequence number is always the last element in a multi-part ZMQ notification and
-therefore backward compatible.
-Each message type has its own counter.
-(https://github.com/bitcoin/bitcoin/pull/7762)
+- Fixed a CMake compatibility error when building the freetype dependency with
+  newer CMake (vivo#7372).
+- Stabilized the `-par` / `-parbls` help text (and the generated man pages) so
+  they no longer embed the core count of the build machine.
+- Updated GitHub Actions pins for the Node 24 runtime.
+- Fixed the circular-dependencies lint script under Python 3.15.
 
-### Configuration and command-line options
+## Tests
 
-### Block and transaction handling
+- Governance inventory cache coverage moved from a functional test to unit
+  tests, and governance vote test fixtures are now wire-valid.
 
-### P2P protocol and network code
+# v23.1.8 Change log
 
-### Validation
+See detailed [set of changes][set-of-changes].
 
-### Build system
-
-### Wallet
-
-### GUI
-
-### Tests and QA
-
-### Miscellaneous
-
-Credits
-=======
+# Credits
 
 Thanks to everyone who directly contributed to this release:
 
+- Konstantin Akimov
+- PastaClaw
+- PastaPastaPasta
+- UdjinM6
 
-As well as everyone that helped translating on [Transifex](https://www.transifex.com/projects/p/bitcoin/).
+As well as everyone that submitted issues, reviewed pull requests and helped
+debug the release candidates.
 
-Darkcoin tree 0.9.x was the open source implementation of masternodes based on
-the 0.8.x tree and was first released on Mar/13/2014.
+# Older releases
 
-Darkcoin tree 0.10.x used to be the closed source implementation of Darksend
-which was released open source on Sep/25/2014.
+These releases are considered obsolete. Old release notes can be found here:
 
-Vivo Core tree 0.11.x was a fork of Bitcoin Core tree 0.9, Darkcoin was rebranded
-to Vivo.
+- [v23.1.7](https://github.com/vivopay/vivo/blob/master/doc/release-notes/vivo/release-notes-23.1.7.md) released Jun/30/2026
+- [v23.1.5](https://github.com/vivopay/vivo/blob/master/doc/release-notes/vivo/release-notes-23.1.5.md) released Jun/19/2026
+- [v23.1.4](https://github.com/vivopay/vivo/blob/master/doc/release-notes/vivo/release-notes-23.1.4.md) released Jun/18/2026
+- [v23.1.3](https://github.com/vivopay/vivo/blob/master/doc/release-notes/vivo/release-notes-23.1.3.md) released May/28/2026
+- [v23.1.2](https://github.com/vivopay/vivo/blob/master/doc/release-notes/vivo/release-notes-23.1.2.md) released Mar/12/2026
+- [v23.1.0](https://github.com/vivopay/vivo/blob/master/doc/release-notes/vivo/release-notes-23.1.0.md) released Feb/15/2026
+- [v23.0.2](https://github.com/vivopay/vivo/blob/master/doc/release-notes/vivo/release-notes-23.0.2.md) released Dec/4/2025
+- [v23.0.0](https://github.com/vivopay/vivo/blob/master/doc/release-notes/vivo/release-notes-23.0.0.md) released Nov/10/2025
+- [v22.1.3](https://github.com/vivopay/vivo/blob/master/doc/release-notes/vivo/release-notes-22.1.3.md) released Jul/15/2025
+- [v22.1.2](https://github.com/vivopay/vivo/blob/master/doc/release-notes/vivo/release-notes-22.1.2.md) released Apr/15/2025
+- [v22.1.1](https://github.com/vivopay/vivo/blob/master/doc/release-notes/vivo/release-notes-22.1.1.md) released Feb/17/2025
+- [v22.1.0](https://github.com/vivopay/vivo/blob/master/doc/release-notes/vivo/release-notes-22.1.0.md) released Feb/10/2025
+- [v22.0.0](https://github.com/vivopay/vivo/blob/master/doc/release-notes/vivo/release-notes-22.0.0.md) released Dec/12/2024
+- [v21.1.1](https://github.com/vivopay/vivo/blob/master/doc/release-notes/vivo/release-notes-21.1.1.md) released Oct/22/2024
+- [v21.1.0](https://github.com/vivopay/vivo/blob/master/doc/release-notes/vivo/release-notes-21.1.0.md) released Aug/8/2024
+- [v21.0.2](https://github.com/vivopay/vivo/blob/master/doc/release-notes/vivo/release-notes-21.0.2.md) released Aug/1/2024
+- [v21.0.0](https://github.com/vivopay/vivo/blob/master/doc/release-notes/vivo/release-notes-21.0.0.md) released Jul/25/2024
+- [v20.1.1](https://github.com/vivopay/vivo/blob/master/doc/release-notes/vivo/release-notes-20.1.1.md) released April/3/2024
 
-Vivo Core tree 0.12.0.x was a fork of Bitcoin Core tree 0.10.
-
-These release are considered obsolete. Old changelogs can be found here:
-
-- [v0.12.0](release-notes/vivo/release-notes-0.12.0.md) released ???/??/2015
-- [v0.11.2](release-notes/vivo/release-notes-0.11.2.md) released Mar/25/2015
-- [v0.11.1](release-notes/vivo/release-notes-0.11.1.md) released Feb/10/2015
-- [v0.11.0](release-notes/vivo/release-notes-0.11.0.md) released Jan/15/2015
-- [v0.10.x](release-notes/vivo/release-notes-0.10.0.md) released Sep/25/2014
-- [v0.9.x](release-notes/vivo/release-notes-0.9.0.md) released Mar/13/2014
-
+[set-of-changes]: https://github.com/vivopay/vivo/compare/v23.1.7...vivopay:v23.1.8

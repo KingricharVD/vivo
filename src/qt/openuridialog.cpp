@@ -1,24 +1,27 @@
-// Copyright (c) 2011-2013 The Bitcoin Core developers
-// Copyright (c) 2014-2017 The Vivo Core developers
+// Copyright (c) 2011-2021 The Bitcoin Core developers
+// Copyright (c) 2014-2025 The Vivo Core developers
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
-#include "openuridialog.h"
-#include "ui_openuridialog.h"
+#include <qt/openuridialog.h>
+#include <qt/forms/ui_openuridialog.h>
 
-#include "guiutil.h"
-#include "walletmodel.h"
+#include <qt/guiutil.h>
+#include <qt/sendcoinsrecipient.h>
 
-#include <QUrl>
+#include <QAbstractButton>
+#include <QLineEdit>
 
-OpenURIDialog::OpenURIDialog(QWidget *parent) :
-    QDialog(parent),
-    ui(new Ui::OpenURIDialog)
+OpenURIDialog::OpenURIDialog(QWidget* parent) : QDialog(parent, GUIUtil::dialog_flags),
+                                                ui(new Ui::OpenURIDialog)
 {
     ui->setupUi(this);
-#if QT_VERSION >= 0x040700
-    ui->uriEdit->setPlaceholderText("vivo:");
-#endif
+    GUIUtil::setIcon(ui->pasteButton, "editpaste");
+    QObject::connect(ui->pasteButton, &QAbstractButton::clicked, ui->uriEdit, &QLineEdit::paste);
+
+    GUIUtil::updateFonts();
+    GUIUtil::disableMacFocusRect(this);
+    GUIUtil::handleCloseWindowShortcut(this);
 }
 
 OpenURIDialog::~OpenURIDialog()
@@ -34,8 +37,7 @@ QString OpenURIDialog::getURI()
 void OpenURIDialog::accept()
 {
     SendCoinsRecipient rcp;
-    if(GUIUtil::parseBitcoinURI(getURI(), &rcp))
-    {
+    if (GUIUtil::parseBitcoinURI(getURI(), &rcp)) {
         /* Only accept value URIs */
         QDialog::accept();
     } else {
@@ -43,11 +45,11 @@ void OpenURIDialog::accept()
     }
 }
 
-void OpenURIDialog::on_selectFileButton_clicked()
+void OpenURIDialog::changeEvent(QEvent* e)
 {
-    QString filename = GUIUtil::getOpenFileName(this, tr("Select payment request file to open"), "", "", NULL);
-    if(filename.isEmpty())
-        return;
-    QUrl fileUri = QUrl::fromLocalFile(filename);
-    ui->uriEdit->setText("vivo:?r=" + QUrl::toPercentEncoding(fileUri.toString()));
+    QDialog::changeEvent(e);
+    if (e->type() == QEvent::StyleChange) {
+        // Adjust button icon colors on theme changes
+        GUIUtil::setIcon(ui->pasteButton, "editpaste");
+    }
 }

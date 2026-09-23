@@ -1,0 +1,80 @@
+# syntax=docker/dockerfile:1.3
+
+FROM --platform=$BUILDPLATFORM ubuntu:jammy as builder
+RUN apt-get update && \
+    apt-get -y install --no-install-recommends \
+    automake \
+    autotools-dev \
+    bsdmainutils \
+    build-essential \
+    ca-certificates \
+    curl \
+    g++-aarch64-linux-gnu \
+    libtool \
+    pkg-config \
+    python3 \
+    wget \
+    && rm -rf /var/lib/apt/lists/*
+
+WORKDIR /home/vivo
+
+COPY . .
+
+ARG TARGETPLATFORM
+
+RUN case "$TARGETPLATFORM" in \
+  "linux/arm64") make HOST=aarch64-linux-gnu -C depends -j`nproc | awk '{x=$1/2; print x}'` ;; \
+  "linux/amd64") make HOST=x86_64-pc-linux-gnu -C depends -j`nproc | awk '{x=$1/2; print x}'` ;; \
+  *) exit 1 ;; \
+esac
+
+RUN ./autogen.sh && \
+  case "$TARGETPLATFORM" in \
+  "linux/arm64") ./configure --prefix=`pwd`/depends/aarch64-linux-gnu ;; \
+  "linux/amd64") ./configure --prefix=`pwd`/depends/x86_64-pc-linux-gnu ;; \
+esac
+
+RUN make -j`nproc | awk '{x=$1/2; print x}'` && make install
+
+RUN mkdir built-target && \
+  case "$TARGETPLATFORM" in \
+  "linux/arm64") cp depends/aarch64-linux-gnu/bin/vivo* /home/vivo/built-target ;; \
+  "linux/amd64") cp depends/x86_64-pc-linux-gnu/bin/vivo* /home/vivo/built-target ;; \
+esac
+
+FROM ubuntu:jammy
+LABEL maintainer="Vivo Developers <dev@vivo.org>"
+LABEL description="Dockerised VivoCore"
+
+ARG USER_ID
+ARG GROUP_ID
+ARG TAG
+
+ENV HOME="/home/vivo"
+
+# add user with specified (or default) user/group ids
+ENV USER_ID="${USER_ID:-1000}"
+ENV GROUP_ID="${GROUP_ID:-1000}"
+RUN groupadd -g ${GROUP_ID} vivo && \
+    useradd -u ${USER_ID} -g vivo -s /bin/bash -m -d /home/vivo vivo  && \
+    mkdir /home/vivo/.vivocore && \
+    chown ${USER_ID}:${GROUP_ID} -R /home/vivo
+
+RUN apt-get update && \
+    apt-get -y install --no-install-recommends \
+    wget \
+    ca-certificates \
+    && rm -rf /var/lib/apt/lists/*
+
+COPY --from=builder /home/vivo/built-target/vivo* /usr/local/bin
+
+USER vivo
+
+VOLUME ["/home/vivo"]
+
+COPY docker/docker-entrypoint.sh /docker-entrypoint.sh
+ENTRYPOINT ["/docker-entrypoint.sh"]
+
+EXPOSE 9998 9999 19998 19999
+
+WORKDIR /home/vivo

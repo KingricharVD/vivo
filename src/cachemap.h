@@ -1,15 +1,15 @@
-// Copyright (c) 2014-2017 The Vivo Core developers
+// Copyright (c) 2014-2023 The Vivo Core developers
 // Distributed under the MIT/X11 software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
-#ifndef CACHEMAP_H_
-#define CACHEMAP_H_
+#ifndef BITCOIN_CACHEMAP_H
+#define BITCOIN_CACHEMAP_H
 
 #include <map>
 #include <list>
 #include <cstddef>
 
-#include "serialize.h"
+#include <serialize.h>
 
 /**
  * Serializable structure for key/value items
@@ -28,13 +28,9 @@ struct CacheItem
     K key;
     V value;
 
-    ADD_SERIALIZE_METHODS;
-
-    template <typename Stream, typename Operation>
-    inline void SerializationOp(Stream& s, Operation ser_action, int nType, int nVersion)
+    SERIALIZE_METHODS(CacheItem, obj)
     {
-        READWRITE(key);
-        READWRITE(value);
+        READWRITE(obj.key, obj.value);
     }
 };
 
@@ -46,42 +42,38 @@ template<typename K, typename V, typename Size = uint32_t>
 class CacheMap
 {
 public:
-    typedef Size size_type;
+    using size_type = Size;
 
-    typedef CacheItem<K,V> item_t;
+    using item_t = CacheItem<K,V>;
 
-    typedef std::list<item_t> list_t;
+    using list_t = std::list<item_t>;
 
-    typedef typename list_t::iterator list_it;
+    using list_it = typename list_t::iterator;
 
-    typedef typename list_t::const_iterator list_cit;
+    using list_cit = typename list_t::const_iterator;
 
-    typedef std::map<K, list_it> map_t;
+    using map_t = std::map<K, list_it>;
 
-    typedef typename map_t::iterator map_it;
+    using map_it = typename map_t::iterator;
 
-    typedef typename map_t::const_iterator map_cit;
+    using map_cit = typename map_t::const_iterator;
 
 private:
     size_type nMaxSize;
-
-    size_type nCurrentSize;
 
     list_t listItems;
 
     map_t mapIndex;
 
 public:
-    CacheMap(size_type nMaxSizeIn = 0)
+    explicit CacheMap(size_type nMaxSizeIn = 0)
         : nMaxSize(nMaxSizeIn),
-          nCurrentSize(0),
           listItems(),
           mapIndex()
     {}
 
-    CacheMap(const CacheMap<K,V>& other)
+    explicit CacheMap(const CacheMap<K,V>& other)
         : nMaxSize(other.nMaxSize),
-          nCurrentSize(other.nCurrentSize),
           listItems(other.listItems),
           mapIndex()
     {
@@ -92,7 +84,6 @@ public:
     {
         mapIndex.clear();
         listItems.clear();
-        nCurrentSize = 0;
     }
 
     void SetMaxSize(size_type nMaxSizeIn)
@@ -105,29 +96,25 @@ public:
     }
 
     size_type GetSize() const {
-        return nCurrentSize;
+        return listItems.size();
     }
 
-    void Insert(const K& key, const V& value)
+    bool Insert(const K& key, const V& value)
     {
-        map_it it = mapIndex.find(key);
-        if(it != mapIndex.end()) {
-            item_t& item = *(it->second);
-            item.value = value;
-            return;
+        if(mapIndex.find(key) != mapIndex.end()) {
+            return false;
         }
-        if(nCurrentSize == nMaxSize) {
+        if(listItems.size() == nMaxSize) {
             PruneLast();
         }
         listItems.push_front(item_t(key, value));
-        mapIndex[key] = listItems.begin();
-        ++nCurrentSize;
+        mapIndex.emplace(key, listItems.begin());
+        return true;
     }
 
     bool HasKey(const K& key) const
     {
-        map_cit it = mapIndex.find(key);
-        return (it != mapIndex.end());
+        return (mapIndex.find(key) != mapIndex.end());
     }
 
     bool Get(const K& key, V& value) const
@@ -136,7 +123,7 @@ public:
         if(it == mapIndex.end()) {
             return false;
         }
-        item_t& item = *(it->second);
+        const item_t& item = *(it->second);
         value = item.value;
         return true;
     }
@@ -149,7 +136,6 @@ public:
         }
         listItems.erase(it->second);
         mapIndex.erase(it);
-        --nCurrentSize;
     }
 
     const list_t& GetItemList() const {
@@ -159,44 +145,35 @@ public:
     CacheMap<K,V>& operator=(const CacheMap<K,V>& other)
     {
         nMaxSize = other.nMaxSize;
-        nCurrentSize = other.nCurrentSize;
         listItems = other.listItems;
         RebuildIndex();
         return *this;
     }
 
-    ADD_SERIALIZE_METHODS;
-
-    template <typename Stream, typename Operation>
-    inline void SerializationOp(Stream& s, Operation ser_action, int nType, int nVersion)
+    SERIALIZE_METHODS(CacheMap, obj)
     {
-        READWRITE(nMaxSize);
-        READWRITE(nCurrentSize);
-        READWRITE(listItems);
-        if(ser_action.ForRead()) {
-            RebuildIndex();
-        }
+        READWRITE(obj.nMaxSize, obj.listItems);
+        SER_READ(obj, obj.RebuildIndex());
     }
 
 private:
     void PruneLast()
     {
-        if(nCurrentSize < 1) {
+        if(listItems.empty()) {
             return;
         }
         item_t& item = listItems.back();
         mapIndex.erase(item.key);
         listItems.pop_back();
-        --nCurrentSize;
     }
 
     void RebuildIndex()
     {
         mapIndex.clear();
         for(list_it it = listItems.begin(); it != listItems.end(); ++it) {
-            mapIndex[it->key] = it;
+            mapIndex.emplace(it->key, it);
         }
     }
 };
 
-#endif /* CACHEMAP_H_ */
+#endif // BITCOIN_CACHEMAP_H

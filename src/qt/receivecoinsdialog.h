@@ -1,22 +1,17 @@
-// Copyright (c) 2011-2015 The Bitcoin Core developers
+// Copyright (c) 2011-2021 The Bitcoin Core developers
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
 #ifndef BITCOIN_QT_RECEIVECOINSDIALOG_H
 #define BITCOIN_QT_RECEIVECOINSDIALOG_H
 
-#include "guiutil.h"
+#include <qt/guiutil.h>
 
 #include <QDialog>
-#include <QHeaderView>
 #include <QItemSelection>
-#include <QKeyEvent>
 #include <QMenu>
 #include <QPoint>
-#include <QVariant>
 
-class OptionsModel;
-class PlatformStyle;
 class WalletModel;
 
 namespace Ui {
@@ -36,32 +31,30 @@ public:
     enum ColumnWidths {
         DATE_COLUMN_WIDTH = 130,
         LABEL_COLUMN_WIDTH = 120,
-        AMOUNT_MINIMUM_COLUMN_WIDTH = 160,
+        AMOUNT_MINIMUM_COLUMN_WIDTH = 180,
         MINIMUM_COLUMN_WIDTH = 130
     };
 
-    explicit ReceiveCoinsDialog(const PlatformStyle *platformStyle, QWidget *parent = 0);
+    explicit ReceiveCoinsDialog(QWidget* parent = nullptr);
     ~ReceiveCoinsDialog();
 
     void setModel(WalletModel *model);
 
 public Q_SLOTS:
     void clear();
-    void reject();
-    void accept();
-
-protected:
-    virtual void keyPressEvent(QKeyEvent *event);
+    void reject() override;
+    void accept() override;
 
 private:
     Ui::ReceiveCoinsDialog *ui;
-    GUIUtil::TableViewLastColumnResizingFixer *columnResizingFixer;
-    WalletModel *model;
+    WalletModel* model{nullptr};
     QMenu *contextMenu;
-    const PlatformStyle *platformStyle;
+    QAction* copyLabelAction;
+    QAction* copyMessageAction;
+    QAction* copyAmountAction;
 
+    QModelIndex selectedRow();
     void copyColumnToClipboard(int column);
-    virtual void resizeEvent(QResizeEvent *event);
 
 private Q_SLOTS:
     void on_receiveButton_clicked();
@@ -71,6 +64,8 @@ private Q_SLOTS:
     void recentRequestsView_selectionChanged(const QItemSelection &selected, const QItemSelection &deselected);
     void updateDisplayUnit();
     void showMenu(const QPoint &point);
+    void copyURI();
+    void copyAddress();
     void copyLabel();
     void copyMessage();
     void copyAmount();

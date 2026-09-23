@@ -1,6 +1,11 @@
 #!/bin/sh
+# Copyright (c) 2012-2021 The Bitcoin Core developers
+# Distributed under the MIT software license, see the accompanying
+# file COPYING or http://www.opensource.org/licenses/mit-license.php.
+
+export LC_ALL=C
 if [ $# -gt 1 ]; then
-    cd "$2"
+    cd "$2" || exit 1
 fi
 if [ $# -gt 0 ]; then
     FILE="$1"
@@ -13,31 +18,17 @@ else
     exit 1
 fi
 
-DESC=""
-SUFFIX=""
-LAST_COMMIT_DATE=""
-if [ -e "$(which git 2>/dev/null)" -a "$(git rev-parse --is-inside-work-tree 2>/dev/null)" = "true" ]; then
+GIT_DESCRIPTION=""
+if [ "${BITCOIN_GENBUILD_NO_GIT}" != "1" ] && [ -e "$(command -v git)" ] && [ "$(git rev-parse --is-inside-work-tree 2>/dev/null)" = "true" ]; then
     # clean 'dirty' status of touched files that haven't been modified
-    git diff >/dev/null 2>/dev/null 
+    git diff >/dev/null 2>/dev/null
 
-    # if latest commit is tagged and not dirty, then override using the tag name
-    RAWDESC=$(git describe --abbrev=0 2>/dev/null)
-    if [ "$(git rev-parse HEAD)" = "$(git rev-list -1 $RAWDESC 2>/dev/null)" ]; then
-        git diff-index --quiet HEAD -- && DESC=$RAWDESC
-    fi
-
-    # otherwise generate suffix from git, i.e. string like "59887e8-dirty"
-    SUFFIX=$(git rev-parse --short HEAD)
-    git diff-index --quiet HEAD -- || SUFFIX="$SUFFIX-Special"
-
-    # get a string like "2012-04-10 16:27:19 +0200"
-    LAST_COMMIT_DATE="$(git log -n 1 --format="%ci")"
+    # override using the tag name from git, i.e. string like "v20.0.0-beta.8-5-g99786590df6f-dirty"
+    GIT_DESCRIPTION=$(git describe --abbrev=12 --dirty 2>/dev/null)
 fi
 
-if [ -n "$DESC" ]; then
-    NEWINFO="#define BUILD_DESC \"$DESC\""
-elif [ -n "$SUFFIX" ]; then
-    NEWINFO="#define BUILD_SUFFIX $SUFFIX"
+if [ -n "$GIT_DESCRIPTION" ]; then
+    NEWINFO="#define BUILD_GIT_DESCRIPTION \"$GIT_DESCRIPTION\""
 else
     NEWINFO="// No build information available"
 fi
@@ -45,7 +36,4 @@ fi
 # only update build.h if necessary
 if [ "$INFO" != "$NEWINFO" ]; then
     echo "$NEWINFO" >"$FILE"
-    if [ -n "$LAST_COMMIT_DATE" ]; then
-        echo "#define BUILD_DATE \"$LAST_COMMIT_DATE\"" >> "$FILE"
-    fi
 fi

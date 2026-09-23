@@ -1,0 +1,22 @@
+QT_TS = \
+  qt/locale/vivo_ar.ts \
+  qt/locale/vivo_bg.ts \
+  qt/locale/vivo_de.ts \
+  qt/locale/vivo_en.ts \
+  qt/locale/vivo_es.ts \
+  qt/locale/vivo_fi.ts \
+  qt/locale/vivo_fr.ts \
+  qt/locale/vivo_it.ts \
+  qt/locale/vivo_ja.ts \
+  qt/locale/vivo_ko.ts \
+  qt/locale/vivo_nl.ts \
+  qt/locale/vivo_pl.ts \
+  qt/locale/vivo_pt.ts \
+  qt/locale/vivo_ro.ts \
+  qt/locale/vivo_ru.ts \
+  qt/locale/vivo_sk.ts \
+  qt/locale/vivo_th.ts \
+  qt/locale/vivo_tr.ts \
+  qt/locale/vivo_vi.ts \
+  qt/locale/vivo_zh_CN.ts \
+  qt/locale/vivo_zh_TW.ts
