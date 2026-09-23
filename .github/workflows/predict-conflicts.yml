@@ -1,0 +1,45 @@
+name: "Check Potential Conflicts"
+
+on:
+  pull_request_target:
+    types: [opened, synchronize, reopened, ready_for_review, converted_to_draft, closed]
+  pull_request_review:
+    types: [submitted]
+
+permissions:
+  contents: read
+  pull-requests: write
+  issues: write # PR conversation comments use the Issues API
+  # Enforce other not needed permissions are off
+  actions: none
+  checks: none
+  deployments: none
+  packages: none
+  repository-projects: none
+  security-events: none
+  statuses: none
+
+jobs:
+  predict_conflicts:
+    runs-on: ubuntu-latest
+    concurrency:
+      group: predict-conflicts
+      cancel-in-progress: false
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+        with:
+          persist-credentials: false
+      - name: Validate potential conflicts and update advisory comments
+        continue-on-error: true
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          EVENT_ACTION: ${{ github.event.action }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+        run: |
+          python3 -m pip install requests
+          if [ "$EVENT_ACTION" = "closed" ]; then
+            .github/workflows/handle_potential_conflicts.py --pr-number "$PR_NUMBER" --cleanup-closed
+          else
+            .github/workflows/handle_potential_conflicts.py --pr-number "$PR_NUMBER"
+          fi

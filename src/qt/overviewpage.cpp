@@ -1,186 +1,193 @@
-// Copyright (c) 2011-2015 The Bitcoin Core developers
-// Copyright (c) 2014-2017 The Vivo Core developers
+// Copyright (c) 2011-2021 The Bitcoin Core developers
+// Copyright (c) 2014-2026 The Vivo Core developers
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
-#include "overviewpage.h"
-#include "ui_overviewpage.h"
+#include <qt/overviewpage.h>
+#include <qt/forms/ui_overviewpage.h>
 
-#include "bitcoinunits.h"
-#include "clientmodel.h"
-#include "guiconstants.h"
-#include "guiutil.h"
-#include "init.h"
-#include "optionsmodel.h"
-#include "platformstyle.h"
-#include "transactionfilterproxy.h"
-#include "transactiontablemodel.h"
-#include "utilitydialog.h"
-#include "walletmodel.h"
+#include <qt/bitcoinunits.h>
+#include <qt/clientmodel.h>
+#include <qt/guiutil.h>
+#include <qt/optionsmodel.h>
+#include <qt/transactionfilterproxy.h>
+#include <qt/transactionoverviewwidget.h>
+#include <qt/transactionrecord.h>
+#include <qt/transactiontablemodel.h>
+#include <qt/utilitydialog.h>
+#include <qt/walletmodel.h>
 
-#include "darksend.h"
-#include "instantx.h"
-#include "darksendconfig.h"
-#include "masternode-sync.h"
+#include <coinjoin/options.h>
+#include <interfaces/coinjoin.h>
+
+#include <algorithm>
+#include <limits>
+#include <map>
+#include <cmath>
 
 #include <QAbstractItemDelegate>
+#include <QApplication>
+#include <QMessageBox>
 #include <QPainter>
 #include <QSettings>
+#include <QStatusTipEvent>
 #include <QTimer>
 
-#define ICON_OFFSET 16
-#define DECORATION_SIZE 54
-#define NUM_ITEMS 5
-#define NUM_ITEMS_ADV 7
+#define ITEM_HEIGHT 54
+#define NUM_ITEMS_DISABLED 5
+#define NUM_ITEMS_ENABLED_NORMAL 6
+#define NUM_ITEMS_ENABLED_ADVANCED 8
+
+Q_DECLARE_METATYPE(interfaces::WalletBalances)
 
 class TxViewDelegate : public QAbstractItemDelegate
 {
     Q_OBJECT
 public:
-    TxViewDelegate(const PlatformStyle *platformStyle):
-        QAbstractItemDelegate(), unit(BitcoinUnits::VIVO),
-        platformStyle(platformStyle)
+    explicit TxViewDelegate(QObject* parent = nullptr)
+        : QAbstractItemDelegate(parent)
     {
-
+        connect(this, &TxViewDelegate::width_changed, this, &TxViewDelegate::sizeHintChanged);
     }
 
     inline void paint(QPainter *painter, const QStyleOptionViewItem &option,
-                      const QModelIndex &index ) const
+                      const QModelIndex &index ) const override
     {
         painter->save();
 
-        QIcon icon = qvariant_cast<QIcon>(index.data(TransactionTableModel::RawDecorationRole));
         QRect mainRect = option.rect;
-        mainRect.moveLeft(ICON_OFFSET);
-        QRect decorationRect(mainRect.topLeft(), QSize(DECORATION_SIZE, DECORATION_SIZE));
-        int xspace = DECORATION_SIZE + 8;
-        int ypad = 6;
+        int xspace = 8;
+        int ypad = 8;
         int halfheight = (mainRect.height() - 2*ypad)/2;
-        QRect amountRect(mainRect.left() + xspace, mainRect.top()+ypad, mainRect.width() - xspace - ICON_OFFSET, halfheight);
-        QRect addressRect(mainRect.left() + xspace, mainRect.top()+ypad+halfheight, mainRect.width() - xspace, halfheight);
-        icon = platformStyle->SingleColorIcon(icon);
-        icon.paint(painter, decorationRect);
+        QRect rectTopHalf(mainRect.left() + xspace, mainRect.top() + ypad, mainRect.width() - xspace, halfheight);
+        QRect rectBottomHalf(mainRect.left() + xspace, mainRect.top() + ypad + halfheight + 5, mainRect.width() - xspace, halfheight);
+        QRect rectBounding;
+        QColor colorForeground;
+        const auto initial_size{GUIUtil::defaultFontSize()};
 
-        QDateTime date = index.data(TransactionTableModel::DateRole).toDateTime();
-        QString address = index.data(Qt::DisplayRole).toString();
-        qint64 amount = index.data(TransactionTableModel::AmountRole).toLongLong();
-        bool confirmed = index.data(TransactionTableModel::ConfirmedRole).toBool();
-        QVariant value = index.data(Qt::ForegroundRole);
-        QColor foreground = option.palette.color(QPalette::Text);
-        if(value.canConvert<QBrush>())
-        {
-            QBrush brush = qvariant_cast<QBrush>(value);
-            foreground = brush.color();
-        }
+        // Grab model indexes for desired data from TransactionTableModel
+        QModelIndex indexDate = index.sibling(index.row(), TransactionTableModel::Date);
+        QModelIndex indexAmount = index.sibling(index.row(), TransactionTableModel::Amount);
+        QModelIndex indexAddress = index.sibling(index.row(), TransactionTableModel::ToAddress);
 
-        painter->setPen(foreground);
-        QRect boundingRect;
-        painter->drawText(addressRect, Qt::AlignLeft|Qt::AlignVCenter, address, &boundingRect);
+        // Draw first line (with slightly bigger font than the second line will get)
+        // Content: Date/Time, Optional IS indicator, Amount
+        painter->setFont(GUIUtil::getScaledFont(/*baseSize=*/initial_size, /*bold=*/false, /*multiplier=*/1.17));
+        // Date/Time
+        colorForeground = qvariant_cast<QColor>(indexDate.data(Qt::ForegroundRole));
+        QString strDate = indexDate.data(Qt::DisplayRole).toString();
+        painter->setPen(colorForeground);
+        painter->drawText(rectTopHalf, Qt::AlignLeft | Qt::AlignVCenter, strDate, &rectBounding);
+        // Optional IS indicator
+        QIcon iconInstantSend = qvariant_cast<QIcon>(indexAddress.data(TransactionTableModel::RawDecorationRole));
+        QRect rectInstantSend(rectBounding.right() + 5, rectTopHalf.top(), 16, halfheight);
+        iconInstantSend.paint(painter, rectInstantSend);
+        // Amount
+        colorForeground = qvariant_cast<QColor>(indexAmount.data(Qt::ForegroundRole));
+        // Note: do NOT use Qt::DisplayRole, have format properly here
+        qint64 nAmount = index.data(TransactionTableModel::AmountRole).toLongLong();
+        QString strAmount = BitcoinUnits::floorWithUnit(unit, nAmount, true, BitcoinUnits::SeparatorStyle::ALWAYS);
+        painter->setPen(colorForeground);
+        QRect amount_bounding_rect;
+        painter->drawText(rectTopHalf, Qt::AlignRight | Qt::AlignVCenter, strAmount, &amount_bounding_rect);
 
+        // Draw second line (with the initial font)
+        // Content: Address/label, Optional Watchonly indicator
+        painter->setFont(GUIUtil::getScaledFont(/*baseSize=*/initial_size, /*bold=*/false));
+        // Address/Label
+        colorForeground = qvariant_cast<QColor>(indexAddress.data(Qt::ForegroundRole));
+        QString address = indexAddress.data(Qt::DisplayRole).toString();
+
+        // Optional Watchonly indicator
+        QRect addressRect{rectBottomHalf};
         if (index.data(TransactionTableModel::WatchonlyRole).toBool())
         {
             QIcon iconWatchonly = qvariant_cast<QIcon>(index.data(TransactionTableModel::WatchonlyDecorationRole));
-            QRect watchonlyRect(boundingRect.right() + 5, mainRect.top()+ypad+halfheight, 16, halfheight);
+            QRect watchonlyRect(rectBottomHalf.left(), rectBottomHalf.top(), rectBottomHalf.height(), halfheight);
             iconWatchonly.paint(painter, watchonlyRect);
+            addressRect.setLeft(addressRect.left() + watchonlyRect.width() + 5);
         }
 
-        if(amount < 0)
-        {
-            foreground = COLOR_NEGATIVE;
-        }
-        else if(!confirmed)
-        {
-            foreground = COLOR_UNCONFIRMED;
-        }
-        else
-        {
-            foreground = option.palette.color(QPalette::Text);
-        }
-        painter->setPen(foreground);
-        QString amountText = BitcoinUnits::floorWithUnit(unit, amount, true, BitcoinUnits::separatorAlways);
-        if(!confirmed)
-        {
-            amountText = QString("[") + amountText + QString("]");
-        }
-        painter->drawText(amountRect, Qt::AlignRight|Qt::AlignVCenter, amountText);
+        painter->setPen(colorForeground);
+        painter->drawText(addressRect, Qt::AlignLeft | Qt::AlignVCenter, address, &rectBounding);
+        int address_rect_min_width = rectBounding.width();
 
-        painter->setPen(option.palette.color(QPalette::Text));
-        painter->drawText(amountRect, Qt::AlignLeft|Qt::AlignVCenter, GUIUtil::dateTimeStr(date));
-
+        const int minimum_width = std::max(address_rect_min_width, amount_bounding_rect.width() /*+ date_bounding_rect.width() */);
+        const auto search = m_minimum_width.find(index.row());
+        if (search == m_minimum_width.end() || search->second != minimum_width) {
+            m_minimum_width[index.row()] = minimum_width;
+            Q_EMIT width_changed(index);
+        }
         painter->restore();
     }
 
-    inline QSize sizeHint(const QStyleOptionViewItem &option, const QModelIndex &index) const
+    inline QSize sizeHint(const QStyleOptionViewItem &option, const QModelIndex &index) const override
     {
-        return QSize(DECORATION_SIZE, DECORATION_SIZE);
+        const auto search = m_minimum_width.find(index.row());
+        const int minimum_text_width = search == m_minimum_width.end() ? 0 : search->second;
+        return {ITEM_HEIGHT + 8 + minimum_text_width, ITEM_HEIGHT};
     }
 
-    int unit;
-    const PlatformStyle *platformStyle;
+    BitcoinUnit unit{BitcoinUnit::DASH};
 
+Q_SIGNALS:
+    //! An intermediate signal for emitting from the `paint() const` member function.
+    void width_changed(const QModelIndex& index) const;
+
+private:
+    mutable std::map<int, int> m_minimum_width;
 };
-#include "overviewpage.moc"
 
-OverviewPage::OverviewPage(const PlatformStyle *platformStyle, QWidget *parent) :
+#include <qt/overviewpage.moc>
+
+OverviewPage::OverviewPage(QWidget* parent) :
     QWidget(parent),
     ui(new Ui::OverviewPage),
-    clientModel(0),
-    walletModel(0),
-    currentBalance(-1),
-    currentUnconfirmedBalance(-1),
-    currentImmatureBalance(-1),
-    currentWatchOnlyBalance(-1),
-    currentWatchUnconfBalance(-1),
-    currentWatchImmatureBalance(-1),
-    txdelegate(new TxViewDelegate(platformStyle)),
-    filter(0)
+    txdelegate(new TxViewDelegate(this))
 {
     ui->setupUi(this);
-    QString theme = GUIUtil::getThemeName();
+
+    GUIUtil::setFont({ui->label_4,
+                      ui->label_5,
+                      ui->labelCoinJoinHeader
+                     }, GUIUtil::FontWeight::Bold, 16);
+
+    GUIUtil::setFont({ui->labelTotalText}, GUIUtil::FontWeight::Bold, 14);
+
+    GUIUtil::setFont({ui->labelBalanceText,
+                      ui->labelPendingText,
+                      ui->labelImmatureText,
+                      ui->labelWatchonly,
+                      ui->labelSpendable
+                     }, GUIUtil::FontWeight::Bold);
+
+    GUIUtil::updateFonts();
 
     // Recent transactions
     ui->listTransactions->setItemDelegate(txdelegate);
-    ui->listTransactions->setIconSize(QSize(DECORATION_SIZE, DECORATION_SIZE));
-    // Note: minimum height of listTransactions will be set later in updateAdvancedPSUI() to reflect actual settings
+    // Note: minimum height of listTransactions will be set later in updateAdvancedCJUI() to reflect actual settings
     ui->listTransactions->setAttribute(Qt::WA_MacShowFocusRect, false);
 
-    connect(ui->listTransactions, SIGNAL(clicked(QModelIndex)), this, SLOT(handleTransactionClicked(QModelIndex)));
+    connect(ui->listTransactions, &TransactionOverviewWidget::clicked, this, &OverviewPage::handleTransactionClicked);
 
     // init "out of sync" warning labels
     ui->labelWalletStatus->setText("(" + tr("out of sync") + ")");
-    ui->labelPrivateSendSyncStatus->setText("(" + tr("out of sync") + ")");
+    ui->labelCoinJoinSyncStatus->setText("(" + tr("out of sync") + ")");
     ui->labelTransactionsStatus->setText("(" + tr("out of sync") + ")");
 
+    QString strCoinJoinName = QString::fromStdString(gCoinJoinName);
+    ui->labelCoinJoinHeader->setText(strCoinJoinName);
+    ui->labelAnonymizedText->setText(tr("%1 Balance").arg(strCoinJoinName));
+
     // hide PS frame (helps to preserve saved size)
-    // we'll setup and make it visible in updateAdvancedPSUI() later if we are not in litemode
-    ui->framePrivateSend->setVisible(false);
+    // we'll setup and make it visible in coinJoinStatus() later
+    ui->frameCoinJoin->setVisible(false);
 
     // start with displaying the "out of sync" warnings
     showOutOfSyncWarning(true);
 
-    // that's it for litemode
-    if(fLiteMode) return;
-
-    // Disable any PS UI for masternode or when autobackup is disabled or failed for whatever reason
-    if(fMasterNode || nWalletBackups <= 0){
-        DisablePrivateSendCompletely();
-        if (nWalletBackups <= 0) {
-            ui->labelPrivateSendEnabled->setToolTip(tr("Automatic backups are disabled, no mixing available!"));
-        }
-    } else {
-        if(!fEnablePrivateSend){
-            ui->togglePrivateSend->setText(tr("Start Mixing"));
-        } else {
-            ui->togglePrivateSend->setText(tr("Stop Mixing"));
-        }
-        // Disable darkSendPool builtin support for automatic backups while we are in GUI,
-        // we'll handle automatic backups and user warnings in privateSendStatus()
-        darkSendPool.fCreateAutoBackups = false;
-
-        timer = new QTimer(this);
-        connect(timer, SIGNAL(timeout()), this, SLOT(privateSendStatus()));
-        timer->start(1000);
-    }
+    timer = new QTimer(this);
+    connect(timer, &QTimer::timeout, [this]{ coinJoinStatus(); });
 }
 
 void OverviewPage::handleTransactionClicked(const QModelIndex &index)
@@ -189,47 +196,75 @@ void OverviewPage::handleTransactionClicked(const QModelIndex &index)
         Q_EMIT transactionClicked(filter->mapToSource(index));
 }
 
+void OverviewPage::setPrivacy(bool privacy)
+{
+    m_privacy = privacy;
+    clientModel->getOptionsModel()->setOption(OptionsModel::OptionID::MaskValues, privacy);
+    const auto& balances = walletModel->getCachedBalance();
+    if (balances.balance != -1) {
+        setBalance(balances);
+        coinJoinStatus(true);
+    }
+
+    // We can't hide the frame itself as it would disturb alignment, hide inner elements instead
+    ui->listTransactions->setVisible(!m_privacy);
+    ui->label_4->setVisible(!m_privacy);
+    ui->labelTransactionsStatus->setVisible(!m_privacy && ui->labelWalletStatus->isVisible());
+
+    const QString status_tip = m_privacy ? tr("Discreet mode activated for the Overview tab. To unmask the values, uncheck Settings->Discreet mode.") : "";
+    setStatusTip(status_tip);
+    QStatusTipEvent event(status_tip);
+    QApplication::sendEvent(this, &event);
+}
+
 OverviewPage::~OverviewPage()
 {
-    if(!fLiteMode && !fMasterNode) disconnect(timer, SIGNAL(timeout()), this, SLOT(privateSendStatus()));
     delete ui;
 }
 
-void OverviewPage::setBalance(const CAmount& balance, const CAmount& unconfirmedBalance, const CAmount& immatureBalance, const CAmount& anonymizedBalance, const CAmount& watchOnlyBalance, const CAmount& watchUnconfBalance, const CAmount& watchImmatureBalance)
+void OverviewPage::setBalance(const interfaces::WalletBalances& balances)
 {
-    currentBalance = balance;
-    currentUnconfirmedBalance = unconfirmedBalance;
-    currentImmatureBalance = immatureBalance;
-    currentAnonymizedBalance = anonymizedBalance;
-    currentWatchOnlyBalance = watchOnlyBalance;
-    currentWatchUnconfBalance = watchUnconfBalance;
-    currentWatchImmatureBalance = watchImmatureBalance;
-    ui->labelBalance->setText(BitcoinUnits::floorHtmlWithUnit(nDisplayUnit, balance, false, BitcoinUnits::separatorAlways));
-    ui->labelUnconfirmed->setText(BitcoinUnits::floorHtmlWithUnit(nDisplayUnit, unconfirmedBalance, false, BitcoinUnits::separatorAlways));
-    ui->labelImmature->setText(BitcoinUnits::floorHtmlWithUnit(nDisplayUnit, immatureBalance, false, BitcoinUnits::separatorAlways));
-    ui->labelAnonymized->setText(BitcoinUnits::floorHtmlWithUnit(nDisplayUnit, anonymizedBalance, false, BitcoinUnits::separatorAlways));
-    ui->labelTotal->setText(BitcoinUnits::floorHtmlWithUnit(nDisplayUnit, balance + unconfirmedBalance + immatureBalance, false, BitcoinUnits::separatorAlways));
-    ui->labelWatchAvailable->setText(BitcoinUnits::floorHtmlWithUnit(nDisplayUnit, watchOnlyBalance, false, BitcoinUnits::separatorAlways));
-    ui->labelWatchPending->setText(BitcoinUnits::floorHtmlWithUnit(nDisplayUnit, watchUnconfBalance, false, BitcoinUnits::separatorAlways));
-    ui->labelWatchImmature->setText(BitcoinUnits::floorHtmlWithUnit(nDisplayUnit, watchImmatureBalance, false, BitcoinUnits::separatorAlways));
-    ui->labelWatchTotal->setText(BitcoinUnits::floorHtmlWithUnit(nDisplayUnit, watchOnlyBalance + watchUnconfBalance + watchImmatureBalance, false, BitcoinUnits::separatorAlways));
-
+    BitcoinUnit unit = walletModel->getOptionsModel()->getDisplayUnit();
+    if (walletModel->wallet().isLegacy()) {
+        if (walletModel->wallet().privateKeysDisabled()) {
+            ui->labelBalance->setText(BitcoinUnits::floorHtmlWithPrivacy(unit, balances.watch_only_balance, BitcoinUnits::SeparatorStyle::ALWAYS, m_privacy));
+            ui->labelUnconfirmed->setText(BitcoinUnits::floorHtmlWithPrivacy(unit, balances.unconfirmed_watch_only_balance, BitcoinUnits::SeparatorStyle::ALWAYS, m_privacy));
+            ui->labelImmature->setText(BitcoinUnits::floorHtmlWithPrivacy(unit, balances.immature_watch_only_balance, BitcoinUnits::SeparatorStyle::ALWAYS, m_privacy));
+            ui->labelTotal->setText(BitcoinUnits::floorHtmlWithPrivacy(unit, balances.watch_only_balance + balances.unconfirmed_watch_only_balance + balances.immature_watch_only_balance, BitcoinUnits::SeparatorStyle::ALWAYS, m_privacy));
+        } else {
+            ui->labelBalance->setText(BitcoinUnits::floorHtmlWithPrivacy(unit, balances.balance, BitcoinUnits::SeparatorStyle::ALWAYS, m_privacy));
+            ui->labelUnconfirmed->setText(BitcoinUnits::floorHtmlWithPrivacy(unit, balances.unconfirmed_balance, BitcoinUnits::SeparatorStyle::ALWAYS, m_privacy));
+            ui->labelImmature->setText(BitcoinUnits::floorHtmlWithPrivacy(unit, balances.immature_balance, BitcoinUnits::SeparatorStyle::ALWAYS, m_privacy));
+            ui->labelAnonymized->setText(BitcoinUnits::floorHtmlWithPrivacy(unit, balances.anonymized_balance, BitcoinUnits::SeparatorStyle::ALWAYS, m_privacy));
+            ui->labelTotal->setText(BitcoinUnits::floorHtmlWithPrivacy(unit, balances.balance + balances.unconfirmed_balance + balances.immature_balance, BitcoinUnits::SeparatorStyle::ALWAYS, m_privacy));
+            ui->labelWatchAvailable->setText(BitcoinUnits::floorHtmlWithPrivacy(unit, balances.watch_only_balance, BitcoinUnits::SeparatorStyle::ALWAYS, m_privacy));
+            ui->labelWatchPending->setText(BitcoinUnits::floorHtmlWithPrivacy(unit, balances.unconfirmed_watch_only_balance, BitcoinUnits::SeparatorStyle::ALWAYS, m_privacy));
+            ui->labelWatchImmature->setText(BitcoinUnits::floorHtmlWithPrivacy(unit, balances.immature_watch_only_balance, BitcoinUnits::SeparatorStyle::ALWAYS, m_privacy));
+            ui->labelWatchTotal->setText(BitcoinUnits::floorHtmlWithPrivacy(unit, balances.watch_only_balance + balances.unconfirmed_watch_only_balance + balances.immature_watch_only_balance, BitcoinUnits::SeparatorStyle::ALWAYS, m_privacy));
+        }
+    } else {
+            ui->labelBalance->setText(BitcoinUnits::floorHtmlWithPrivacy(unit, balances.balance, BitcoinUnits::SeparatorStyle::ALWAYS, m_privacy));
+            ui->labelUnconfirmed->setText(BitcoinUnits::floorHtmlWithPrivacy(unit, balances.unconfirmed_balance, BitcoinUnits::SeparatorStyle::ALWAYS, m_privacy));
+            ui->labelImmature->setText(BitcoinUnits::floorHtmlWithPrivacy(unit, balances.immature_balance, BitcoinUnits::SeparatorStyle::ALWAYS, m_privacy));
+            ui->labelAnonymized->setText(BitcoinUnits::floorHtmlWithPrivacy(unit, balances.anonymized_balance, BitcoinUnits::SeparatorStyle::ALWAYS, m_privacy));
+            ui->labelTotal->setText(BitcoinUnits::floorHtmlWithPrivacy(unit, balances.balance + balances.unconfirmed_balance + balances.immature_balance, BitcoinUnits::SeparatorStyle::ALWAYS, m_privacy));
+    }
     // only show immature (newly mined) balance if it's non-zero, so as not to complicate things
     // for the non-mining users
-    bool showImmature = immatureBalance != 0;
-    bool showWatchOnlyImmature = watchImmatureBalance != 0;
+    bool fDebugUI = gArgs.GetBoolArg("-debug-ui", false);
+    bool showImmature = fDebugUI || balances.immature_balance != 0;
+    bool showWatchOnlyImmature = fDebugUI || balances.immature_watch_only_balance != 0;
 
     // for symmetry reasons also show immature label when the watch-only one is shown
     ui->labelImmature->setVisible(showImmature || showWatchOnlyImmature);
     ui->labelImmatureText->setVisible(showImmature || showWatchOnlyImmature);
-    ui->labelWatchImmature->setVisible(showWatchOnlyImmature); // show watch-only immature balance
+    ui->labelWatchImmature->setVisible(!walletModel->wallet().privateKeysDisabled() && showWatchOnlyImmature); // show watch-only immature balance
 
-    updatePrivateSendProgress();
+    updateCoinJoinProgress();
 
-    static int cachedTxLocks = 0;
-
-    if(cachedTxLocks != nCompleteTXLocks){
-        cachedTxLocks = nCompleteTXLocks;
+    int numISLocks = walletModel->getNumISLocks();
+    if(cachedNumISLocks != numISLocks) {
+        cachedNumISLocks = numISLocks;
         ui->listTransactions->update();
     }
 }
@@ -258,11 +293,12 @@ void OverviewPage::updateWatchOnlyLabels(bool showWatchOnly)
 void OverviewPage::setClientModel(ClientModel *model)
 {
     this->clientModel = model;
-    if(model)
-    {
-        // Show warning if this is a prerelease version
-        connect(model, SIGNAL(alertsChanged(QString)), this, SLOT(updateAlerts(QString)));
+    if (model) {
+        // Show warning, for example if this is a prerelease version
+        connect(model, &ClientModel::alertsChanged, this, &OverviewPage::updateAlerts);
         updateAlerts(model->getStatusBarWarnings());
+        // explicitly update CoinJoin frame and transaction list to reflect actual settings
+        updateAdvancedCJUI(model->getOptionsModel()->getShowAdvancedCJUI());
     }
 }
 
@@ -271,40 +307,53 @@ void OverviewPage::setWalletModel(WalletModel *model)
     this->walletModel = model;
     if(model && model->getOptionsModel())
     {
-        // update the display unit, to not use the default ("VIVO")
+        // update the display unit, to not use the default ("DASH")
         updateDisplayUnit();
         // Keep up to date with wallet
-        setBalance(model->getBalance(), model->getUnconfirmedBalance(), model->getImmatureBalance(), model->getAnonymizedBalance(),
-                   model->getWatchBalance(), model->getWatchUnconfirmedBalance(), model->getWatchImmatureBalance());
-        connect(model, SIGNAL(balanceChanged(CAmount,CAmount,CAmount,CAmount,CAmount,CAmount,CAmount)), this, SLOT(setBalance(CAmount,CAmount,CAmount,CAmount,CAmount,CAmount,CAmount)));
+        setBalance(model->getCachedBalance());
+        connect(model, &WalletModel::balanceChanged, this, &OverviewPage::setBalance);
 
-        connect(model->getOptionsModel(), SIGNAL(displayUnitChanged(int)), this, SLOT(updateDisplayUnit()));
-        connect(model->getOptionsModel(), SIGNAL(privateSendRoundsChanged()), this, SLOT(updatePrivateSendProgress()));
-        connect(model->getOptionsModel(), SIGNAL(privateSentAmountChanged()), this, SLOT(updatePrivateSendProgress()));
-        connect(model->getOptionsModel(), SIGNAL(advancedPSUIChanged(bool)), this, SLOT(updateAdvancedPSUI(bool)));
-        // explicitly update PS frame and transaction list to reflect actual settings
-        updateAdvancedPSUI(model->getOptionsModel()->getShowAdvancedPSUI());
+        interfaces::Wallet& wallet = model->wallet();
+        updateWatchOnlyLabels((wallet.haveWatchOnly() && !wallet.privateKeysDisabled()) || gArgs.GetBoolArg("-debug-ui", false));
+        connect(model, &WalletModel::notifyWatchonlyChanged, [this](bool showWatchOnly) {
+            updateWatchOnlyLabels(showWatchOnly && !walletModel->wallet().privateKeysDisabled());
+        });
 
-        connect(ui->privateSendAuto, SIGNAL(clicked()), this, SLOT(privateSendAuto()));
-        connect(ui->privateSendReset, SIGNAL(clicked()), this, SLOT(privateSendReset()));
-        connect(ui->privateSendInfo, SIGNAL(clicked()), this, SLOT(privateSendInfo()));
-        connect(ui->togglePrivateSend, SIGNAL(clicked()), this, SLOT(togglePrivateSend()));
-        updateWatchOnlyLabels(model->haveWatchOnly());
-        connect(model, SIGNAL(notifyWatchonlyChanged(bool)), this, SLOT(updateWatchOnlyLabels(bool)));
+        // Money font and unit
+        setMonospacedFont(model->getOptionsModel()->getFontForMoney());
+        connect(model->getOptionsModel(), &OptionsModel::fontForMoneyChanged, this, &OverviewPage::setMonospacedFont);
+        connect(model->getOptionsModel(), &OptionsModel::displayUnitChanged, this, &OverviewPage::updateDisplayUnit);
+
+        // CoinJoin
+        connect(model->getOptionsModel(), &OptionsModel::coinJoinRoundsChanged, this, &OverviewPage::updateCoinJoinProgress);
+        connect(model->getOptionsModel(), &OptionsModel::coinJoinAmountChanged, this, &OverviewPage::updateCoinJoinProgress);
+        connect(model->getOptionsModel(), &OptionsModel::AdvancedCJUIChanged, this, &OverviewPage::updateAdvancedCJUI);
+        connect(model->getOptionsModel(), &OptionsModel::showCoinJoinChanged, [this]() {
+            coinJoinStatus(true);
+        });
+
+        // Disable coinJoinClient builtin support for automatic backups while we are in GUI,
+        // we'll handle automatic backups and user warnings in coinJoinStatus()
+        walletModel->withCoinJoin([](auto& client) { client.disableAutobackups(); });
+
+        connect(ui->toggleCoinJoin, &QPushButton::clicked, this, &OverviewPage::toggleCoinJoin);
+
+        // coinjoin buttons will not react to spacebar must be clicked on
+        ui->toggleCoinJoin->setFocusPolicy(Qt::NoFocus);
     }
 }
 
 void OverviewPage::updateDisplayUnit()
 {
-    if(walletModel && walletModel->getOptionsModel())
-    {
-        nDisplayUnit = walletModel->getOptionsModel()->getDisplayUnit();
-        if(currentBalance != -1)
-            setBalance(currentBalance, currentUnconfirmedBalance, currentImmatureBalance, currentAnonymizedBalance,
-                       currentWatchOnlyBalance, currentWatchUnconfBalance, currentWatchImmatureBalance);
+    if (walletModel && walletModel->getOptionsModel()) {
+        m_display_bitcoin_unit = walletModel->getOptionsModel()->getDisplayUnit();
+        const auto& balances = walletModel->getCachedBalance();
+        if (balances.balance != -1) {
+            setBalance(balances);
+        }
 
         // Update txdelegate->unit with the current unit
-        txdelegate->unit = nDisplayUnit;
+        txdelegate->unit = m_display_bitcoin_unit;
 
         ui->listTransactions->update();
     }
@@ -319,71 +368,94 @@ void OverviewPage::updateAlerts(const QString &warnings)
 void OverviewPage::showOutOfSyncWarning(bool fShow)
 {
     ui->labelWalletStatus->setVisible(fShow);
-    ui->labelPrivateSendSyncStatus->setVisible(fShow);
+    ui->labelCoinJoinSyncStatus->setVisible(fShow);
     ui->labelTransactionsStatus->setVisible(fShow);
 }
 
-void OverviewPage::updatePrivateSendProgress()
+void OverviewPage::setMonospacedFont(const QFont& f)
 {
-    if(!masternodeSync.IsBlockchainSynced() || ShutdownRequested()) return;
+    GUIUtil::setFont({
+        ui->labelTotal,
+        ui->labelWatchTotal,
+    }, f.family(), GUIUtil::FontWeight::Bold, 14);
 
-    if(!pwalletMain) return;
+    GUIUtil::setFont({
+        ui->labelAmountRounds,
+        ui->labelAnonymized,
+        ui->labelBalance,
+        ui->labelUnconfirmed,
+        ui->labelImmature,
+        ui->labelSubmittedDenom,
+        ui->labelWatchAvailable,
+        ui->labelWatchPending,
+        ui->labelWatchImmature,
+    }, f.family(), GUIUtil::FontWeight::Bold);
+
+    GUIUtil::updateFonts();
+}
+
+void OverviewPage::updateCoinJoinProgress()
+{
+    if (!walletModel || !clientModel || clientModel->node().shutdownRequested() || !clientModel->masternodeSync().isBlockchainSynced()) return;
 
     QString strAmountAndRounds;
-    QString strPrivateSendAmount = BitcoinUnits::formatHtmlWithUnit(nDisplayUnit, nPrivateSendAmount * COIN, false, BitcoinUnits::separatorAlways);
+    QString strCoinJoinAmount = BitcoinUnits::formatHtmlWithUnit(m_display_bitcoin_unit, clientModel->coinJoinOptions().getAmount() * COIN, false, BitcoinUnits::SeparatorStyle::ALWAYS);
 
-    if(currentBalance == 0)
+    const auto& balances = walletModel->getCachedBalance();
+    if(balances.balance == 0)
     {
-        ui->privateSendProgress->setValue(0);
-        ui->privateSendProgress->setToolTip(tr("No inputs detected"));
+        ui->coinJoinProgress->setValue(0);
+        ui->coinJoinProgress->setToolTip(tr("No inputs detected"));
 
         // when balance is zero just show info from settings
-        strPrivateSendAmount = strPrivateSendAmount.remove(strPrivateSendAmount.indexOf("."), BitcoinUnits::decimals(nDisplayUnit) + 1);
-        strAmountAndRounds = strPrivateSendAmount + " / " + tr("%n Rounds", "", nPrivateSendRounds);
+        strCoinJoinAmount = strCoinJoinAmount.remove(strCoinJoinAmount.indexOf("."), BitcoinUnits::decimals(m_display_bitcoin_unit) + 1);
+        strAmountAndRounds = strCoinJoinAmount + " / " + tr("%n Rounds", "", clientModel->coinJoinOptions().getRounds());
 
         ui->labelAmountRounds->setToolTip(tr("No inputs detected"));
         ui->labelAmountRounds->setText(strAmountAndRounds);
         return;
     }
 
-    CAmount nDenominatedConfirmedBalance;
-    CAmount nDenominatedUnconfirmedBalance;
-    CAmount nAnonymizableBalance;
-    CAmount nNormalizedAnonymizedBalance;
-    double nAverageAnonymizedRounds;
+    CAmount nAnonymizableBalance = walletModel->wallet().getAnonymizableBalance(false, false);
 
-    {
-        nDenominatedConfirmedBalance = pwalletMain->GetDenominatedBalance();
-        nDenominatedUnconfirmedBalance = pwalletMain->GetDenominatedBalance(true);
-        nAnonymizableBalance = pwalletMain->GetAnonymizableBalance();
-        nNormalizedAnonymizedBalance = pwalletMain->GetNormalizedAnonymizedBalance();
-        nAverageAnonymizedRounds = pwalletMain->GetAverageAnonymizedRounds();
-    }
-
-    CAmount nMaxToAnonymize = nAnonymizableBalance + currentAnonymizedBalance + nDenominatedUnconfirmedBalance;
+    CAmount nMaxToAnonymize = nAnonymizableBalance + balances.anonymized_balance;
 
     // If it's more than the anon threshold, limit to that.
-    if(nMaxToAnonymize > nPrivateSendAmount*COIN) nMaxToAnonymize = nPrivateSendAmount*COIN;
+    if (nMaxToAnonymize > clientModel->coinJoinOptions().getAmount() * COIN) nMaxToAnonymize = clientModel->coinJoinOptions().getAmount() * COIN;
 
     if(nMaxToAnonymize == 0) return;
 
-    if(nMaxToAnonymize >= nPrivateSendAmount * COIN) {
-        ui->labelAmountRounds->setToolTip(tr("Found enough compatible inputs to anonymize %1")
-                                          .arg(strPrivateSendAmount));
-        strPrivateSendAmount = strPrivateSendAmount.remove(strPrivateSendAmount.indexOf("."), BitcoinUnits::decimals(nDisplayUnit) + 1);
-        strAmountAndRounds = strPrivateSendAmount + " / " + tr("%n Rounds", "", nPrivateSendRounds);
+    if (m_privacy) {
+        strAmountAndRounds = "#### " + BitcoinUnits::name(m_display_bitcoin_unit) + " / " + tr("%n Rounds", "", 0);
+        ui->labelAmountRounds->setToolTip("");
+    } else if (nMaxToAnonymize >= clientModel->coinJoinOptions().getAmount() * COIN) {
+        ui->labelAmountRounds->setToolTip(tr("Found enough compatible inputs to mix %1")
+                                          .arg(strCoinJoinAmount));
+        strCoinJoinAmount = strCoinJoinAmount.remove(strCoinJoinAmount.indexOf("."), BitcoinUnits::decimals(m_display_bitcoin_unit) + 1);
+        strAmountAndRounds = strCoinJoinAmount + " / " + tr("%n Rounds", "", clientModel->coinJoinOptions().getRounds());
     } else {
-        QString strMaxToAnonymize = BitcoinUnits::formatHtmlWithUnit(nDisplayUnit, nMaxToAnonymize, false, BitcoinUnits::separatorAlways);
-        ui->labelAmountRounds->setToolTip(tr("Not enough compatible inputs to anonymize <span style='color:red;'>%1</span>,<br>"
-                                             "will anonymize <span style='color:red;'>%2</span> instead")
-                                          .arg(strPrivateSendAmount)
+        QString strMaxToAnonymize = BitcoinUnits::formatHtmlWithUnit(m_display_bitcoin_unit, nMaxToAnonymize, false, BitcoinUnits::SeparatorStyle::ALWAYS);
+        ui->labelAmountRounds->setToolTip(tr("Not enough compatible inputs to mix <span style='%1'>%2</span>,<br>"
+                                             "will mix <span style='%1'>%3</span> instead")
+                                          .arg(GUIUtil::getThemedStyleQString(GUIUtil::ThemedStyle::TS_ERROR))
+                                          .arg(strCoinJoinAmount)
                                           .arg(strMaxToAnonymize));
-        strMaxToAnonymize = strMaxToAnonymize.remove(strMaxToAnonymize.indexOf("."), BitcoinUnits::decimals(nDisplayUnit) + 1);
-        strAmountAndRounds = "<span style='color:red;'>" +
-                QString(BitcoinUnits::factor(nDisplayUnit) == 1 ? "" : "~") + strMaxToAnonymize +
-                " / " + tr("%n Rounds", "", nPrivateSendRounds) + "</span>";
+        strMaxToAnonymize = strMaxToAnonymize.remove(strMaxToAnonymize.indexOf("."), BitcoinUnits::decimals(m_display_bitcoin_unit) + 1);
+        strAmountAndRounds = "<span style='" + GUIUtil::getThemedStyleQString(GUIUtil::ThemedStyle::TS_ERROR) + "'>" +
+                QString(BitcoinUnits::factor(m_display_bitcoin_unit) == 1 ? "" : "~") + strMaxToAnonymize +
+                " / " + tr("%n Rounds", "", clientModel->coinJoinOptions().getRounds()) + "</span>";
     }
     ui->labelAmountRounds->setText(strAmountAndRounds);
+
+    if (!fShowAdvancedCJUI) return;
+
+    CAmount nDenominatedConfirmedBalance = balances.denominated_trusted;
+    CAmount nDenominatedUnconfirmedBalance = balances.denominated_untrusted_pending;
+    CAmount nNormalizedAnonymizedBalance;
+    float nAverageAnonymizedRounds;
+
+    nNormalizedAnonymizedBalance = walletModel->wallet().getNormalizedAnonymizedBalance();
+    nAverageAnonymizedRounds = walletModel->wallet().getAverageAnonymizedRounds();
 
     // calculate parts of the progress, each of them shouldn't be higher than 1
     // progress of denominating
@@ -402,13 +474,13 @@ void OverviewPage::updatePrivateSendProgress()
     anonNormPart = anonNormPart > 1 ? 1 : anonNormPart;
     anonNormPart *= 100;
 
-    anonFullPart = (float)currentAnonymizedBalance / nMaxToAnonymize;
+    anonFullPart = (float)balances.anonymized_balance / nMaxToAnonymize;
     anonFullPart = anonFullPart > 1 ? 1 : anonFullPart;
     anonFullPart *= 100;
 
     // apply some weights to them ...
     float denomWeight = 1;
-    float anonNormWeight = nPrivateSendRounds;
+    float anonNormWeight = clientModel->coinJoinOptions().getRounds();
     float anonFullWeight = 2;
     float fullWeight = denomWeight + anonNormWeight + anonFullWeight;
     // ... and calculate the whole progress
@@ -418,189 +490,227 @@ void OverviewPage::updatePrivateSendProgress()
     float progress = denomPartCalc + anonNormPartCalc + anonFullPartCalc;
     if(progress >= 100) progress = 100;
 
-    ui->privateSendProgress->setValue(progress);
+    ui->coinJoinProgress->setValue(progress);
 
-    QString strToolPip = ("<b>" + tr("Overall progress") + ": %1%</b><br/>" +
+    QString strToolPip = QString("<b>" + tr("Overall progress") + ": %1%</b><br/>" +
                           tr("Denominated") + ": %2%<br/>" +
-                          tr("Mixed") + ": %3%<br/>" +
-                          tr("Anonymized") + ": %4%<br/>" +
-                          tr("Denominated inputs have %5 of %n rounds on average", "", nPrivateSendRounds))
+                          tr("Partially mixed") + ": %3%<br/>" +
+                          tr("Mixed") + ": %4%<br/>" +
+                          tr("Denominated inputs have %5 of %n rounds on average", "", clientModel->coinJoinOptions().getRounds()))
             .arg(progress).arg(denomPart).arg(anonNormPart).arg(anonFullPart)
             .arg(nAverageAnonymizedRounds);
-    ui->privateSendProgress->setToolTip(strToolPip);
+    ui->coinJoinProgress->setToolTip(strToolPip);
 }
 
-void OverviewPage::updateAdvancedPSUI(bool fShowAdvancedPSUI) {
-    this->fShowAdvancedPSUI = fShowAdvancedPSUI;
-    int nNumItems = (fLiteMode || !fShowAdvancedPSUI) ? NUM_ITEMS : NUM_ITEMS_ADV;
-    SetupTransactionList(nNumItems);
-
-    if (fLiteMode) return;
-
-    ui->framePrivateSend->setVisible(true);
-    ui->labelCompletitionText->setVisible(fShowAdvancedPSUI);
-    ui->privateSendProgress->setVisible(fShowAdvancedPSUI);
-    ui->labelSubmittedDenomText->setVisible(fShowAdvancedPSUI);
-    ui->labelSubmittedDenom->setVisible(fShowAdvancedPSUI);
-    ui->privateSendAuto->setVisible(fShowAdvancedPSUI);
-    ui->privateSendReset->setVisible(fShowAdvancedPSUI);
-    ui->privateSendInfo->setVisible(true);
-    ui->labelPrivateSendLastMessage->setVisible(fShowAdvancedPSUI);
-}
-
-void OverviewPage::privateSendStatus()
+void OverviewPage::updateAdvancedCJUI(bool fShowAdvancedCJUI)
 {
-    if(!masternodeSync.IsBlockchainSynced() || ShutdownRequested()) return;
+    if (!walletModel || !clientModel) return;
+
+    this->fShowAdvancedCJUI = fShowAdvancedCJUI;
+    coinJoinStatus(true);
+}
+
+void OverviewPage::coinJoinStatus(bool fForce)
+{
+    if (!walletModel || !clientModel) return;
+
+    if (!fForce && (clientModel->node().shutdownRequested() || !clientModel->masternodeSync().isBlockchainSynced())) return;
+
+    // Forced updates are triggered by mode changes (advanced UI, CoinJoin or privacy toggled),
+    // the status has to be re-rendered even if the block height didn't change
+    if (fForce) nCachedNumBlocks = std::numeric_limits<int>::max();
+
+    // Disable any PS UI for masternode or when autobackup is disabled or failed for whatever reason
+    if (clientModel->node().isMasternode() || nWalletBackups <= 0) {
+        DisableCoinJoinCompletely();
+        if (nWalletBackups == 0) {
+            ui->labelCoinJoinEnabled->setToolTip(tr("Automatic backups are disabled, no mixing available!"));
+        } else if (nWalletBackups == -1) {
+            ui->labelCoinJoinEnabled->setToolTip(tr("ERROR! Failed to create automatic backup") + ", " +
+                                                 tr("see debug.log for details.") + "<br><br>" +
+                                                 tr("Mixing is disabled, please close your wallet and fix the issue!"));
+        } else if (nWalletBackups == -2) {
+            ui->labelCoinJoinEnabled->setToolTip(tr("WARNING! Failed to replenish keypool, please unlock your wallet to do so."));
+        }
+        return;
+    }
+
+    bool fIsEnabled = clientModel->coinJoinOptions().isEnabled();
+    ui->frameCoinJoin->setVisible(fIsEnabled);
+    if (!fIsEnabled) {
+        SetupTransactionList(NUM_ITEMS_DISABLED);
+        if (timer != nullptr) {
+            timer->stop();
+        }
+        return;
+    }
+
+    if (timer != nullptr && !timer->isActive()) {
+        timer->start(1000);
+    }
+
+    // Wrap all coinjoin related widgets we want to show/hide state based.
+    // Value of the map contains a flag if this widget belongs to the advanced
+    // CoinJoin UI option or not. True if it does, false if not.
+    std::map<QWidget*, bool> coinJoinWidgets = {
+        {ui->labelCompletitionText, true},
+        {ui->coinJoinProgress, true},
+        {ui->labelSubmittedDenomText, true},
+        {ui->labelSubmittedDenom, true},
+        {ui->labelAmountAndRoundsText, false},
+        {ui->labelAmountRounds, false}
+    };
+
+    auto setWidgetsVisible = [&](bool fVisible) {
+        static bool fInitial{true};
+        static bool fLastVisible{false};
+        static bool fLastShowAdvanced{false};
+        // Only update the widget's visibility if something changed since the last call of setWidgetsVisible
+        if (fLastShowAdvanced == fShowAdvancedCJUI && fLastVisible == fVisible) {
+            if (fInitial) {
+                fInitial = false;
+            } else {
+                return;
+            }
+        }
+        // Set visible if: fVisible and not advanced UI element or advanced ui element and advanced ui active
+        for (const auto& it : coinJoinWidgets) {
+            it.first->setVisible(fVisible && (!it.second || it.second == fShowAdvancedCJUI));
+        }
+        fLastVisible = fVisible;
+        fLastShowAdvanced = fShowAdvancedCJUI;
+    };
 
     static int64_t nLastDSProgressBlockTime = 0;
-    int nBestHeight = clientModel->getNumBlocks();
+    int nBestHeight = clientModel->node().getNumBlocks();
 
-    // We are processing more then 1 block per second, we'll just leave
-    if(((nBestHeight - darkSendPool.nCachedNumBlocks) / (GetTimeMillis() - nLastDSProgressBlockTime + 1) > 1)) return;
-    nLastDSProgressBlockTime = GetTimeMillis();
+    // We are processing more than 1 block per second, we'll just leave
+    if (nBestHeight > nCachedNumBlocks && GetTime() - nLastDSProgressBlockTime <= 1) return;
+    nLastDSProgressBlockTime = GetTime();
 
-    QString strKeysLeftText(tr("keys left: %1").arg(pwalletMain->nKeysLeftSinceAutoBackup));
-    if(pwalletMain->nKeysLeftSinceAutoBackup < PRIVATESEND_KEYS_THRESHOLD_WARNING) {
-        strKeysLeftText = "<span style='color:red;'>" + strKeysLeftText + "</span>";
+    QString strKeysLeftText(tr("keys left: %1").arg(walletModel->getKeysLeftSinceAutoBackup()));
+    if(walletModel->getKeysLeftSinceAutoBackup() < COINJOIN_KEYS_THRESHOLD_WARNING) {
+        strKeysLeftText = "<span style='" + GUIUtil::getThemedStyleQString(GUIUtil::ThemedStyle::TS_ERROR) + "'>" + strKeysLeftText + "</span>";
     }
-    ui->labelPrivateSendEnabled->setToolTip(strKeysLeftText);
+    if (!walletModel->wallet().isLegacy()) {
+        // we don't need in auto-back for case of Descriptor wallets
+        strKeysLeftText = "";
+    }
+    ui->labelCoinJoinEnabled->setToolTip(strKeysLeftText);
 
-    if (!fEnablePrivateSend) {
-        if (nBestHeight != darkSendPool.nCachedNumBlocks) {
-            darkSendPool.nCachedNumBlocks = nBestHeight;
-            updatePrivateSendProgress();
-        }
-
-        ui->labelPrivateSendLastMessage->setText("");
-        ui->togglePrivateSend->setText(tr("Start Mixing"));
+    QString strCoinJoinName = QString::fromStdString(gCoinJoinName);
+    bool notMixing{false};
+    walletModel->withCoinJoin([&](auto& client) { notMixing = !client.isMixing(); });
+    if (notMixing && nBestHeight != nCachedNumBlocks) {
+        nCachedNumBlocks = nBestHeight;
+        updateCoinJoinProgress();
+    }
+    if (notMixing) {
+        setWidgetsVisible(false);
+        ui->toggleCoinJoin->setText(tr("Start %1").arg(strCoinJoinName));
 
         QString strEnabled = tr("Disabled");
         // Show how many keys left in advanced PS UI mode only
-        if (fShowAdvancedPSUI) strEnabled += ", " + strKeysLeftText;
-        ui->labelPrivateSendEnabled->setText(strEnabled);
+        if (fShowAdvancedCJUI && !strKeysLeftText.isEmpty()) strEnabled += ", " + strKeysLeftText;
+        ui->labelCoinJoinEnabled->setText(strEnabled);
+
+        // If mixing isn't active always show the lower number of txes because there are
+        // anyway the most PS widgets hidden.
+        SetupTransactionList(NUM_ITEMS_ENABLED_NORMAL);
 
         return;
+    } else {
+        SetupTransactionList(fShowAdvancedCJUI ? NUM_ITEMS_ENABLED_ADVANCED : NUM_ITEMS_ENABLED_NORMAL);
     }
 
     // Warn user that wallet is running out of keys
     // NOTE: we do NOT warn user and do NOT create autobackups if mixing is not running
-    if (nWalletBackups > 0 && pwalletMain->nKeysLeftSinceAutoBackup < PRIVATESEND_KEYS_THRESHOLD_WARNING) {
+    if (walletModel->wallet().isLegacy() && nWalletBackups > 0 && walletModel->getKeysLeftSinceAutoBackup() < COINJOIN_KEYS_THRESHOLD_WARNING) {
         QSettings settings;
         if(settings.value("fLowKeysWarning").toBool()) {
             QString strWarn =   tr("Very low number of keys left since last automatic backup!") + "<br><br>" +
                                 tr("We are about to create a new automatic backup for you, however "
-                                   "<span style='color:red;'> you should always make sure you have backups "
-                                   "saved in some safe place</span>!") + "<br><br>" +
-                                tr("Note: You turn this message off in options.");
-            ui->labelPrivateSendEnabled->setToolTip(strWarn);
-            LogPrintf("OverviewPage::privateSendStatus -- Very low number of keys left since last automatic backup, warning user and trying to create new backup...\n");
-            QMessageBox::warning(this, tr("PrivateSend"), strWarn, QMessageBox::Ok, QMessageBox::Ok);
+                                   "<span style='%1'> you should always make sure you have backups "
+                                   "saved in some safe place</span>!").arg(GUIUtil::getThemedStyleQString(GUIUtil::ThemedStyle::TS_COMMAND)) + "<br><br>" +
+                                tr("Note: You can turn this message off in options.");
+            ui->labelCoinJoinEnabled->setToolTip(strWarn);
+            LogPrint(BCLog::COINJOIN, "OverviewPage::coinJoinStatus -- Very low number of keys left since last automatic backup, warning user and trying to create new backup...\n");
+            QMessageBox::warning(this, strCoinJoinName, strWarn, QMessageBox::Ok, QMessageBox::Ok);
         } else {
-            LogPrintf("OverviewPage::privateSendStatus -- Very low number of keys left since last automatic backup, skipping warning and trying to create new backup...\n");
+            LogPrint(BCLog::COINJOIN, "OverviewPage::coinJoinStatus -- Very low number of keys left since last automatic backup, skipping warning and trying to create new backup...\n");
         }
 
-        std::string strBackupWarning;
-        std::string strBackupError;
-        if(!AutoBackupWallet(pwalletMain, "", strBackupWarning, strBackupError)) {
-            if (!strBackupWarning.empty()) {
+        QString strBackupWarning;
+        QString strBackupError;
+        if(!walletModel->autoBackupWallet(strBackupWarning, strBackupError)) {
+            if (!strBackupWarning.isEmpty()) {
                 // It's still more or less safe to continue but warn user anyway
-                LogPrintf("OverviewPage::privateSendStatus -- WARNING! Something went wrong on automatic backup: %s\n", strBackupWarning);
+                LogPrint(BCLog::COINJOIN, "OverviewPage::coinJoinStatus -- WARNING! Something went wrong on automatic backup: %s\n", strBackupWarning.toStdString());
 
-                QMessageBox::warning(this, tr("PrivateSend"),
-                    tr("WARNING! Something went wrong on automatic backup") + ":<br><br>" + strBackupWarning.c_str(),
+                QMessageBox::warning(this, strCoinJoinName,
+                    tr("WARNING! Something went wrong on automatic backup") + ":<br><br>" + strBackupWarning,
                     QMessageBox::Ok, QMessageBox::Ok);
             }
-            if (!strBackupError.empty()) {
+            if (!strBackupError.isEmpty()) {
                 // Things are really broken, warn user and stop mixing immediately
-                LogPrintf("OverviewPage::privateSendStatus -- ERROR! Failed to create automatic backup: %s\n", strBackupError);
+                LogPrint(BCLog::COINJOIN, "OverviewPage::coinJoinStatus -- ERROR! Failed to create automatic backup: %s\n", strBackupError.toStdString());
 
-                QMessageBox::warning(this, tr("PrivateSend"),
-                    tr("ERROR! Failed to create automatic backup") + ":<br><br>" + strBackupError.c_str() + "<br>" +
+                QMessageBox::warning(this, strCoinJoinName,
+                    tr("ERROR! Failed to create automatic backup") + ":<br><br>" + strBackupError + "<br>" +
                     tr("Mixing is disabled, please close your wallet and fix the issue!"),
                     QMessageBox::Ok, QMessageBox::Ok);
             }
         }
     }
 
-    QString strEnabled = fEnablePrivateSend ? tr("Enabled") : tr("Disabled");
+    QString strEnabled;
+    walletModel->withCoinJoin([&](auto& client) { strEnabled = client.isMixing() ? tr("Enabled") : tr("Disabled"); });
     // Show how many keys left in advanced PS UI mode only
-    if(fShowAdvancedPSUI) strEnabled += ", " + strKeysLeftText;
-    ui->labelPrivateSendEnabled->setText(strEnabled);
+    if(fShowAdvancedCJUI && !strKeysLeftText.isEmpty()) strEnabled += ", " + strKeysLeftText;
+    ui->labelCoinJoinEnabled->setText(strEnabled);
 
-    if(nWalletBackups == -1) {
-        // Automatic backup failed, nothing else we can do until user fixes the issue manually
-        DisablePrivateSendCompletely();
-
-        QString strError =  tr("ERROR! Failed to create automatic backup") + ", " +
-                            tr("see debug.log for details.") + "<br><br>" +
-                            tr("Mixing is disabled, please close your wallet and fix the issue!");
-        ui->labelPrivateSendEnabled->setToolTip(strError);
-
+    if (walletModel->wallet().isLegacy() && nWalletBackups == -1) {
+        // Automatic backup failed, nothing else we can do until user fixes the issue manually.
+        // Stop mixing right away; the guard above sets the matching tooltip on the next timer tick.
+        DisableCoinJoinCompletely();
         return;
-    } else if(nWalletBackups == -2) {
-        // We were able to create automatic backup but keypool was not replenished because wallet is locked.
-        QString strWarning = tr("WARNING! Failed to replenish keypool, please unlock your wallet to do so.");
-        ui->labelPrivateSendEnabled->setToolTip(strWarning);
     }
 
-    // check darksend status and unlock if needed
-    if(nBestHeight != darkSendPool.nCachedNumBlocks) {
+    // check coinjoin status and unlock if needed
+    if (nBestHeight != nCachedNumBlocks) {
         // Balance and number of transactions might have changed
-        darkSendPool.nCachedNumBlocks = nBestHeight;
-        updatePrivateSendProgress();
+        nCachedNumBlocks = nBestHeight;
+        updateCoinJoinProgress();
     }
+    walletModel->withCoinJoin([&](auto& client) {
+        ui->labelSubmittedDenom->setText(m_privacy ? "####" : QString(client.getSessionDenoms().c_str()));
+    });
 
-    QString strStatus = QString(darkSendPool.GetStatus().c_str());
-
-    QString s = tr("Last PrivateSend message:\n") + strStatus;
-
-    if(s != ui->labelPrivateSendLastMessage->text())
-        LogPrintf("OverviewPage::privateSendStatus -- Last PrivateSend message: %s\n", strStatus.toStdString());
-
-    ui->labelPrivateSendLastMessage->setText(s);
-
-    if(darkSendPool.nSessionDenom == 0){
-        ui->labelSubmittedDenom->setText(tr("N/A"));
-    } else {
-        QString strDenom(darkSendPool.GetDenominationsToString(darkSendPool.nSessionDenom).c_str());
-        ui->labelSubmittedDenom->setText(strDenom);
-    }
-
+    setWidgetsVisible(true);
 }
 
-void OverviewPage::privateSendAuto(){
-    darkSendPool.DoAutomaticDenominating();
-}
-
-void OverviewPage::privateSendReset(){
-    darkSendPool.ResetPool();
-
-    QMessageBox::warning(this, tr("PrivateSend"),
-        tr("PrivateSend was successfully reset."),
-        QMessageBox::Ok, QMessageBox::Ok);
-}
-
-void OverviewPage::privateSendInfo(){
-    HelpMessageDialog dlg(this, HelpMessageDialog::pshelp);
-    dlg.exec();
-}
-
-void OverviewPage::togglePrivateSend(){
+void OverviewPage::toggleCoinJoin() {
     QSettings settings;
     // Popup some information on first mixing
     QString hasMixed = settings.value("hasMixed").toString();
+    QString strCoinJoinName = QString::fromStdString(gCoinJoinName);
     if(hasMixed.isEmpty()){
-        QMessageBox::information(this, tr("PrivateSend"),
-                tr("If you don't want to see internal PrivateSend fees/transactions select \"Most Common\" as Type on the \"Transactions\" tab."),
+        QMessageBox::information(this, strCoinJoinName,
+                tr("If you don't want to see internal %1 fees/transactions select \"Most Common\" as Type on the \"Transactions\" tab.").arg(strCoinJoinName),
                 QMessageBox::Ok, QMessageBox::Ok);
         settings.setValue("hasMixed", "hasMixed");
     }
-    if(!fEnablePrivateSend){
-        CAmount nMinAmount = vecPrivateSendDenominations.back() + PRIVATESEND_COLLATERAL*4;
-        if(currentBalance < nMinAmount){
-            QString strMinAmount(BitcoinUnits::formatWithUnit(nDisplayUnit, nMinAmount));
-            QMessageBox::warning(this, tr("PrivateSend"),
-                tr("PrivateSend requires at least %1 to use.").arg(strMinAmount),
+
+    bool mixing{false};
+    walletModel->withCoinJoin([&](auto& client) { mixing = client.isMixing(); });
+    if (!mixing) {
+        const auto& balances = walletModel->getCachedBalance();
+        auto& options = walletModel->node().coinJoinOptions();
+        const CAmount nMinAmount = options.getSmallestDenomination() + options.getMaxCollateralAmount();
+        if(balances.balance < nMinAmount) {
+            QString strMinAmount(BitcoinUnits::formatWithUnit(m_display_bitcoin_unit, nMinAmount));
+            QMessageBox::warning(this, strCoinJoinName,
+                tr("%1 requires at least %2 to use.").arg(strCoinJoinName).arg(strMinAmount),
                 QMessageBox::Ok, QMessageBox::Ok);
             return;
         }
@@ -612,62 +722,65 @@ void OverviewPage::togglePrivateSend(){
             if(!ctx.isValid())
             {
                 //unlock was cancelled
-                darkSendPool.nCachedNumBlocks = std::numeric_limits<int>::max();
-                QMessageBox::warning(this, tr("PrivateSend"),
-                    tr("Wallet is locked and user declined to unlock. Disabling PrivateSend."),
+                nCachedNumBlocks = std::numeric_limits<int>::max();
+                QMessageBox::warning(this, strCoinJoinName,
+                    tr("Wallet is locked and user declined to unlock. Disabling %1.").arg(strCoinJoinName),
                     QMessageBox::Ok, QMessageBox::Ok);
-                LogPrint("privatesend", "OverviewPage::togglePrivateSend -- Wallet is locked and user declined to unlock. Disabling PrivateSend.\n");
+                LogPrint(BCLog::COINJOIN, "OverviewPage::toggleCoinJoin -- Wallet is locked and user declined to unlock. Disabling CoinJoin.\n");
                 return;
             }
         }
 
     }
 
-    fEnablePrivateSend = !fEnablePrivateSend;
-    darkSendPool.nCachedNumBlocks = std::numeric_limits<int>::max();
-
-    if(!fEnablePrivateSend){
-        ui->togglePrivateSend->setText(tr("Start Mixing"));
-        darkSendPool.UnlockCoins();
-    } else {
-        ui->togglePrivateSend->setText(tr("Stop Mixing"));
-
-        /* show darksend configuration if client has defaults set */
-
-        if(nPrivateSendAmount == 0){
-            DarksendConfig dlg(this);
-            dlg.setModel(walletModel);
-            dlg.exec();
+    nCachedNumBlocks = std::numeric_limits<int>::max();
+    walletModel->withCoinJoin([&](auto& client) {
+        if (client.isMixing()) {
+            ui->toggleCoinJoin->setText(tr("Start %1").arg(strCoinJoinName));
+            client.resetPool();
+            client.stopMixing();
+        } else {
+            ui->toggleCoinJoin->setText(tr("Stop %1").arg(strCoinJoinName));
+            client.startMixing();
         }
-
-    }
+    });
 }
 
-void OverviewPage::SetupTransactionList(int nNumItems) {
-    ui->listTransactions->setMinimumHeight(nNumItems * (DECORATION_SIZE + 2));
+void OverviewPage::SetupTransactionList(int nNumItems)
+{
+    if (walletModel == nullptr || walletModel->getTransactionTableModel() == nullptr) {
+        return;
+    }
 
-    if(walletModel && walletModel->getOptionsModel()) {
-        // Set up transaction list
-        filter = new TransactionFilterProxy();
+    // Set up transaction list
+    if (filter == nullptr) {
+        filter.reset(new TransactionFilterProxy());
         filter->setSourceModel(walletModel->getTransactionTableModel());
-        filter->setLimit(nNumItems);
         filter->setDynamicSortFilter(true);
         filter->setSortRole(Qt::EditRole);
         filter->setShowInactive(false);
-        filter->sort(TransactionTableModel::Status, Qt::DescendingOrder);
-
-        ui->listTransactions->setModel(filter);
-        ui->listTransactions->setModelColumn(TransactionTableModel::ToAddress);
+        filter->sort(TransactionTableModel::Date, Qt::DescendingOrder);
+        ui->listTransactions->setModel(filter.get());
     }
+
+    if (filter->rowCount() == nNumItems) {
+        return;
+    }
+
+    filter->setLimit(nNumItems);
+    ui->listTransactions->setMinimumHeight(nNumItems * ITEM_HEIGHT);
 }
 
-void OverviewPage::DisablePrivateSendCompletely() {
-    ui->togglePrivateSend->setText("(" + tr("Disabled") + ")");
-    ui->privateSendAuto->setText("(" + tr("Disabled") + ")");
-    ui->privateSendReset->setText("(" + tr("Disabled") + ")");
-    ui->framePrivateSend->setEnabled(false);
-    if (nWalletBackups <= 0) {
-        ui->labelPrivateSendEnabled->setText("<span style='color:red;'>(" + tr("Disabled") + ")</span>");
+void OverviewPage::DisableCoinJoinCompletely()
+{
+    if (walletModel == nullptr) {
+        return;
     }
-    fEnablePrivateSend = false;
+
+    ui->toggleCoinJoin->setText("(" + tr("Disabled") + ")");
+    ui->frameCoinJoin->setEnabled(false);
+    if (nWalletBackups <= 0) {
+        ui->labelCoinJoinEnabled->setText("<span style='" + GUIUtil::getThemedStyleQString(GUIUtil::ThemedStyle::TS_ERROR) + "'>(" + tr("Disabled") + ")</span>");
+    }
+    walletModel->withCoinJoin([](auto& client) { client.stopMixing(); });
 }

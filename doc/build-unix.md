@@ -2,264 +2,269 @@ UNIX BUILD NOTES
 ====================
 Some notes on how to build Vivo Core in Unix.
 
-(for OpenBSD specific instructions, see [build-openbsd.md](build-openbsd.md))
-
-Note
----------------------
-Always use absolute paths to configure and compile Vivo Core and the dependencies,
-for example, when specifying the the path of the dependency:
-
-	../dist/configure --enable-cxx --disable-shared --with-pic --prefix=$BDB_PREFIX
-
-Here BDB_PREFIX must absolute path - it is defined using $(pwd) which ensures
-the usage of the absolute path.
+(For BSD specific instructions, see `build-*bsd.md` in this directory.)
 
 To Build
 ---------------------
 
-```bash
+```sh
 ./autogen.sh
 ./configure
-make
+make # use "-j N" for N parallel jobs
 make install # optional
 ```
 
-This will build vivo-qt as well if the dependencies are met.
+See below for instructions on how to [install the dependencies on popular Linux
+distributions](#linux-distribution-specific-instructions), or the
+[dependencies](#dependencies) section for a complete overview.
 
-Dependencies
----------------------
+## Memory Requirements
 
-These dependencies are required:
+C++ compilers are memory-hungry. It is recommended to have at least 1.5 GB of
+memory available when compiling Vivo Core. On systems with less, gcc can be
+tuned to conserve memory with additional CXXFLAGS:
 
- Library     | Purpose          | Description
- ------------|------------------|----------------------
- libssl      | Crypto           | Random Number Generation, Elliptic Curve Cryptography
- libboost    | Utility          | Library for threading, data structures, etc
- libevent    | Networking       | OS independent asynchronous networking
 
-Optional dependencies:
+```sh
+./configure CXXFLAGS="--param ggc-min-expand=1 --param ggc-min-heapsize=32768"
+```
 
- Library     | Purpose          | Description
- ------------|------------------|----------------------
- miniupnpc   | UPnP Support     | Firewall-jumping support
- libdb4.8    | Berkeley DB      | Wallet storage (only needed when wallet enabled)
- qt          | GUI              | GUI toolkit (only needed when GUI enabled)
- protobuf    | Payments in GUI  | Data interchange format used for payment protocol (only needed when GUI enabled)
- libqrencode | QR codes in GUI  | Optional for generating QR codes (only needed when GUI enabled)
- libzmq3     | ZMQ notification | Optional, allows generating ZMQ notifications (requires ZMQ version >= 4.x)
 
-For the versions used in the release, see [release-process.md](release-process.md) under *Fetch and build inputs*.
+## Linux Distribution Specific Instructions
 
-System requirements
---------------------
+### Ubuntu & Debian
 
-C++ compilers are memory-hungry. It is recommended to have at least 1 GB of
-memory available when compiling Vivo Core. With 512MB of memory or less
-compilation will take much longer due to swap thrashing.
+#### Dependency Build Instructions
 
-Dependency Build Instructions: Ubuntu & Debian
-----------------------------------------------
 Build requirements:
 
-    sudo apt-get install build-essential libtool autotools-dev automake pkg-config libssl-dev libevent-dev bsdmainutils
+```sh
+sudo apt-get install build-essential libtool autotools-dev automake pkg-config bsdmainutils bison python3
+```
 
-On at least Ubuntu 14.04+ and Debian 7+ there are generic names for the
-individual boost development packages, so the following can be used to only
-install necessary parts of boost:
+Now, you can either build from self-compiled [depends](#dependencies) or install the required dependencies:
 
-    sudo apt-get install libboost-system-dev libboost-filesystem-dev libboost-chrono-dev libboost-program-options-dev libboost-test-dev libboost-thread-dev
+```sh
+sudo apt-get install libbacktrace-dev libevent-dev libboost-dev
+```
 
-If that doesn't work, you can install all boost development packages with:
+Note: libbacktrace-dev is available in Debian 13 (Trixie) and Ubuntu 25.04+.
+For older releases, use the /depends/README.md which includes all required libraries.
 
-    sudo apt-get install libboost-all-dev
+SQLite is required for the descriptor wallet:
 
-BerkeleyDB is required for the wallet. db4.8 packages are available [here](https://launchpad.net/~bitcoin/+archive/bitcoin).
-You can add the repository and install using the following commands:
+```sh
+sudo apt-get install libsqlite3-dev
+```
 
-    sudo add-apt-repository ppa:bitcoin/bitcoin
-    sudo apt-get update
-    sudo apt-get install libdb4.8-dev libdb4.8++-dev
+Berkeley DB is only required for the legacy wallet. Ubuntu and Debian have their own `libdb-dev` and `libdb++-dev` packages,
+but these will install Berkeley DB 5.1 or later. This will break binary wallet compatibility with the distributed
+executables, which are based on BerkeleyDB 4.8. If you do not care about wallet compatibility, pass
+`--with-incompatible-bdb` to configure. Otherwise, you can build Berkeley DB [yourself](#berkeley-db).
 
-Ubuntu and Debian have their own libdb-dev and libdb++-dev packages, but these will install
-BerkeleyDB 5.1 or later, which break binary wallet compatibility with the distributed executables which
-are based on BerkeleyDB 4.8. If you do not care about wallet compatibility,
-pass `--with-incompatible-bdb` to configure.
+To build Vivo Core without wallet, see [*Disable-wallet mode*](#disable-wallet-mode)
 
-See the section "Disable-wallet mode" to build Vivo Core without wallet.
+Optional port mapping libraries (see: `--with-miniupnpc` and `--with-natpmp`):
 
-Optional:
+```sh
+sudo apt-get install libminiupnpc-dev libnatpmp-dev
+```
 
-    sudo apt-get install libminiupnpc-dev (see --with-miniupnpc and --enable-upnp-default)
+ZMQ dependencies (provides ZMQ API):
 
-ZMQ dependencies:
+```sh
+sudo apt-get install libzmq3-dev
+```
 
-    sudo apt-get install libzmq3-dev (provides ZMQ API 4.x)
+GMP dependencies (provides platform-optimized routines):
 
-Dependencies for the GUI: Ubuntu & Debian
------------------------------------------
+```sh
+sudo apt-get install libgmp-dev
+```
 
-If you want to build Vivo-Qt, make sure that the required packages for Qt development
-are installed. Either Qt 5 or Qt 4 are necessary to build the GUI.
-If both Qt 4 and Qt 5 are installed, Qt 5 will be used. Pass `--with-gui=qt4` to configure to choose Qt4.
+User-Space, Statically Defined Tracing (USDT) dependencies:
+
+```sh
+sudo apt install systemtap-sdt-dev
+```
+
+GUI dependencies:
+
+If you want to build vivo-qt, make sure that the required packages for Qt development
+are installed. Qt 5 is necessary to build the GUI.
 To build without GUI pass `--without-gui`.
 
-To build with Qt 5 (recommended) you need the following:
+To build with Qt 5 you need the following:
 
-    sudo apt-get install libqt5gui5 libqt5core5a libqt5dbus5 qttools5-dev qttools5-dev-tools libprotobuf-dev protobuf-compiler
+```sh
+sudo apt-get install qtbase5-dev qttools5-dev qttools5-dev-tools
+```
 
-Alternatively, to build with Qt 4 you need the following:
+Additionally, to support Wayland protocol for modern desktop environments:
 
-    sudo apt-get install libqt4-dev libprotobuf-dev protobuf-compiler
+```sh
+sudo apt-get install qtwayland5
+```
 
 libqrencode (optional) can be installed with:
 
-    sudo apt-get install libqrencode-dev
+```sh
+sudo apt-get install libqrencode-dev
+```
 
 Once these are installed, they will be found by configure and a vivo-qt executable will be
 built by default.
 
-Notes
------
-The release is built with GCC and then "strip vivod" to strip the debug
-symbols, which reduces the executable size by about 90%.
 
+### Fedora
 
-miniupnpc
----------
+#### Dependency Build Instructions
 
-[miniupnpc](http://miniupnp.free.fr/) may be used for UPnP port mapping.  It can be downloaded from [here](
-http://miniupnp.tuxfamily.org/files/).  UPnP support is compiled in and
-turned off by default.  See the configure options for upnp behavior desired:
+Build requirements:
 
-	--without-miniupnpc      No UPnP support miniupnp not required
-	--disable-upnp-default   (the default) UPnP support turned off by default at runtime
-	--enable-upnp-default    UPnP support turned on by default at runtime
-
-
-Berkeley DB
------------
-It is recommended to use Berkeley DB 4.8. If you have to build it yourself:
-
-```bash
-VIVO_ROOT=$(pwd)
-
-# Pick some path to install BDB to, here we create a directory within the vivo directory
-BDB_PREFIX="${VIVO_ROOT}/db4"
-mkdir -p $BDB_PREFIX
-
-# Fetch the source and verify that it is not tampered with
-wget 'http://download.oracle.com/berkeley-db/db-4.8.30.NC.tar.gz'
-echo '12edc0df75bf9abd7f82f821795bcee50f42cb2e5f76a6a281b85732798364ef  db-4.8.30.NC.tar.gz' | sha256sum -c
-# -> db-4.8.30.NC.tar.gz: OK
-tar -xzvf db-4.8.30.NC.tar.gz
-
-# Build the library and install to our prefix
-cd db-4.8.30.NC/build_unix/
-#  Note: Do a static build so that it can be embedded into the executable, instead of having to find a .so at runtime
-../dist/configure --enable-cxx --disable-shared --with-pic --prefix=$BDB_PREFIX
-make install
-
-# Configure Vivo Core to use our own-built instance of BDB
-cd $VIVO_ROOT
-./autogen.sh
-./configure LDFLAGS="-L${BDB_PREFIX}/lib/" CPPFLAGS="-I${BDB_PREFIX}/include/" # (other args...)
+```sh
+sudo dnf install gcc-c++ libtool make autoconf automake python3
 ```
 
-**Note**: You only need Berkeley DB if the wallet is enabled (see the section *Disable-Wallet mode* below).
+Now, you can either build from self-compiled [depends](#dependencies) or install the required dependencies:
 
-Boost
------
-If you need to build Boost yourself:
+```sh
+sudo dnf install libevent-devel boost-devel
+```
 
-	sudo su
-	./bootstrap.sh
-	./bjam install
+Note: Fedora repositories do not include libbacktrace. To build Vivo Core without stack trace support, configure with `--disable-stacktraces`.
 
+SQLite is required for the descriptor wallet:
 
-Security
---------
-To help make your Vivo installation more secure by making certain attacks impossible to
-exploit even if a vulnerability is found, binaries are hardened by default.
-This can be disabled with:
+```sh
+sudo dnf install sqlite-devel
+```
 
-Hardening Flags:
+Berkeley DB is required for the legacy wallet:
 
-	./configure --enable-hardening
-	./configure --disable-hardening
+```sh
+sudo dnf install libdb4-devel libdb4-cxx-devel
+```
 
+Berkeley DB is only required for the legacy wallet. Newer Fedora releases have only `libdb-devel` and `libdb-cxx-devel` packages, but these will install
+Berkeley DB 5.3 or later. This will break binary wallet compatibility with the distributed executables, which
+are based on Berkeley DB 4.8. If you do not care about wallet compatibility,
+pass `--with-incompatible-bdb` to configure. Otherwise, you can build Berkeley DB [yourself](#berkeley-db).
 
-Hardening enables the following features:
+To build Vivo Core without wallet, see [*Disable-wallet mode*](#disable-wallet-mode)
 
-* Position Independent Executable
-    Build position independent code to take advantage of Address Space Layout Randomization
-    offered by some kernels. Attackers who can cause execution of code at an arbitrary memory
-    location are thwarted if they don't know where anything useful is located.
-    The stack and heap are randomly located by default but this allows the code section to be
-    randomly located as well.
+Optional port mapping libraries (see: `--with-miniupnpc` and `--with-natpmp`):
 
-    On an AMD64 processor where a library was not compiled with -fPIC, this will cause an error
-    such as: "relocation R_X86_64_32 against `......' can not be used when making a shared object;"
+```sh
+sudo dnf install miniupnpc-devel libnatpmp-devel
+```
 
-    To test that you have built PIE executable, install scanelf, part of paxutils, and use:
+ZMQ dependencies (provides ZMQ API):
 
-    	scanelf -e ./vivod
+```sh
+sudo dnf install zeromq-devel
+```
 
-    The output should contain:
+GMP dependencies (provides platform-optimized routines):
 
-     TYPE
-    ET_DYN
+```sh
+sudo dnf install gmp-devel
+```
 
-* Non-executable Stack
-    If the stack is executable then trivial stack based buffer overflow exploits are possible if
-    vulnerable buffers are found. By default, Vivo Core should be built with a non-executable stack
-    but if one of the libraries it uses asks for an executable stack or someone makes a mistake
-    and uses a compiler extension which requires an executable stack, it will silently build an
-    executable without the non-executable stack protection.
+User-Space, Statically Defined Tracing (USDT) dependencies:
 
-    To verify that the stack is non-executable after compiling use:
-    `scanelf -e ./vivod`
+```sh
+sudo dnf install systemtap-sdt-devel
+```
 
-    the output should contain:
-	STK/REL/PTL
-	RW- R-- RW-
+GUI dependencies:
 
-    The STK RW- means that the stack is readable and writeable but not executable.
+If you want to build vivo-qt, make sure that the required packages for Qt development
+are installed. Qt 5 is necessary to build the GUI.
+To build without GUI pass `--without-gui`.
+
+To build with Qt 5 you need the following:
+
+```sh
+sudo dnf install qt5-qttools-devel qt5-qtbase-devel
+```
+
+Additionally, to support Wayland protocol for modern desktop environments:
+
+```sh
+sudo dnf install qt5-qtwayland
+```
+
+libqrencode (optional) can be installed with:
+
+```sh
+sudo dnf install qrencode-devel
+```
+
+Once these are installed, they will be found by configure and a vivo-qt executable will be
+built by default.
+
+## Dependencies
+
+See [dependencies.md](dependencies.md) for a complete overview, and
+[depends](/depends/README.md) on how to compile them yourself, if you wish to
+not use the packages of your Linux distribution.
+
+### Berkeley DB
+
+The legacy wallet uses Berkeley DB. To ensure backwards compatibility it is
+recommended to use Berkeley DB 4.8. If you have to build it yourself, and don't
+want to use any other libraries built in depends, you can do:
+```bash
+make -C depends NO_BOOST=1 NO_LIBEVENT=1 NO_QT=1 NO_SQLITE=1 NO_NATPMP=1 NO_UPNP=1 NO_ZMQ=1 NO_USDT=1
+...
+to: /path/to/vivo/depends/x86_64-pc-linux-gnu
+```
+and configure using the following:
+```bash
+export BDB_PREFIX="/path/to/vivo/depends/x86_64-pc-linux-gnu"
+
+./configure \
+    BDB_LIBS="-L${BDB_PREFIX}/lib -ldb_cxx-4.8" \
+    BDB_CFLAGS="-I${BDB_PREFIX}/include"
+```
+
+**Note**: Make sure that `BDB_PREFIX` is an absolute path.
+
+**Note**: You only need Berkeley DB if the legacy wallet is enabled (see [*Disable-wallet mode*](#disable-wallet-mode)).
 
 Disable-wallet mode
 --------------------
-When the intention is to run only a P2P node without a wallet, Vivo Core may be compiled in
-disable-wallet mode with:
+When the intention is to only run a P2P node, without a wallet, Vivo Core can
+be compiled in disable-wallet mode with:
 
     ./configure --disable-wallet
 
-In this case there is no dependency on Berkeley DB 4.8.
+In this case there is no dependency on SQLite or Berkeley DB.
 
-Mining is also possible in disable-wallet mode, but only using the `getblocktemplate` RPC
-call not `getwork`.
+Mining is also possible in disable-wallet mode using the `getblocktemplate` RPC call.
 
 Additional Configure Flags
 --------------------------
 A list of additional configure flags can be displayed with:
 
-    ./configure --help
-
-ARM Cross-compilation
--------------------
-These steps can be performed on, for example, an Ubuntu VM. The depends system
-will also work on other Linux distributions, however the commands for
-installing the toolchain will be different.
-
-First install the toolchain:
-
-    sudo apt-get install g++-arm-linux-gnueabihf
-
-To build executables for ARM:
-
-    cd depends
-    make HOST=arm-linux-gnueabihf NO_QT=1
-    cd ..
-    ./configure --prefix=$PWD/depends/arm-linux-gnueabihf --enable-glibc-back-compat --enable-reduce-exports LDFLAGS=-static-libstdc++
-    make
+```sh
+./configure --help
+```
 
 
-For further documentation on the depends system see [README.md](../depends/README.md) in the depends directory.
+Setup and Build Example: Arch Linux
+-----------------------------------
+This example lists the steps necessary to setup and build a command line only distribution of the latest changes on Arch Linux:
+
+```sh
+pacman --sync --needed autoconf automake base-devel boost cmake gcc git libbacktrace libevent libtool make patch pkgconf python sqlite
+git clone https://github.com/vivopay/vivo.git
+cd vivo/
+./autogen.sh
+./configure
+make check
+./src/vivod
+```
+
+If you intend to work with legacy Berkeley DB wallets, see [Berkeley DB](#berkeley-db) section.

@@ -1,18 +1,22 @@
-// Copyright (c) 2011-2015 The Bitcoin Core developers
+// Copyright (c) 2011-2021 The Bitcoin Core developers
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
 #ifndef BITCOIN_QT_OVERVIEWPAGE_H
 #define BITCOIN_QT_OVERVIEWPAGE_H
 
-#include "amount.h"
+#include <interfaces/wallet.h>
+#include <qt/bitcoinunits.h>
 
+#include <QFont>
 #include <QWidget>
+
+#include <limits>
+#include <memory>
 
 class ClientModel;
 class TransactionFilterProxy;
 class TxViewDelegate;
-class PlatformStyle;
 class WalletModel;
 
 namespace Ui {
@@ -29,7 +33,7 @@ class OverviewPage : public QWidget
     Q_OBJECT
 
 public:
-    explicit OverviewPage(const PlatformStyle *platformStyle, QWidget *parent = 0);
+    explicit OverviewPage(QWidget* parent = nullptr);
     ~OverviewPage();
 
     void setClientModel(ClientModel *clientModel);
@@ -37,45 +41,41 @@ public:
     void showOutOfSyncWarning(bool fShow);
 
 public Q_SLOTS:
-    void privateSendStatus();
-    void setBalance(const CAmount& balance, const CAmount& unconfirmedBalance, const CAmount& immatureBalance, const CAmount& anonymizedBalance,
-                    const CAmount& watchOnlyBalance, const CAmount& watchUnconfBalance, const CAmount& watchImmatureBalance);
+    void coinJoinStatus(bool fForce = false);
+    void setBalance(const interfaces::WalletBalances& balances);
+    void setPrivacy(bool privacy);
 
 Q_SIGNALS:
     void transactionClicked(const QModelIndex &index);
+    void outOfSyncWarningClicked();
 
 private:
-    QTimer *timer;
+    QTimer* timer{nullptr};
     Ui::OverviewPage *ui;
-    ClientModel *clientModel;
-    WalletModel *walletModel;
-    CAmount currentBalance;
-    CAmount currentUnconfirmedBalance;
-    CAmount currentImmatureBalance;
-    CAmount currentAnonymizedBalance;
-    CAmount currentWatchOnlyBalance;
-    CAmount currentWatchUnconfBalance;
-    CAmount currentWatchImmatureBalance;
-    int nDisplayUnit;
-    bool fShowAdvancedPSUI;
+    ClientModel* clientModel{nullptr};
+    WalletModel* walletModel{nullptr};
+    bool m_privacy{false};
+    BitcoinUnit m_display_bitcoin_unit;
+    bool fShowAdvancedCJUI;
+    int cachedNumISLocks{-1};
+    //! Block height at which the CoinJoin status was last rendered
+    int nCachedNumBlocks{std::numeric_limits<int>::max()};
 
     TxViewDelegate *txdelegate;
-    TransactionFilterProxy *filter;
+    std::unique_ptr<TransactionFilterProxy> filter;
 
     void SetupTransactionList(int nNumItems);
-    void DisablePrivateSendCompletely();
+    void DisableCoinJoinCompletely();
 
 private Q_SLOTS:
-    void togglePrivateSend();
-    void privateSendAuto();
-    void privateSendReset();
-    void privateSendInfo();
+    void toggleCoinJoin();
     void updateDisplayUnit();
-    void updatePrivateSendProgress();
-    void updateAdvancedPSUI(bool fShowAdvancedPSUI);
+    void updateCoinJoinProgress();
+    void updateAdvancedCJUI(bool fShowAdvancedCJUI);
     void handleTransactionClicked(const QModelIndex &index);
     void updateAlerts(const QString &warnings);
     void updateWatchOnlyLabels(bool showWatchOnly);
+    void setMonospacedFont(const QFont&);
 };
 
 #endif // BITCOIN_QT_OVERVIEWPAGE_H

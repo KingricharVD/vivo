@@ -1,11 +1,11 @@
-// Copyright (c) 2011-2015 The Bitcoin Core developers
+// Copyright (c) 2011-2021 The Bitcoin Core developers
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
 #ifndef BITCOIN_QT_COINCONTROLDIALOG_H
 #define BITCOIN_QT_COINCONTROLDIALOG_H
 
-#include "amount.h"
+#include <consensus/amount.h>
 
 #include <QAbstractButton>
 #include <QAction>
@@ -13,14 +13,13 @@
 #include <QList>
 #include <QMenu>
 #include <QPoint>
-#include <QString>
 #include <QTreeWidgetItem>
 
-class PlatformStyle;
 class WalletModel;
 
+namespace wallet {
 class CCoinControl;
-class CTxMemPool;
+} // namespace wallet
 
 namespace Ui {
     class CoinControlDialog;
@@ -28,90 +27,73 @@ namespace Ui {
 
 #define ASYMP_UTF8 "\xE2\x89\x88"
 
+class CCoinControlWidgetItem : public QTreeWidgetItem
+{
+public:
+    explicit CCoinControlWidgetItem(QTreeWidget *parent, int type = Type) : QTreeWidgetItem(parent, type) {}
+    explicit CCoinControlWidgetItem(QTreeWidgetItem *parent, int type = Type) : QTreeWidgetItem(parent, type) {}
+
+    bool operator<(const QTreeWidgetItem &other) const override;
+};
+
+
 class CoinControlDialog : public QDialog
 {
     Q_OBJECT
 
 public:
-    explicit CoinControlDialog(const PlatformStyle *platformStyle, QWidget *parent = 0);
+    explicit CoinControlDialog(wallet::CCoinControl& coin_control, WalletModel* model, QWidget *parent = nullptr);
     ~CoinControlDialog();
 
-    void setModel(WalletModel *model);
-
     // static because also called from sendcoinsdialog
-    static void updateLabels(WalletModel*, QDialog*);
-    static QString getPriorityLabel(double dPriority, double mempoolEstimatePriority);
+    static void updateLabels(wallet::CCoinControl& m_coin_control, WalletModel*, QDialog*);
 
     static QList<CAmount> payAmounts;
-    static CCoinControl *coinControl;
     static bool fSubtractFeeFromAmount;
 
 private:
     Ui::CoinControlDialog *ui;
+    wallet::CCoinControl& m_coin_control;
     WalletModel *model;
     int sortColumn;
     Qt::SortOrder sortOrder;
 
     QMenu *contextMenu;
     QTreeWidgetItem *contextMenuItem;
-    QAction *copyTransactionHashAction;
+    QAction* m_copy_transaction_outpoint_action;
     QAction *lockAction;
     QAction *unlockAction;
 
-    const PlatformStyle *platformStyle;
+    bool fHideAdditional{true};
 
-    QString strPad(QString, int, QString);
     void sortView(int, Qt::SortOrder);
     void updateView();
 
     enum
     {
-        COLUMN_CHECKBOX,
+        COLUMN_CHECKBOX = 0,
         COLUMN_AMOUNT,
         COLUMN_LABEL,
         COLUMN_ADDRESS,
-        COLUMN_PRIVATESEND_ROUNDS,
+        COLUMN_COINJOIN_ROUNDS,
         COLUMN_DATE,
         COLUMN_CONFIRMATIONS,
-        COLUMN_PRIORITY,
-        COLUMN_TXHASH,
-        COLUMN_VOUT_INDEX,
-        COLUMN_AMOUNT_INT64,
-        COLUMN_PRIORITY_INT64,
-        COLUMN_DATE_INT64
     };
 
-    // some columns have a hidden column containing the value used for sorting
-    int getMappedColumn(int column, bool fVisibleColumn = true)
+    enum
     {
-        if (fVisibleColumn)
-        {
-            if (column == COLUMN_AMOUNT_INT64)
-                return COLUMN_AMOUNT;
-            else if (column == COLUMN_PRIORITY_INT64)
-                return COLUMN_PRIORITY;
-            else if (column == COLUMN_DATE_INT64)
-                return COLUMN_DATE;
-        }
-        else
-        {
-            if (column == COLUMN_AMOUNT)
-                return COLUMN_AMOUNT_INT64;
-            else if (column == COLUMN_PRIORITY)
-                return COLUMN_PRIORITY_INT64;
-            else if (column == COLUMN_DATE)
-                return COLUMN_DATE_INT64;
-        }
+        TxHashRole = Qt::UserRole,
+        VOutRole
+    };
 
-        return column;
-    }
+    friend class CCoinControlWidgetItem;
 
 private Q_SLOTS:
     void showMenu(const QPoint &);
     void copyAmount();
     void copyLabel();
     void copyAddress();
-    void copyTransactionHash();
+    void copyTransactionOutpoint();
     void lockCoin();
     void unlockCoin();
     void clipboardQuantity();
@@ -119,8 +101,6 @@ private Q_SLOTS:
     void clipboardFee();
     void clipboardAfterFee();
     void clipboardBytes();
-    void clipboardPriority();
-    void clipboardLowOutput();
     void clipboardChange();
     void radioTreeMode(bool);
     void radioListMode(bool);
@@ -128,8 +108,9 @@ private Q_SLOTS:
     void headerSectionClicked(int);
     void buttonBoxClicked(QAbstractButton*);
     void buttonSelectAllClicked();
-    void buttonToggleLockClicked();
+    void buttonLockAllClicked();
     void updateLabelLocked();
+    void on_hideButton_clicked();
 };
 
 #endif // BITCOIN_QT_COINCONTROLDIALOG_H

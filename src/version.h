@@ -1,5 +1,5 @@
-// Copyright (c) 2012-2014 The Bitcoin Core developers
-// Copyright (c) 2014-2017 The Vivo Core developers
+// Copyright (c) 2012-2020 The Bitcoin Core developers
+// Copyright (c) 2014-2025 The Vivo Core developers
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
@@ -10,35 +10,76 @@
  * network protocol versioning
  */
 
-static const int PROTOCOL_VERSION = 70210;
+
+static const int VIVO_PRE_V2_PROTOCOL_VERSION = 70241;
+
+
+
+static const int VIVO_V2_PROTOCOL_VERSION = 70250;
+
+
+
+static const int PROTOCOL_VERSION = VIVO_V2_PROTOCOL_VERSION;
 
 //! initial proto version, to be increased after version/verack negotiation
 static const int INIT_PROTO_VERSION = 209;
 
-//! In this version, 'getheaders' was introduced.
-static const int GETHEADERS_VERSION = 70077;
-
 //! disconnect from peers older than this proto version
-static const int MIN_PEER_PROTO_VERSION = 70210;
+static const int MIN_PEER_PROTO_VERSION = 70221;
 
-//! nTime field added to CAddress, starting with this version;
-//! if possible, avoid requesting addresses nodes older than this
-static const int CADDR_TIME_VERSION = 31402;
+//! minimum proto version of masternode to accept in DKGs
+static const int MIN_MASTERNODE_PROTO_VERSION = 70240;
 
-//! only request blocks from nodes outside this range of versions
-static const int NOBLKS_VERSION_START = 32000;
-static const int NOBLKS_VERSION_END = 70209;
+//! ADDRV2 was introduced in this version
+static const int ADDRV2_PROTO_VERSION = 70223;
 
-//! BIP 0031, pong message, is enabled for all versions AFTER this one
-static const int BIP0031_VERSION = 60000;
+//! BLS scheme was introduced in this version
+static const int BLS_SCHEME_PROTO_VERSION = 70225;
 
-//! "mempool" command, enhanced "getdata" behavior starts with this version
-static const int MEMPOOL_GD_VERSION = 60002;
+//! Masternode type was introduced in this version
+static const int DMN_TYPE_PROTO_VERSION = 70227;
 
-//! "filter*" commands are disabled without NODE_BLOOM after and including this version
-static const int NO_BLOOM_VERSION = 70201;
+//! Versioned Simplified Masternode List Entries were introduced in this version
+static const int SMNLE_VERSIONED_PROTO_VERSION = 70228;
 
-//! "sendheaders" command and announcing blocks with headers starts with this version
-static const int SENDHEADERS_VERSION = 70201;
+//! Versioned Simplified Masternode List Entries were introduced in this version
+static const int MNLISTDIFF_VERSION_ORDER = 70229;
+
+//! Masternode type was introduced in this version
+static const int MNLISTDIFF_CHAINLOCKS_PROTO_VERSION = 70230;
+
+//! Legacy ISLOCK messages and a corresponding INV were dropped in this version
+static const int NO_LEGACY_ISLOCK_PROTO_VERSION = 70231;
+
+//! Inventory type for DSQ messages added
+static const int DSQ_INV_VERSION = 70234;
+
+//! Maximum header count for HEADRES2 message was increased from 2000 to 8000 in this version
+static const int INCREASE_MAX_HEADERS2_VERSION = 70235;
+
+//! BIP324 v2 transport with Vivo short IDs (128-167) introduced
+static const int BIP324_DASH_BASELINE_VERSION = 70235;
+
+//! Behavior of QRINFO is changed in this protocol version
+static const int EFFICIENT_QRINFO_VERSION = 70236;
+
+//! cycleHash in isdlock message switched to using quorum's base block in this version
+static const int ISDLOCK_CYCLEHASH_UPDATE_VERSION = 70237;
+
+//! Introduced new p2p message platform pose BAN
+static const int PLATFORM_BAN_VERSION = 70238;
+
+//! Ban of re-propagation of old QFCOMMIT enforcement
+static const int QFCOMMIT_STALE_REPROP_BAN_VERSION = 70239;
+
+//! PLATFORMBAN added to v2 short IDs (short ID 168)
+static const int PLATFORMBAN_V2_SHORT_ID_VERSION = 70240;
+
+//! CoinJoin denomination promotion/demotion (rebalance) sessions introduced in this version;
+//! dsa messages gained a version-gated flags field and only peers at or above this version
+//! may join rebalance-capable mixing sessions
+static const int COINJOIN_REBALANCE_VERSION = 70241;
+
+// Make sure that none of the values above collide with `ADDRV2_FORMAT`.
 
 #endif // BITCOIN_VERSION_H

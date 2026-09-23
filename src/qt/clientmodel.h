@@ -1,32 +1,48 @@
-// Copyright (c) 2011-2015 The Bitcoin Core developers
-// Copyright (c) 2014-2017 The Vivo Core developers
+// Copyright (c) 2011-2021 The Bitcoin Core developers
+// Copyright (c) 2014-2025 The Vivo Core developers
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
 #ifndef BITCOIN_QT_CLIENTMODEL_H
 #define BITCOIN_QT_CLIENTMODEL_H
 
+#include <interfaces/node.h>
+#include <netaddress.h>
+#include <sync.h>
+#include <uint256.h>
+
 #include <QObject>
 #include <QDateTime>
 
-class AddressTableModel;
+#include <atomic>
+#include <memory>
+
 class BanTableModel;
+class ChainLockFeed;
+class ClientFeeds;
+class CreditPoolFeed;
+class InstantSendFeed;
+class MasternodeFeed;
 class OptionsModel;
+class QuorumFeed;
 class PeerTableModel;
-class TransactionTableModel;
+class PeerTableSortProxy;
+class ProposalFeed;
+enum class SynchronizationState;
+struct LocalServiceInfo;
+namespace interfaces {
+struct BlockTip;
+} // namespace interfaces
 
-class CWallet;
-class CBlockIndex;
+enum class BlockSource {
+    NONE,
+    DISK,
+    NETWORK,
+};
 
-QT_BEGIN_NAMESPACE
-class QTimer;
-QT_END_NAMESPACE
-
-enum BlockSource {
-    BLOCK_SOURCE_NONE,
-    BLOCK_SOURCE_REINDEX,
-    BLOCK_SOURCE_DISK,
-    BLOCK_SOURCE_NETWORK
+enum class SyncType {
+    HEADER_SYNC,
+    BLOCK_SYNC
 };
 
 enum NumConnections {
@@ -36,82 +52,107 @@ enum NumConnections {
     CONNECTIONS_ALL  = (CONNECTIONS_IN | CONNECTIONS_OUT),
 };
 
+class CGovernanceObject;
+
 /** Model for Vivo network client. */
 class ClientModel : public QObject
 {
     Q_OBJECT
 
 public:
-    explicit ClientModel(OptionsModel *optionsModel, QObject *parent = 0);
+    explicit ClientModel(interfaces::Node& node, OptionsModel *optionsModel, QObject *parent = nullptr);
     ~ClientModel();
 
+    void stop();
+
+    interfaces::Node& node() const { return m_node; }
+    interfaces::Masternode::Sync& masternodeSync() const { return m_node.masternodeSync(); }
+    interfaces::CoinJoin::Options& coinJoinOptions() const { return m_node.coinJoinOptions(); }
     OptionsModel *getOptionsModel();
     PeerTableModel *getPeerTableModel();
+    PeerTableSortProxy* peerTableSortProxy();
     BanTableModel *getBanTableModel();
+
+    ChainLockFeed* feedChainLock() const { return m_feed_chainlock; }
+    CreditPoolFeed* feedCreditPool() const { return m_feed_creditpool; }
+    InstantSendFeed* feedInstantSend() const { return m_feed_instantsend; }
+    MasternodeFeed* feedMasternode() const { return m_feed_masternode; }
+    ProposalFeed* feedProposal() const { return m_feed_proposal; }
+    QuorumFeed* feedQuorum() const { return m_feed_quorum; }
 
     //! Return number of connections, default is in- and outbound (total)
     int getNumConnections(unsigned int flags = CONNECTIONS_ALL) const;
-    QString getMasternodeCountString() const;
+    std::map<CNetAddr, LocalServiceInfo> getNetLocalAddresses() const;
     int getNumBlocks() const;
+    uint256 getBestBlockHash() EXCLUSIVE_LOCKS_REQUIRED(!m_cached_tip_mutex);
+    int getHeaderTipHeight() const;
+    int64_t getHeaderTipTime() const;
 
-    //! Return number of transactions in the mempool
-    long getMempoolSize() const;
-    //! Return the dynamic memory usage of the mempool
-    size_t getMempoolDynamicUsage() const;
-    
-    quint64 getTotalBytesRecv() const;
-    quint64 getTotalBytesSent() const;
+    void getAllGovernanceObjects(std::vector<CGovernanceObject> &obj);
 
-    double getVerificationProgress(const CBlockIndex *tip) const;
-    QDateTime getLastBlockDate() const;
-
-    //! Return true if core is doing initial block download
-    bool inInitialBlockDownload() const;
-    //! Return true if core is importing blocks
-    enum BlockSource getBlockSource() const;
+    //! Returns the block source of the current importing/syncing state
+    BlockSource getBlockSource() const;
     //! Return warnings to be displayed in status bar
     QString getStatusBarWarnings() const;
 
     QString formatFullVersion() const;
     QString formatSubVersion() const;
-    QString formatBuildDate() const;
     bool isReleaseVersion() const;
-    QString clientName() const;
     QString formatClientStartupTime() const;
+    QString dataDir() const;
+    QString blocksDir() const;
+
+    bool getProxyInfo(std::string& ip_port) const;
+
+    // caches for the best header: hash, number of blocks and block time
+    mutable std::atomic<int> cachedBestHeaderHeight;
+    mutable std::atomic<int64_t> cachedBestHeaderTime;
+    mutable std::atomic<int> m_cached_num_blocks{-1};
+
+    Mutex m_cached_tip_mutex;
+    uint256 m_cached_tip_blocks GUARDED_BY(m_cached_tip_mutex){};
 
 private:
+    interfaces::Node& m_node;
+    std::vector<std::unique_ptr<interfaces::Handler>> m_event_handlers;
     OptionsModel *optionsModel;
-    PeerTableModel *peerTableModel;
-    QString cachedMasternodeCountString;
-    BanTableModel *banTableModel;
+    PeerTableModel* peerTableModel{nullptr};
+    PeerTableSortProxy* m_peer_table_sort_proxy{nullptr};
+    BanTableModel* banTableModel{nullptr};
 
-    QTimer *pollTimer;
-    QTimer *pollMnTimer;
+    //! A thread to interact with m_node asynchronously
+    QThread* const m_thread;
 
+    //! Data sources from different subsystems coordinated by model
+    ChainLockFeed* m_feed_chainlock{nullptr};
+    CreditPoolFeed* m_feed_creditpool{nullptr};
+    InstantSendFeed* m_feed_instantsend{nullptr};
+    MasternodeFeed* m_feed_masternode{nullptr};
+    ProposalFeed* m_feed_proposal{nullptr};
+    QuorumFeed* m_feed_quorum{nullptr};
+    std::unique_ptr<ClientFeeds> m_feeds{nullptr};
+
+    void TipChanged(SynchronizationState sync_state, interfaces::BlockTip tip, double verification_progress, SyncType synctype) EXCLUSIVE_LOCKS_REQUIRED(!m_cached_tip_mutex);
     void subscribeToCoreSignals();
     void unsubscribeFromCoreSignals();
 
 Q_SIGNALS:
     void numConnectionsChanged(int count);
-    void strMasternodesChanged(const QString &strMasternodes);
-    void numBlocksChanged(int count, const QDateTime& blockDate, double nVerificationProgress);
+    void governanceChanged();
+    void masternodeListChanged() const;
+    void chainLockChanged();
+    void numBlocksChanged(int count, const QDateTime& blockDate, const QString& blockHash, double nVerificationProgress, SyncType header, SynchronizationState sync_state);
     void additionalDataSyncProgressChanged(double nSyncProgress);
-    void mempoolSizeChanged(long count, size_t mempoolSizeInBytes);
+    void mempoolSizeChanged(long count, size_t mempoolSizeInBytes, size_t mempoolMaxSizeInBytes);
+    void instantSendChanged();
+    void networkActiveChanged(bool networkActive);
     void alertsChanged(const QString &warnings);
-    void bytesChanged(quint64 totalBytesIn, quint64 totalBytesOut);
 
     //! Fired when a message should be reported to the user
     void message(const QString &title, const QString &message, unsigned int style);
 
     // Show progress dialog e.g. for verifychain
     void showProgress(const QString &title, int nProgress);
-
-public Q_SLOTS:
-    void updateTimer();
-    void updateMnTimer();
-    void updateNumConnections(int numConnections);
-    void updateAlert(const QString &hash, int status);
-    void updateBanlist();
 };
 
 #endif // BITCOIN_QT_CLIENTMODEL_H

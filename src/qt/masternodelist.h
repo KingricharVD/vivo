@@ -1,77 +1,127 @@
-#ifndef MASTERNODELIST_H
-#define MASTERNODELIST_H
+// Copyright (c) 2016-2025 The Vivo Core developers
+// Distributed under the MIT software license, see the accompanying
+// file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
-#include "masternode.h"
-#include "platformstyle.h"
-#include "sync.h"
-#include "util.h"
+#ifndef BITCOIN_QT_MASTERNODELIST_H
+#define BITCOIN_QT_MASTERNODELIST_H
+
+#include <qt/masternodemodel.h>
 
 #include <QMenu>
+#include <QSet>
+#include <QSortFilterProxyModel>
+#include <QString>
 #include <QTimer>
 #include <QWidget>
 
-#define MY_MASTERNODELIST_UPDATE_SECONDS                 60
-#define MASTERNODELIST_UPDATE_SECONDS                    15
-#define MASTERNODELIST_FILTER_COOLDOWN_SECONDS            3
-
-namespace Ui {
-    class MasternodeList;
-}
+#include <atomic>
+#include <memory>
 
 class ClientModel;
+class MasternodeFeed;
 class WalletModel;
+struct MasternodeData;
+namespace interfaces {
+class MnList;
+using MnListPtr = std::shared_ptr<MnList>;
+} // namespace interfaces
+namespace Ui {
+class MasternodeList;
+} // namespace Ui
 
 QT_BEGIN_NAMESPACE
 class QModelIndex;
+class QThread;
 QT_END_NAMESPACE
+
+class MasternodeListSortFilterProxyModel : public QSortFilterProxyModel
+{
+    Q_OBJECT
+
+public:
+    enum class TypeFilter : uint8_t {
+        All,
+        Regular,
+        Evo,
+        COUNT
+    };
+
+    explicit MasternodeListSortFilterProxyModel(QObject* parent = nullptr) :
+        QSortFilterProxyModel(parent) {}
+
+    void forceInvalidateFilter() { invalidateFilter(); }
+    void setHideBanned(bool hide) { m_hide_banned = hide; }
+    void setMyMasternodeHashes(QSet<QString>&& hashes) { m_owned_mns = std::move(hashes); }
+    void setShowOwnedOnly(bool show) { m_show_owned_only = show; }
+    void setTypeFilter(TypeFilter type) { m_type_filter = type; }
+
+protected:
+    bool filterAcceptsRow(int source_row, const QModelIndex& source_parent) const override;
+    bool lessThan(const QModelIndex& lhs, const QModelIndex& rhs) const override;
+
+private:
+    bool m_hide_banned{false};
+    bool m_show_owned_only{false};
+    QSet<QString> m_owned_mns;
+    TypeFilter m_type_filter{TypeFilter::All};
+};
 
 /** Masternode Manager page widget */
 class MasternodeList : public QWidget
 {
     Q_OBJECT
 
-public:
-    explicit MasternodeList(const PlatformStyle *platformStyle, QWidget *parent = 0);
-    ~MasternodeList();
+    Ui::MasternodeList* ui;
 
-    void setClientModel(ClientModel *clientModel);
-    void setWalletModel(WalletModel *walletModel);
-    void StartAlias(std::string strAlias);
-    void StartAll(std::string strCommand = "start-all");
+public:
+    explicit MasternodeList(QWidget* parent = nullptr);
+    ~MasternodeList() override;
+
+    void setClientModel(ClientModel* clientModel);
+    void setWalletModel(WalletModel* walletModel);
+
+protected:
+    void changeEvent(QEvent* event) override;
 
 private:
-    QMenu *contextMenu;
-    int64_t nTimeFilterUpdated;
-    bool fFilterUpdated;
+    ClientModel* clientModel{nullptr};
+    MasternodeFeed* m_feed{nullptr};
+    MasternodeListSortFilterProxyModel* m_proxy_model{nullptr};
+    MasternodeModel* m_model{nullptr};
+    QMenu* contextMenuDIP3{nullptr};
+    QAction* m_action_update_service{nullptr};
+    QAction* m_action_update_registrar{nullptr};
+    QAction* m_action_revoke{nullptr};
+    WalletModel* walletModel{nullptr};
 
-public Q_SLOTS:
-    void updateMyMasternodeInfo(QString strAlias, QString strAddr, masternode_info_t& infoMn);
-    void updateMyNodeList(bool fForce = false);
-    void updateNodeList();
+    void setMasternodeList(MasternodeData&& data, QSet<QString>&& owned_mns);
+    void updateRegistrationAvailability();
+
+    const MasternodeEntry* GetSelectedEntry();
+    const MasternodeEntry* selectedEntryForDialog();
 
 Q_SIGNALS:
-
-private:
-    QTimer *timer;
-    Ui::MasternodeList *ui;
-    ClientModel *clientModel;
-    WalletModel *walletModel;
-
-    // Protects tableWidgetMasternodes
-    CCriticalSection cs_mnlist;
-
-    // Protects tableWidgetMyMasternodes
-    CCriticalSection cs_mymnlist;
-
-    QString strCurrentFilter;
+    void doubleClicked(const QModelIndex&);
 
 private Q_SLOTS:
-    void showContextMenu(const QPoint &);
-    void on_filterLineEdit_textChanged(const QString &strFilterIn);
-    void on_startButton_clicked();
-    void on_startAllButton_clicked();
-    void on_startMissingButton_clicked();
-    void on_tableWidgetMyMasternodes_itemSelectionChanged();
-    void on_UpdateButton_clicked();
+    void copyCollateralOutpoint_clicked();
+    void copyProTxHash_clicked();
+    void showRegisterWizard();
+    void extraInfoDIP3_clicked();
+    void filterByCollateralAddress();
+    void filterByOwnerAddress();
+    void filterByPayoutAddress();
+    void filterByVotingAddress();
+    void on_checkBoxHideBanned_stateChanged(int state);
+    void on_checkBoxOwned_stateChanged(int state);
+    void on_comboBoxType_currentIndexChanged(int index);
+    void on_filterText_textChanged(const QString& strFilterIn);
+    void onRevoke();
+    void onUpdateRegistrar();
+    void onUpdateService();
+    void showContextMenuDIP3(const QPoint&);
+    void updateFilteredCount();
+    void updateMasternodeList();
 };
-#endif // MASTERNODELIST_H
+
+#endif // BITCOIN_QT_MASTERNODELIST_H

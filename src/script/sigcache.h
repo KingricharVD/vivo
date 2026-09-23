@@ -1,18 +1,21 @@
 // Copyright (c) 2009-2010 Satoshi Nakamoto
-// Copyright (c) 2009-2015 The Bitcoin Core developers
+// Copyright (c) 2009-2021 The Bitcoin Core developers
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
 #ifndef BITCOIN_SCRIPT_SIGCACHE_H
 #define BITCOIN_SCRIPT_SIGCACHE_H
 
-#include "script/interpreter.h"
+#include <script/interpreter.h>
+#include <util/hasher.h>
 
+#include <optional>
 #include <vector>
 
-// DoS prevention: limit cache size to less than 40MB (over 500000
-// entries on 64-bit systems).
-static const unsigned int DEFAULT_MAX_SIG_CACHE_SIZE = 40;
+// DoS prevention: limit cache size to 32MiB (over 1000000 entries on 64-bit
+// systems). Due to how we count cache size, actual memory usage is slightly
+// more (~32.25 MiB)
+static constexpr size_t DEFAULT_MAX_SIG_CACHE_BYTES{32 << 20};
 
 class CPubKey;
 
@@ -22,9 +25,11 @@ private:
     bool store;
 
 public:
-    CachingTransactionSignatureChecker(const CTransaction* txToIn, unsigned int nInIn, bool storeIn=true) : TransactionSignatureChecker(txToIn, nInIn), store(storeIn) {}
+    CachingTransactionSignatureChecker(const CTransaction* txToIn, unsigned int nInIn, const CAmount& amount, PrecomputedTransactionData& txdataIn, bool storeIn=true) : TransactionSignatureChecker(txToIn, nInIn, amount, txdataIn, MissingDataBehavior::ASSERT_FAIL), store(storeIn) {}
 
-    bool VerifySignature(const std::vector<unsigned char>& vchSig, const CPubKey& vchPubKey, const uint256& sighash) const;
+    bool VerifySignature(const std::vector<unsigned char>& vchSig, const CPubKey& vchPubKey, const uint256& sighash) const override;
 };
+
+[[nodiscard]] bool InitSignatureCache(size_t max_size_bytes);
 
 #endif // BITCOIN_SCRIPT_SIGCACHE_H

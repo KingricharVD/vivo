@@ -1,59 +1,67 @@
 // Copyright (c) 2009-2010 Satoshi Nakamoto
-// Copyright (c) 2009-2015 The Bitcoin Core developers
+// Copyright (c) 2009-2020 The Bitcoin Core developers
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
-#include "merkleblock.h"
+#include <merkleblock.h>
 
-#include "hash.h"
-#include "consensus/consensus.h"
-#include "utilstrencodings.h"
+#include <hash.h>
+#include <consensus/consensus.h>
 
-using namespace std;
 
-CMerkleBlock::CMerkleBlock(const CBlock& block, CBloomFilter& filter)
+std::vector<unsigned char> BitsToBytes(const std::vector<bool>& bits)
 {
-    header = block.GetBlockHeader();
-
-    vector<bool> vMatch;
-    vector<uint256> vHashes;
-
-    vMatch.reserve(block.vtx.size());
-    vHashes.reserve(block.vtx.size());
-
-    for (unsigned int i = 0; i < block.vtx.size(); i++)
-    {
-        const uint256& hash = block.vtx[i].GetHash();
-        if (filter.IsRelevantAndUpdate(block.vtx[i]))
-        {
-            vMatch.push_back(true);
-            vMatchedTxn.push_back(make_pair(i, hash));
-        }
-        else
-            vMatch.push_back(false);
-        vHashes.push_back(hash);
+    std::vector<unsigned char> ret((bits.size() + 7) / 8);
+    for (unsigned int p = 0; p < bits.size(); p++) {
+        ret[p / 8] |= bits[p] << (p % 8);
     }
-
-    txn = CPartialMerkleTree(vHashes, vMatch);
+    return ret;
 }
 
-CMerkleBlock::CMerkleBlock(const CBlock& block, const std::set<uint256>& txids)
+std::vector<bool> BytesToBits(const std::vector<unsigned char>& bytes)
+{
+    std::vector<bool> ret(bytes.size() * 8);
+    for (unsigned int p = 0; p < ret.size(); p++) {
+        ret[p] = (bytes[p / 8] & (1 << (p % 8))) != 0;
+    }
+    return ret;
+}
+
+CMerkleBlock::CMerkleBlock(const CBlock& block, CBloomFilter* filter, const std::set<uint256>* txids)
 {
     header = block.GetBlockHeader();
 
-    vector<bool> vMatch;
-    vector<uint256> vHashes;
+    std::vector<bool> vMatch;
+    std::vector<uint256> vHashes;
 
     vMatch.reserve(block.vtx.size());
     vHashes.reserve(block.vtx.size());
 
+    const static std::set<int> allowedTxTypes = {
+            TRANSACTION_NORMAL,
+            TRANSACTION_PROVIDER_REGISTER,
+            TRANSACTION_PROVIDER_UPDATE_SERVICE,
+            TRANSACTION_PROVIDER_UPDATE_REGISTRAR,
+            TRANSACTION_PROVIDER_UPDATE_REVOKE,
+            TRANSACTION_COINBASE,
+            TRANSACTION_ASSET_LOCK,
+            TRANSACTION_ASSET_UNLOCK,
+    };
+
     for (unsigned int i = 0; i < block.vtx.size(); i++)
     {
-        const uint256& hash = block.vtx[i].GetHash();
-        if (txids.count(hash))
+        const auto& tx = *block.vtx[i];
+        const uint256& hash = tx.GetHash();
+        bool isAllowedType = !tx.IsSpecialTxVersion() || allowedTxTypes.count(tx.nType) != 0;
+
+        if (txids && txids->count(hash)) {
             vMatch.push_back(true);
-        else
+        } else if (isAllowedType && filter && filter->IsRelevantAndUpdate(*block.vtx[i])) {
+            vMatch.push_back(true);
+            vMatchedTxn.emplace_back(i, hash);
+        } else {
             vMatch.push_back(false);
+        }
         vHashes.push_back(hash);
     }
 
@@ -61,19 +69,22 @@ CMerkleBlock::CMerkleBlock(const CBlock& block, const std::set<uint256>& txids)
 }
 
 uint256 CPartialMerkleTree::CalcHash(int height, unsigned int pos, const std::vector<uint256> &vTxid) {
+    //we can never have zero txs in a merkle block, we always need the coinbase tx
+    //if we do not have this assert, we can hit a memory access violation when indexing into vTxid
+    assert(vTxid.size() != 0);
     if (height == 0) {
-        // hash at height 0 is the txids themself
+        // hash at height 0 is the txids themselves
         return vTxid[pos];
     } else {
         // calculate left hash
         uint256 left = CalcHash(height-1, pos*2, vTxid), right;
-        // calculate right hash if not beyond the end of the array - copy left hash otherwise1
+        // calculate right hash if not beyond the end of the array - copy left hash otherwise
         if (pos*2+1 < CalcTreeWidth(height-1))
             right = CalcHash(height-1, pos*2+1, vTxid);
         else
             right = left;
         // combine subhashes
-        return Hash(BEGIN(left), END(left), BEGIN(right), END(right));
+        return Hash(left, right);
     }
 }
 
@@ -95,7 +106,7 @@ void CPartialMerkleTree::TraverseAndBuild(int height, unsigned int pos, const st
     }
 }
 
-uint256 CPartialMerkleTree::TraverseAndExtract(int height, unsigned int pos, unsigned int &nBitsUsed, unsigned int &nHashUsed, std::vector<uint256> &vMatch) {
+uint256 CPartialMerkleTree::TraverseAndExtract(int height, unsigned int pos, unsigned int &nBitsUsed, unsigned int &nHashUsed, std::vector<uint256> &vMatch, std::vector<unsigned int> &vnIndex) {
     if (nBitsUsed >= vBits.size()) {
         // overflowed the bits array - failure
         fBad = true;
@@ -110,14 +121,16 @@ uint256 CPartialMerkleTree::TraverseAndExtract(int height, unsigned int pos, uns
             return uint256();
         }
         const uint256 &hash = vHash[nHashUsed++];
-        if (height==0 && fParentOfMatch) // in case of height 0, we have a matched txid
+        if (height==0 && fParentOfMatch) { // in case of height 0, we have a matched txid
             vMatch.push_back(hash);
+            vnIndex.push_back(pos);
+        }
         return hash;
     } else {
         // otherwise, descend into the subtrees to extract matched txids and hashes
-        uint256 left = TraverseAndExtract(height-1, pos*2, nBitsUsed, nHashUsed, vMatch), right;
+        uint256 left = TraverseAndExtract(height-1, pos*2, nBitsUsed, nHashUsed, vMatch, vnIndex), right;
         if (pos*2+1 < CalcTreeWidth(height-1)) {
-            right = TraverseAndExtract(height-1, pos*2+1, nBitsUsed, nHashUsed, vMatch);
+            right = TraverseAndExtract(height-1, pos*2+1, nBitsUsed, nHashUsed, vMatch, vnIndex);
             if (right == left) {
                 // The left and right branches should never be identical, as the transaction
                 // hashes covered by them must each be unique.
@@ -127,7 +140,7 @@ uint256 CPartialMerkleTree::TraverseAndExtract(int height, unsigned int pos, uns
             right = left;
         }
         // and combine them before returning
-        return Hash(BEGIN(left), END(left), BEGIN(right), END(right));
+        return Hash(left, right);
     }
 }
 
@@ -147,13 +160,13 @@ CPartialMerkleTree::CPartialMerkleTree(const std::vector<uint256> &vTxid, const 
 
 CPartialMerkleTree::CPartialMerkleTree() : nTransactions(0), fBad(true) {}
 
-uint256 CPartialMerkleTree::ExtractMatches(std::vector<uint256> &vMatch) {
+uint256 CPartialMerkleTree::ExtractMatches(std::vector<uint256> &vMatch, std::vector<unsigned int> &vnIndex) {
     vMatch.clear();
     // An empty set will not work
     if (nTransactions == 0)
         return uint256();
     // check for excessively high numbers of transactions
-    if (nTransactions > MAX_BLOCK_SIZE / 60) // 60 is the lower bound for the size of a serialized CTransaction
+    if (nTransactions > MaxBlockSize() / 60) // 60 is the lower bound for the size of a serialized CTransaction
         return uint256();
     // there can never be more hashes provided than one for every txid
     if (vHash.size() > nTransactions)
@@ -167,7 +180,7 @@ uint256 CPartialMerkleTree::ExtractMatches(std::vector<uint256> &vMatch) {
         nHeight++;
     // traverse the partial tree
     unsigned int nBitsUsed = 0, nHashUsed = 0;
-    uint256 hashMerkleRoot = TraverseAndExtract(nHeight, 0, nBitsUsed, nHashUsed, vMatch);
+    uint256 hashMerkleRoot = TraverseAndExtract(nHeight, 0, nBitsUsed, nHashUsed, vMatch, vnIndex);
     // verify that no problems occurred during the tree traversal
     if (fBad)
         return uint256();

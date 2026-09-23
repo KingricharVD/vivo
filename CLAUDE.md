@@ -1,0 +1,268 @@
+# Vivo Core Agent Guide
+
+This file is for automated coding agents working in Vivo Core. Keep it
+practical: prefer local source, tests, and project history over guesses.
+
+`AGENTS.md` and `CLAUDE.md` intentionally contain the same guidance. When one
+changes, update the other in the same commit.
+
+## First Principles
+
+- Understand the code path before editing. Read callers, callees, tests, and
+  recent history for the touched files.
+- Keep changes narrow. Do not mix cleanup, formatting, refactors, and behavior
+  changes unless the task explicitly asks for it.
+- Preserve Vivo-specific behavior when backporting or refactoring Bitcoin Core
+  code. Vivo consensus, masternodes, LLMQs, ChainLocks, InstantSend, Platform
+  credit-pool logic, governance, and sporks often extend the upstream path.
+- Do not add symlinks. `contrib/devtools/github-merge.py` rejects symlinks in
+  the tree during merge.
+- Do not edit generated release artifacts, Guix/release files, vendored code, or
+  translations unless the task is specifically about those files.
+- Code should be readable on its own. Needing a significant comment usually
+  means the code itself should be clearer. Avoid comments that restate the
+  code; reserve them for things that genuinely need explaining (non-obvious
+  invariants, workaround rationale, non-local side effects).
+
+## Assertions and Checks
+
+Full guidance lives in `doc/developer-notes.md` under "Assertions and Checks".
+Short version, in order of preference:
+
+- `Assume(cond)` is the default. Use it for "this is how things are supposed to
+  be": a violation means someone has a bug worth investigating, but execution
+  stays well-defined. A negative rate-limit counter is the archetype - somebody
+  decremented twice, we may be more DoS-exposed than intended, but nothing is
+  corrupt. It aborts in `--enable-debug` and `--enable-fuzz` builds (CI's
+  `linux64_multiprocess` and fuzz jobs) while a failure is silent in release,
+  so it must never take down a production node. The expression is always
+  evaluated.
+- `assert(cond)` / `Assert(cond)` is the "we must crash now" case. Use it only
+  when continuing would be undefined behavior, memory corruption, or corrupt
+  persisted/consensus state - aborting has to be the safer outcome. It should
+  be rare and obviously justified, but do use it where it is genuinely needed
+  to document and enforce a precondition that keeps the code below it safe.
+  `Assert` returns its argument: `assert(ptr != nullptr); obj = *ptr;` becomes
+  `obj = *Assert(ptr);`
+- `CHECK_NONFATAL(cond)` / `NONFATAL_UNREACHABLE()` for internal logic bugs on
+  a path with a caller to report to. Required in RPC code, enforced
+  (best-effort) by `test/lint/lint-assertions.py` for `src/rpc/` and
+  `src/wallet/rpc*`.
+
+The production-crash guidance above does not apply to C++ regression and
+unit-test sources under `src/test/` and `src/wallet/test/`. They compile into test
+binaries, not user-facing `vivod` or `vivo-qt`; `assert`, `Assert`, `Assume`,
+and related fatal test checks are all acceptable. Do not flag the choice among
+them as a production-crash risk.
+
+None of these validate input. Data from peers, RPC arguments, wallet files, or
+on-disk state must be checked and rejected through normal error handling -
+asserting on it turns a peer-triggered inconsistency into a remote crash.
+Environment failures (disk full, corrupt block on disk, failed DB write) are
+not checks at all: return an error, `AbortNode()`, or `InitError()`.
+
+## Repository Map
+
+- `src/` - C++ implementation.
+- `src/bench/` - benchmarks.
+- `src/index/`, `src/interfaces/`, `src/node/`, `src/rpc/`, `src/wallet/` -
+  subsystem code inherited mostly from Bitcoin Core.
+- `src/llmq/`, `src/masternode/`, `src/evo/`, `src/governance/`,
+  `src/coinjoin/`, `src/instantsend/`, `src/spork*` - Vivo-specific systems.
+- `src/test/`, `src/wallet/test/`, `src/qt/test/` - C++ unit tests.
+- `test/functional/` - Python functional tests for `vivod` and `vivo-qt`.
+- `test/lint/` - static checks.
+- `depends/` - dependency build system.
+- `ci/`, `.github/` - CI entry points and GitHub workflows.
+- `doc/` - user and developer documentation.
+- `contrib/` - scripts and release/maintenance tooling.
+
+Vendored or subtree-style code should normally be left alone:
+
+- `src/{crc32c,vivobls,gsl,immer,leveldb,minisketch,secp256k1,univalue}`
+- `src/crypto/{ctaes,x11}`
+
+`test/util/data/non-backported.txt` lists Vivo-specific files used by Vivo
+style/lint checks such as clang-format-diff and cppcheck. Do not treat it as a
+list of skipped upstream backport hunks.
+
+## Build Commands
+
+Use portable parallelism in examples. Linux-only CPU-count helpers are not
+available on every supported developer host.
+
+```bash
+./autogen.sh
+
+JOBS="$(getconf _NPROCESSORS_ONLN 2>/dev/null || sysctl -n hw.ncpu)"
+JOBS="$(( JOBS > 1 ? JOBS - 1 : 1 ))"
+
+make -C depends -j"$JOBS"
+
+# Use the depends prefix printed for your platform, for example
+# depends/x86_64-pc-linux-gnu or depends/aarch64-apple-darwin24.3.0.
+./configure --prefix="$(pwd)/depends/[platform-triplet]"
+
+make -j"$JOBS"
+```
+
+Useful developer configure flags:
+
+```bash
+./configure --prefix="$(pwd)/depends/[platform-triplet]" \
+            --disable-hardening \
+            --enable-crash-hooks \
+            --enable-debug \
+            --enable-reduce-exports \
+            --enable-stacktraces \
+            --enable-suppress-external-warnings \
+            --enable-werror
+```
+
+Generate `compile_commands.json`:
+
+```bash
+JOBS="$(getconf _NPROCESSORS_ONLN 2>/dev/null || sysctl -n hw.ncpu)"
+JOBS="$(( JOBS > 1 ? JOBS - 1 : 1 ))"
+bear -- make -j"$JOBS"
+```
+
+When adding, removing, or renaming C++ source files, update the build system in
+the same change. Most source/test files need `src/Makefile.am` or
+`src/Makefile.test.include` updates, and some backports also require matching
+CI/lint list changes.
+
+## Test Commands
+
+Choose tests based on the files touched. Do not claim broad validation if only a
+targeted test was run. Prefer adding test cases to existing files over creating a
+new unit or functional test file. Only create a new test file when the additions
+would make an existing file overly complicated, when a separate file yields
+clearly improved performance (e.g. parallel execution or isolation), or when the
+subject being tested is distinctly separate and does not logically belong in an
+existing file. Fewer files reduce test setup overhead and compilation time.
+
+```bash
+# All unit tests
+make check
+
+# One Boost test suite or case
+./src/test/test_vivo --run_test=getarg_tests
+
+# All functional tests
+test/functional/test_runner.py
+
+# One functional test
+test/functional/test_runner.py wallet_hd.py
+
+# Parallel functional tests
+JOBS="$(getconf _NPROCESSORS_ONLN 2>/dev/null || sysctl -n hw.ncpu)"
+test/functional/test_runner.py -j"$JOBS"
+
+# Lint
+test/lint/all-lint.py
+test/lint/lint-python.py
+test/lint/lint-shell.py
+test/lint/lint-whitespace.py
+test/lint/lint-circular-dependencies.py
+```
+
+Functional-test prerequisites and usage details live in `test/README.md`.
+Several Vivo-specific tests need the `vivo_hash` Python package.
+
+## Backport Work
+
+Vivo Core regularly backports Bitcoin Core changes. Treat backports as
+source-history work, not only conflict resolution.
+
+- Identify the exact upstream Bitcoin Core PR(s) and commit(s).
+- Keep upstream backport commits as close to 1:1 as practical. Put shared Vivo
+  repair work on a staging/base branch instead of hiding it inside an unrelated
+  upstream backport commit.
+- When reviewing Bitcoin Core backports, absent a clear bug, prefer staying
+  aligned with upstream. Do not request Vivo-only policy or style changes, such
+  as replacing an assertion primitive solely to match this guide. Vivo-specific
+  correctness, security, or consensus issues are valid reasons to adapt
+  upstream code.
+- Compare the upstream diff to the Vivo diff file by file.
+- Check prerequisite PRs. If an upstream hunk depends on a helper, test, type,
+  or file introduced by an earlier Bitcoin PR, either backport the prerequisite
+  or document why the hunk is intentionally excluded.
+- Do not silently drop upstream tests. If a test depends on a missing
+  prerequisite, call that out in the PR description or add the prerequisite.
+- If a backport is partial, explain the omitted upstream commits, hunks, or
+  tests in the commit or PR text.
+- Verify the PR title/body matches the actual commits still reachable from the
+  branch. Stale "backports X" metadata has caused bad reviews.
+- Keep Vivo adaptations explicit. When upstream code touches a path that Vivo
+  has extended, inspect the Vivo-specific logic before accepting the upstream
+  shape.
+- Resolve conflicts against Vivo APIs, not only upstream structure. A backport
+  that textually resembles Bitcoin Core can still fail to compile or lose Vivo
+  behavior if Vivo-only overloads, helpers, or wallet paths are removed.
+
+## Vivo-Specific Review Hotspots
+
+Be extra careful around:
+
+- consensus and script flags;
+- special transaction payload serialization;
+- deterministic masternode list updates;
+- LLMQ DKG, signing sessions, recovered signatures, and quorum rotation;
+- InstantSend and ChainLocks request/relay paths;
+- governance object and superblock payment logic;
+- EvoDB, credit-pool, asset-lock, and Platform integration code;
+- network-message serialization, checksums, and partial-send paths;
+- BLS scheme transitions across connect, disconnect, undo, and activation
+  boundaries;
+- future DKG/quorum prediction, which must evaluate quorum availability at the
+  relevant future work/cycle base instead of only the current tip;
+- time, mocktime, scheduler, and interrupt/shutdown behavior.
+
+For these areas, prefer small tests that prove the invariant being changed.
+
+## PR Hygiene
+
+- When creating pull requests, follow `.github/PULL_REQUEST_TEMPLATE.md` for the description and ensure the PR title satisfies the active linter in `.github/workflows/semantic-pull-request.yml` (using Conventional Commits, including `backport:` for Bitcoin Core backports).
+- Use atomic commits. Each commit should make sense on its own and generally
+  build and pass tests. An intentionally non-building commit (e.g. a
+  regression test landing before its fix) is fine if called out explicitly so
+  it isn't mistaken for an oversight.
+- Remove the italicized helper prompts from `.github/PULL_REQUEST_TEMPLATE.md`, fill in the required sections, and keep the checklist accurate for the change.
+- Do not put `@` mentions in PR descriptions; they are copied into merge
+  commits and notify users repeatedly.
+- Explain what changed and why. For bug fixes, include the failure mode and why
+  the chosen fix is correct.
+- If CI fails for reasons unrelated to the PR, document the evidence instead of
+  pushing empty commits or unrelated changes.
+- For depends/cache failures, inspect both the cache-producing and
+  cache-consuming jobs. Rerunning only the failed consumer can preserve the same
+  missing-cache failure.
+
+## Local Debugging
+
+```bash
+# Run vivod with broad logging
+./src/vivod -debug=all -printtoconsole
+
+# Run a functional test against a custom binary
+test/functional/test_runner.py --vivod=/path/to/vivod wallet_hd.py
+
+# Keep failed functional-test datadirs
+test/functional/test_runner.py --nocleanup --tracerpc -l DEBUG wallet_hd.py
+
+# Debug a unit-test binary
+gdb ./src/test/test_vivo
+
+# Profile a functional test
+test/functional/test_runner.py --perf wallet_hd.py
+perf report -i /path/to/datadir/test.perf.data --stdio | c++filt
+```
+
+## When In Doubt
+
+- Read `CONTRIBUTING.md`, `doc/developer-notes.md`, and nearby tests.
+- Search for similar code with `rg` before inventing a new pattern.
+- Prefer established project helpers over ad hoc parsing or shell tricks.
+- Leave a clear note in the PR when a choice is deliberate and could otherwise
+  look like an omission.

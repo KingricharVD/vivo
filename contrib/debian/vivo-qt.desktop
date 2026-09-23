@@ -1,0 +1,14 @@
+[Desktop Entry]
+Version=1.0
+Name=Vivo Core
+Comment=Vivo P2P Cryptocurrency
+Comment[de]=Verbinde mit dem Vivo peer-to-peer Netzwerk
+Comment[fr]=Vivo, monnaie virtuelle cryptographique pair à pair
+Comment[tr]=Vivo, eşten eşe kriptografik sanal para birimi
+Exec=vivo-qt %u
+Terminal=false
+Type=Application
+Icon=vivo128
+MimeType=x-scheme-handler/vivo;
+Categories=Office;Finance;P2P;Network;Qt;
+StartupWMClass=Vivo-qt

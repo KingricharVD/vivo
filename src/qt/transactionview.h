@@ -1,16 +1,16 @@
-// Copyright (c) 2011-2015 The Bitcoin Core developers
+// Copyright (c) 2011-2021 The Bitcoin Core developers
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
 #ifndef BITCOIN_QT_TRANSACTIONVIEW_H
 #define BITCOIN_QT_TRANSACTIONVIEW_H
 
-#include "guiutil.h"
+#include <qt/guiutil.h>
+
+#include <uint256.h>
 
 #include <QWidget>
-#include <QKeyEvent>
 
-class PlatformStyle;
 class TransactionFilterProxy;
 class WalletModel;
 
@@ -22,7 +22,6 @@ class QItemSelectionModel;
 class QLineEdit;
 class QMenu;
 class QModelIndex;
-class QSignalMapper;
 class QTableView;
 QT_END_NAMESPACE
 
@@ -34,7 +33,7 @@ class TransactionView : public QWidget
     Q_OBJECT
 
 public:
-    explicit TransactionView(const PlatformStyle *platformStyle, QWidget *parent = 0);
+    explicit TransactionView(QWidget* parent = nullptr);
 
     void setModel(WalletModel *model);
 
@@ -60,42 +59,51 @@ public:
     };
 
 private:
-    WalletModel *model;
-    TransactionFilterProxy *transactionProxyModel;
-    QTableView *transactionView;
+    WalletModel *model{nullptr};
+    TransactionFilterProxy *transactionProxyModel{nullptr};
+    QTableView *transactionView{nullptr};
     QComboBox *dateWidget;
     QComboBox *typeWidget;
     QComboBox *watchOnlyWidget;
-    QLineEdit *addressWidget;
+    QLineEdit *search_widget;
     QLineEdit *amountWidget;
 
     QMenu *contextMenu;
-    QSignalMapper *mapperThirdPartyTxUrls;
 
     QFrame *dateRangeWidget;
     QDateTimeEdit *dateFrom;
     QDateTimeEdit *dateTo;
+    QAction *abandonAction{nullptr};
+    QAction *resendAction;
+    QAction *copyAddressAction{nullptr};
+    QAction *copyLabelAction{nullptr};
+    QAction *unlockDustAction{nullptr};
 
     QWidget *createDateRangeWidget();
+    void updateCalendarWidgets();
 
-    GUIUtil::TableViewLastColumnResizingFixer *columnResizingFixer;
+    void changeEvent(QEvent* e) override;
 
-    virtual void resizeEvent(QResizeEvent* event);
-
-    bool eventFilter(QObject *obj, QEvent *event);
+    bool eventFilter(QObject *obj, QEvent *event) override;
 
 private Q_SLOTS:
     void contextualMenu(const QPoint &);
     void dateRangeChanged();
     void showDetails();
+    void showAddressQRCode();
     void copyAddress();
     void editLabel();
     void copyLabel();
     void copyAmount();
     void copyTxID();
     void copyTxHex();
+    void copyTxPlainText();
     void openThirdPartyTxUrl(QString url);
     void updateWatchOnlyColumn(bool fHaveWatchOnly);
+    void updateCoinJoinVisibility();
+    void abandonTx();
+    void resendTx();
+    void unlockDust();
 
 Q_SIGNALS:
     void doubleClicked(const QModelIndex&);
@@ -110,10 +118,11 @@ public Q_SLOTS:
     void chooseDate(int idx);
     void chooseType(int idx);
     void chooseWatchonly(int idx);
-    void changedPrefix(const QString &prefix);
-    void changedAmount(const QString &amount);
+    void changedAmount();
+    void changedSearch();
     void exportClicked();
     void focusTransaction(const QModelIndex&);
+    void focusTransaction(const uint256& txid);
     void computeSum();
 };
 

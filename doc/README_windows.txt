@@ -1,5 +1,5 @@
-Vivo Core 0.12.1
-=====================
+Vivo Core
+==========
 
 Intro
 -----
@@ -18,6 +18,6 @@ However, it downloads and stores the entire history of Vivo transactions;
 depending on the speed of your computer and network connection, the synchronization
 process can take anywhere from a few hours to a day or more.
 
-See the vivo wiki at:
-  https://vivocoin.atlassian.net/wiki/
+See the Vivo documentation at:
+  https://docs.vivo.org
 for more help and information.
