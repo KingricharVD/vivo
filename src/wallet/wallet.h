@@ -1,6 +1,6 @@
 // Copyright (c) 2009-2010 Satoshi Nakamoto
 // Copyright (c) 2009-2021 The Bitcoin Core developers
-// Copyright (c) 2014-2025 The Vivo Core developers
+// Copyright (c) 2014-2025 The Dash Core developers
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
@@ -518,7 +518,7 @@ public:
     // Map from governance object hash to governance object, they are added by gobject_prepare.
     std::map<uint256, Governance::Object> m_gobjects;
 
-    // Generic per-wallet key/value records used by Vivo Platform integration
+    // Generic per-wallet key/value records used by Dash Platform integration
     // (opaque to the wallet; persisted as DBKeys::PLATFORM_DATA).
     std::map<std::string, std::vector<unsigned char>> m_platform_data GUARDED_BY(cs_wallet);
 
@@ -876,7 +876,7 @@ public:
     /** Absolute maximum transaction fee (in satoshis) used by default for the wallet */
     CAmount m_default_max_tx_fee{DEFAULT_TRANSACTION_MAXFEE};
 
-    /** Dust protection threshold in duffs. UTXOs from external transactions at or below this value
+    /** Dust protection threshold in VLVOs. UTXOs from external transactions at or below this value
      *  are automatically locked to prevent dust attacks. 0 = disabled. Override with -dustprotectionthreshold. */
     CAmount m_dust_protection_threshold{DEFAULT_DUST_PROTECTION_THRESHOLD};
 

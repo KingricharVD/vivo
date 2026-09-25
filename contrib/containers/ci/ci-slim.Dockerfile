@@ -89,9 +89,9 @@ RUN uv pip install --system --break-system-packages \
 ARG DASH_HASH_VERSION=1.4.0
 RUN set -ex; \
     cd /tmp; \
-    git clone --depth 1 --no-tags --branch=${DASH_HASH_VERSION} https://github.com/vivopay/vivo_hash; \
-    cd vivo_hash && uv pip install --system --break-system-packages -r requirements.txt .; \
-    cd .. && rm -rf vivo_hash
+    git clone --depth 1 --no-tags --branch=${DASH_HASH_VERSION} https://github.com/dashpay/dash_hash; \
+    cd dash_hash && uv pip install --system --break-system-packages -r requirements.txt .; \
+    cd .. && rm -rf dash_hash
 
 # Symlink all Python package executables to /usr/local/bin
 RUN set -ex; \
@@ -137,13 +137,13 @@ RUN set -ex; \
 ARG USER_ID=1000 \
     GROUP_ID=1000
 RUN set -ex; \
-    (getent group ${GROUP_ID} && usermod -g ${GROUP_ID} ubuntu) || groupmod -g ${GROUP_ID} -n vivo ubuntu; \
-    usermod -u ${USER_ID} -md /home/vivo -l vivo ubuntu; \
-    chown ${USER_ID}:${GROUP_ID} -R /home/vivo; \
-    mkdir -p /src/vivo && \
+    (getent group ${GROUP_ID} && usermod -g ${GROUP_ID} ubuntu) || groupmod -g ${GROUP_ID} -n dash ubuntu; \
+    usermod -u ${USER_ID} -md /home/dash -l dash ubuntu; \
+    chown ${USER_ID}:${GROUP_ID} -R /home/dash; \
+    mkdir -p /src/dash && \
     chown ${USER_ID}:${GROUP_ID} /src && \
     chown ${USER_ID}:${GROUP_ID} -R /src
 
-WORKDIR /src/vivo
+WORKDIR /src/dash
 
-USER vivo
+USER dash

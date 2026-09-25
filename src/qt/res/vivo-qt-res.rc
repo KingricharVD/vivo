@@ -18,7 +18,7 @@ BEGIN
         BLOCK "040904E4" // U.S. English - multilingual (hex)
         BEGIN
             VALUE "CompanyName",       "Vivo Core"
-            VALUE "FileDescription",    PACKAGE_NAME " (GUI node for Vivo)"
+            VALUE "FileDescription",    PACKAGE_NAME " (GUI node for Dash)"
             VALUE "FileVersion",        PACKAGE_VERSION
             VALUE "InternalName",       "vivo-qt"
             VALUE "LegalCopyright",     COPYRIGHT_STR

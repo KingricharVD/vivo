@@ -12,7 +12,7 @@ Wallet
 
 - Descriptor wallets are now the default wallet type. Newly created wallets
   will use descriptors unless `descriptors=false` is set during `createwallet`, or
-  the `Descriptor wallet` checkbox is unchecked in the GUI. (vivo#7204)
+  the `Descriptor wallet` checkbox is unchecked in the GUI. (dash#7204)
 
   Note that wallet RPC commands like `importmulti` and `dumpprivkey` cannot be
   used with descriptor wallets, so if your client code relies on these commands

@@ -1,4 +1,4 @@
-// Copyright (c) 2021-2026 The Vivo Core developers
+// Copyright (c) 2021-2026 The Dash Core developers
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
@@ -21,7 +21,7 @@
 
 namespace {
 //! Formats an amount at the user's configured decimal precision, dropping
-//! insignificant trailing zeros ("1.00 DASH" -> "1 DASH").
+//! insignificant trailing zeros ("1.00 DASH" -> "1 VIVO").
 QString formatProposalAmount(const BitcoinUnit& unit, const CAmount& amount)
 {
     const QString suffix{QLatin1Char(' ') + BitcoinUnits::name(unit)};

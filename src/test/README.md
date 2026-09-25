@@ -6,7 +6,7 @@ sense to simply use this framework rather than require developers to
 configure some other framework (we want as few impediments to creating
 unit tests as possible).
 
-The build system is set up to compile an executable called `test_vivo`
+The build system is set up to compile an executable called `test_dash`
 that runs all of the unit tests. The main source file for the test library is found in
 `util/setup_common.cpp`.
 
@@ -18,7 +18,7 @@ and tests weren't explicitly disabled.
 After configuring, they can be run with `make check`, which includes unit tests from
 subtrees, or `make && make -C src check-unit` for just the unit tests.
 
-To run the unit tests manually, launch `src/test/test_vivo`. To recompile
+To run the unit tests manually, launch `src/test/test_dash`. To recompile
 after a test file was modified, run `make` and then run the test again. If you
 modify a non-test file, use `make -C src/test` to recompile only what's needed
 to run the unit tests.
@@ -34,33 +34,33 @@ the `src/qt/test/test_main.cpp` file.
 
 ### Running individual tests
 
-`test_vivo` accepts the command line arguments from the boost framework.
+`test_dash` accepts the command line arguments from the boost framework.
 For example, to run just the `getarg_tests` suite of tests:
 
 ```bash
-test_vivo --log_level=all --run_test=getarg_tests
+test_dash --log_level=all --run_test=getarg_tests
 ```
 
 `log_level` controls the verbosity of the test framework, which logs when a
-test case is entered, for example. `test_vivo` also accepts the command
+test case is entered, for example. `test_dash` also accepts the command
 line arguments accepted by `vivod`. Use `--` to separate both types of
 arguments:
 
 ```bash
-test_vivo --log_level=all --run_test=getarg_tests -- -printtoconsole=1
+test_dash --log_level=all --run_test=getarg_tests -- -printtoconsole=1
 ```
 
-The `-printtoconsole=1` after the two vivoes redirects the debug log, which
+The `-printtoconsole=1` after the two dashes redirects the debug log, which
 would normally go to a file in the test datadir
 (`BasicTestingSetup::m_path_root`), to the standard terminal output.
 
-... or to run just the doublevivo test:
+... or to run just the doubledash test:
 
 ```bash
-test_vivo --run_test=getarg_tests/doublevivo
+test_dash --run_test=getarg_tests/doubledash
 ```
 
-Run `test_vivo --help` for the full list.
+Run `test_dash --help` for the full list.
 
 ### Adding test cases
 
@@ -81,17 +81,17 @@ on failure. For running individual tests verbosely, refer to the section
 To write to logs from unit tests you need to use specific message methods
 provided by Boost. The simplest is `BOOST_TEST_MESSAGE`.
 
-For debugging you can launch the `test_vivo` executable with `gdb` or `lldb` and
+For debugging you can launch the `test_dash` executable with `gdb` or `lldb` and
 start debugging, just like you would with any other program:
 
 ```bash
-gdb src/test/test_vivo
+gdb src/test/test_dash
 ```
 
 #### Segmentation faults
 
 If you hit a segmentation fault during a test run, you can diagnose where the fault
-is happening by running `gdb ./src/test/test_vivo` and then using the `bt` command
+is happening by running `gdb ./src/test/test_dash` and then using the `bt` command
 within gdb.
 
 Another tool that can be used to resolve segmentation faults is
@@ -100,7 +100,7 @@ Another tool that can be used to resolve segmentation faults is
 If for whatever reason you want to produce a core dump file for this fault, you can do
 that as well. By default, the boost test runner will intercept system errors and not
 produce a core file. To bypass this, add `--catch_system_errors=no` to the
-`test_vivo` arguments and ensure that your ulimits are set properly (e.g. `ulimit -c
+`test_dash` arguments and ensure that your ulimits are set properly (e.g. `ulimit -c
 unlimited`).
 
 Running the tests and hitting a segmentation fault should now produce a file called `core`
@@ -109,7 +109,7 @@ Running the tests and hitting a segmentation fault should now produce a file cal
 
 You can then explore the core dump using
 ```bash
-gdb src/test/test_vivo core
+gdb src/test/test_dash core
 
 (gbd) bt  # produce a backtrace for where a segfault occurred
 ```

@@ -1,4 +1,4 @@
-// Copyright (c) 2018-2025 The Vivo Core developers
+// Copyright (c) 2018-2025 The Dash Core developers
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
@@ -24,7 +24,7 @@ struct DbWrapperParams;
 // "b_b3" was used after masternode type introduction in evoDB
 // "b_b4" was used after storing protx version for each masternode in evoDB
 static const std::string EVODB_BEST_BLOCK = "b_b4";
-// Released Vivo software has no snapshot-chainstate detection, ignores the
+// Released Dash software has no snapshot-chainstate detection, ignores the
 // chainstate_snapshot directory, and loads the chainstate directory together
 // with this legacy marker. That pair is the background chainstate's own coins
 // and marker, so downgrading mid-snapshot safely reverts to background IBD.

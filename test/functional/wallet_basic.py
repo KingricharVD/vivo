@@ -100,7 +100,7 @@ class WalletTest(BitcoinTestFramework):
         txout = self.nodes[0].gettxout(txid=confirmed_txid, n=confirmed_index, include_mempool=True)
         assert_equal(txout['value'], 500)
 
-        # Send 210 DASH from 0 to 2 using sendtoaddress call.
+        # Send 210 VIVO from 0 to 2 using sendtoaddress call.
         # Second transaction will be child of first, and will require a fee
         self.nodes[0].sendtoaddress(self.nodes[2].getnewaddress(), 110)
         mempool_txid = self.nodes[0].sendtoaddress(self.nodes[2].getnewaddress(), 100)
@@ -490,14 +490,14 @@ class WalletTest(BitcoinTestFramework):
             # This will raise an exception for attempting to dump the private key of an address you do not own
             assert_raises_rpc_error(-4, "Private key for address %s is not known" % temp_address, self.nodes[0].dumpprivkey, temp_address)
 
-            # This will raise an exception for attempting to get the private key of an invalid Vivo address
-            assert_raises_rpc_error(-5, "Invalid Vivo address", self.nodes[0].dumpprivkey, "invalid")
+            # This will raise an exception for attempting to get the private key of an invalid Dash address
+            assert_raises_rpc_error(-5, "Invalid Dash address", self.nodes[0].dumpprivkey, "invalid")
 
-            # This will raise an exception for attempting to set a label for an invalid Vivo address
-            assert_raises_rpc_error(-5, "Invalid Vivo address", self.nodes[0].setlabel, "invalid address", "label")
+            # This will raise an exception for attempting to set a label for an invalid Dash address
+            assert_raises_rpc_error(-5, "Invalid Dash address", self.nodes[0].setlabel, "invalid address", "label")
 
             # This will raise an exception for importing an invalid address
-            assert_raises_rpc_error(-5, "Invalid Vivo address or script", self.nodes[0].importaddress, "invalid")
+            assert_raises_rpc_error(-5, "Invalid Dash address or script", self.nodes[0].importaddress, "invalid")
 
             # This will raise an exception for attempting to import a pubkey that isn't in hex
             assert_raises_rpc_error(-5, "Pubkey must be a hex string", self.nodes[0].importpubkey, "not hex")
@@ -570,7 +570,7 @@ class WalletTest(BitcoinTestFramework):
             for target, mode in product([-1, 0, 1009], ["economical", "conservative"]):
                 assert_raises_rpc_error(-8, "Invalid conf_target, must be between 1 and 1008",  # max value of 1008 per src/policy/fees.h
                     self.nodes[2].sendtoaddress, address=address, amount=1, conf_target=target, estimate_mode=mode)
-            for target, mode in product([-1, 0], ["vivo/kb", "duff/b"]):
+            for target, mode in product([-1, 0], ["dash/kb", "duff/b"]):
                 assert_raises_rpc_error(-8, 'Invalid estimate_mode parameter, must be one of: "unset", "economical", "conservative"',
                     self.nodes[2].sendtoaddress, address=address, amount=1, conf_target=target, estimate_mode=mode)
 

@@ -44,7 +44,7 @@ CGO_CXXFLAGS ?= "\
 -I$(GMP_PREFIX)/include"
 
 CGO_LDFLAGS ?= "\
--L$(CURR_DIR)../build/src -lvivobls \
+-L$(CURR_DIR)../build/src -ldashbls \
 -L$(MIMALLOC_LIB_PATH) -l$(MIMALLOC_LIB) \
 -L$(CURR_DIR)../build/depends/relic/lib -lrelic_s \
 -L$(GMP_PREFIX)/lib -lgmp"
@@ -56,8 +56,8 @@ all: default
 default: prepare vet test clean
 
 prepare:
-	@mkdir -p ../build/src/vivobls
-	cp -rv ../src/* ../build/src/vivobls
+	@mkdir -p ../build/src/dashbls
+	cp -rv ../src/* ../build/src/dashbls
 
 fmt:  ## Run go fmt to format Go files
 	$(GO) fmt

@@ -73,8 +73,8 @@ class TransactionTimeRescanTest(BitcoinTestFramework):
         # synchronize nodes and time
         self.sync_all()
         set_node_times(self.nodes, cur_time + ten_days)
-        # send 10 DASH to user's first watch-only address
-        self.log.info('Send 10 DASH to user')
+        # send 10 VIVO to user's first watch-only address
+        self.log.info('Send 10 VIVO to user')
         miner_wallet.sendtoaddress(wo1, 10)
 
         # generate blocks and check blockcount
@@ -95,8 +95,8 @@ class TransactionTimeRescanTest(BitcoinTestFramework):
         # synchronize nodes and time
         self.sync_all()
         set_node_times(self.nodes, cur_time + ten_days + ten_days + ten_days)
-        # send 1 DASH to our third watch-only address
-        self.log.info('Send 1 DASH to user')
+        # send 1 VIVO to our third watch-only address
+        self.log.info('Send 1 VIVO to user')
         miner_wallet.sendtoaddress(wo3, 1)
 
         # generate more blocks and check blockcount

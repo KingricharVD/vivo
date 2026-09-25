@@ -1,4 +1,4 @@
-// Copyright (c) 2026 The Vivo Core developers
+// Copyright (c) 2026 The Dash Core developers
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
@@ -17,7 +17,7 @@
 #include <vector>
 
 /**
- * Vivo Platform (DIP-9/13/14/15) key derivation for the wallet.
+ * Dash Platform (DIP-9/13/14/15) key derivation for the wallet.
  *
  * This is pure BIP32/DIP-14 key math: it knows nothing about Platform
  * documents, contracts or the network. It is only used through the
@@ -27,8 +27,8 @@
  *  - DIP-9  feature-purpose derivation (m/9'/...)
  *  - DIP-13 identity keys (m/9'/coin'/5'/...)
  *  - DIP-14 256-bit child indexes (CKey::Derive256)
- *  - DIP-15 VivoPay friendship keychains (m/9'/coin'/15'/account'/idA/idB)
- *  - vivoj DerivationPathFactory.java / FriendKeyChain.java (reference impl)
+ *  - DIP-15 DashPay friendship keychains (m/9'/coin'/15'/account'/idA/idB)
+ *  - dashj DerivationPathFactory.java / FriendKeyChain.java (reference impl)
  */
 namespace wallet::platformkeys {
 
@@ -95,8 +95,8 @@ Path FriendshipPath(uint32_t coin_type, uint32_t account, Span<const uint8_t> us
 [[nodiscard]] bool DerivePubKey(const ExtPubKey256& parent, const PathElement& element, ExtPubKey256& out);
 
 //! ECDH shared secret between `key` and `counterparty`, using the libsecp256k1
-//! ECDH KDF (SHA256 of the compressed shared point). This matches vivoj's
-//! KeyCrypterECDH / Secp256k1ECDHAgreement, used for VivoPay contact request
+//! ECDH KDF (SHA256 of the compressed shared point). This matches dashj's
+//! KeyCrypterECDH / Secp256k1ECDHAgreement, used for DashPay contact request
 //! encryption. Returns a 32-byte secret.
 [[nodiscard]] bool ComputeECDHSecret(const CKey& key, const CPubKey& counterparty, SecureVector& secret_out);
 

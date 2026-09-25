@@ -2,7 +2,7 @@
 complete --command vivo-qt --no-files
 
 # Extract options
-function __fish_vivoqt_get_options
+function __fish_dashqt_get_options
     argparse 'nofiles' -- $argv
     set --local cmd (commandline -opc)[1]
     set --local options
@@ -22,7 +22,7 @@ end
 # Add options with file completion
 complete \
     --command vivo-qt \
-    --arguments "(__fish_vivoqt_get_options)"
+    --arguments "(__fish_dashqt_get_options)"
 # Enable file completions only if the commandline now contains a `*.=` style option
 complete -c vivo-qt \
     --condition 'string match --regex -- ".*=" (commandline -pt)' \
@@ -31,5 +31,5 @@ complete -c vivo-qt \
 # Add options without file completion
 complete \
     --command vivo-qt \
-    --arguments "(__fish_vivoqt_get_options --nofiles)"
+    --arguments "(__fish_dashqt_get_options --nofiles)"
 

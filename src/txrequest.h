@@ -15,7 +15,7 @@
 
 /** Data structure to keep track of, and schedule, transaction and other object downloads from peers.
  *
- * Unlike upstream Bitcoin, Vivo requests many object types via inv/getdata (transactions, governance
+ * Unlike upstream Bitcoin, Dash requests many object types via inv/getdata (transactions, governance
  * objects and votes, InstantSend locks, ChainLocks, sporks, quorum messages, ...), so announcements are
  * tracked per inv (type and hash) rather than per txid/wtxid. Where the specification below says
  * "transaction", read "object announced through an inv".

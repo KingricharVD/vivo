@@ -1,5 +1,5 @@
 // Copyright (c) 2011-2021 The Bitcoin Core developers
-// Copyright (c) 2014-2025 The Vivo Core developers
+// Copyright (c) 2014-2025 The Dash Core developers
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
@@ -220,7 +220,7 @@ void PaymentServer::handleURIOrFile(const QString& s)
             }
             else
                 Q_EMIT message(tr("URI handling"),
-                    tr("URI cannot be parsed! This can be caused by an invalid Vivo address or malformed URI parameters."),
+                    tr("URI cannot be parsed! This can be caused by an invalid Dash address or malformed URI parameters."),
                     CClientUIInterface::ICON_WARNING);
 
             return;

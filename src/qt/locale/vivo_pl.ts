@@ -66,12 +66,12 @@
         <translation>W&amp;ybierz</translation>
     </message>
     <message>
-        <source>These are your Vivo addresses for sending payments. Always check the amount and the receiving address before sending coins.</source>
-        <translation>To są twoje adresy Vivo, na które wysyłasz płatności. Zanim wyślesz środki, zawsze upewnij się, że kwota i adres są prawidłowe.</translation>
+        <source>These are your Dash addresses for sending payments. Always check the amount and the receiving address before sending coins.</source>
+        <translation>To są twoje adresy Dash, na które wysyłasz płatności. Zanim wyślesz środki, zawsze upewnij się, że kwota i adres są prawidłowe.</translation>
     </message>
     <message>
-        <source>These are your Vivo addresses for receiving payments. Use the 'Create new receiving address' button in the receive tab to create new addresses.</source>
-        <translation>To są Twoje adresy Vivo do otrzymywania płatności. Użyj przycisku „Stwórz nowy adres odbioru” w zakładce odbioru, aby wygenerować nowe adresy.</translation>
+        <source>These are your Dash addresses for receiving payments. Use the 'Create new receiving address' button in the receive tab to create new addresses.</source>
+        <translation>To są Twoje adresy Dash do otrzymywania płatności. Użyj przycisku „Stwórz nowy adres odbioru” w zakładce odbioru, aby wygenerować nowe adresy.</translation>
     </message>
     <message>
         <source>&amp;Copy Address</source>
@@ -365,16 +365,16 @@
         <translation>Wyślij</translation>
     </message>
     <message>
-        <source>Send coins to a Vivo address</source>
-        <translation>Wyślij monety na adres Vivo</translation>
+        <source>Send coins to a Dash address</source>
+        <translation>Wyślij monety na adres Dash</translation>
     </message>
     <message>
         <source>&amp;Receive</source>
         <translation>Odbie&amp;rz</translation>
     </message>
     <message>
-        <source>Request payments (generates QR codes and vivo: URIs)</source>
-        <translation>Poproś o płatności (generuje kod QR oraz vivo: link)</translation>
+        <source>Request payments (generates QR codes and dash: URIs)</source>
+        <translation>Poproś o płatności (generuje kod QR oraz dash: link)</translation>
     </message>
     <message>
         <source>Ctrl+Q</source>
@@ -489,8 +489,8 @@
         <translation>&amp;O %1</translation>
     </message>
     <message>
-        <source>Send %1 funds to a Vivo address</source>
-        <translation>Wyślij %1 środki na adres Vivo</translation>
+        <source>Send %1 funds to a Dash address</source>
+        <translation>Wyślij %1 środki na adres Dash</translation>
     </message>
     <message>
         <source>Modify configuration options for %1</source>
@@ -525,12 +525,12 @@
         <translation>Zab&amp;lokuj Porftel</translation>
     </message>
     <message>
-        <source>Sign messages with your Vivo addresses to prove you own them</source>
-        <translation>Podpisz wiadomości swoim adresem Vivo, aby udowodnić, że jesteś ich właścicielem. </translation>
+        <source>Sign messages with your Dash addresses to prove you own them</source>
+        <translation>Podpisz wiadomości swoim adresem Dash, aby udowodnić, że jesteś ich właścicielem. </translation>
     </message>
     <message>
-        <source>Verify messages to ensure they were signed with specified Vivo addresses</source>
-        <translation>Zweryfikuj wiadomości, aby upewnić się, że zostały one podpisane wybranym adresem Vivo</translation>
+        <source>Verify messages to ensure they were signed with specified Dash addresses</source>
+        <translation>Zweryfikuj wiadomości, aby upewnić się, że zostały one podpisane wybranym adresem Dash</translation>
     </message>
     <message>
         <source>&amp;Information</source>
@@ -593,7 +593,7 @@
         <translation>&amp;Opcje konsoli</translation>
     </message>
     <message>
-        <source>Show the %1 help message to get a list with possible Vivo command-line options</source>
+        <source>Show the %1 help message to get a list with possible Dash command-line options</source>
         <translation>Pokaż pomoc %1 aby zobaczyć listę wszystkich opcji lnii poleceń.</translation>
     </message>
     <message>
@@ -655,8 +655,8 @@
         <translation>Otwórz plik &amp;konfiguracyjny portfela</translation>
     </message>
     <message>
-        <source>Open a vivo: URI</source>
-        <translation>Otwórz vivo: URI</translation>
+        <source>Open a dash: URI</source>
+        <translation>Otwórz dash: URI</translation>
     </message>
     <message>
         <source>Create a new wallet</source>
@@ -747,7 +747,7 @@
     <message numerus="yes">
         <source>%n active connection(s) to Vivo network</source>
         <extracomment>A substring of the tooltip.</extracomment>
-        <translation><numerusform>%n aktywne połączenie z siecią Vivo</numerusform><numerusform>%n aktywne połączenia z siecią Vivo</numerusform><numerusform>%n aktywnych połączeń z siecią Vivo</numerusform><numerusform>%n aktywne połączenia z siecią Vivo</numerusform></translation>
+        <translation><numerusform>%n aktywne połączenie z siecią Dash</numerusform><numerusform>%n aktywne połączenia z siecią Dash</numerusform><numerusform>%n aktywnych połączeń z siecią Dash</numerusform><numerusform>%n aktywne połączenia z siecią Dash</numerusform></translation>
     </message>
     <message>
         <source>Network activity disabled</source>
@@ -1298,8 +1298,8 @@
         <translation>Zmień adres wysyłania</translation>
     </message>
     <message>
-        <source>The entered address "%1" is not a valid Vivo address.</source>
-        <translation>Wprowadzony adres "%1" nie jest właściwym adresem Vivo.</translation>
+        <source>The entered address "%1" is not a valid Dash address.</source>
+        <translation>Wprowadzony adres "%1" nie jest właściwym adresem Dash.</translation>
     </message>
     <message>
         <source>Address "%1" already exists as a receiving address with label "%2" and so cannot be added as a sending address.</source>
@@ -1547,8 +1547,8 @@ Czy chcesz kontynuować?</translation>
         <translation>%1 Informacje</translation>
     </message>
     <message>
-        <source>&lt;h3&gt;%1 Basics&lt;/h3&gt; %1 gives you true financial privacy by obscuring the origins of your funds. All the Vivo in your wallet is comprised of different "inputs" which you can think of as separate, discrete coins.&lt;br&gt; %1 uses an innovative process to mix your inputs with the inputs of two or more other people, without having your coins ever leave your wallet. You retain control of your money at all times.&lt;hr&gt; &lt;b&gt;The %1 process works like this:&lt;/b&gt;&lt;ol type="1"&gt; &lt;li&gt;%1 begins by breaking your transaction inputs down into standard denominations. These denominations are 0.001 DASH, 0.01 DASH, 0.1 DASH, 1 DASH and 10 DASH -- sort of like the paper money you use every day.&lt;/li&gt; &lt;li&gt;Your wallet then sends requests to specially configured software nodes on the network, called "masternodes." These masternodes are informed then that you are interested in mixing a certain denomination. No identifiable information is sent to the masternodes, so they never know "who" you are.&lt;/li&gt; &lt;li&gt;When two or more other people send similar messages, indicating that they wish to mix the same denomination, a mixing session begins. The masternode mixes up the inputs and instructs all three users' wallets to pay the now-transformed input back to themselves. Your wallet pays that denomination directly to itself, but in a different address (called a change address).&lt;/li&gt; &lt;li&gt;In order to fully obscure your funds, your wallet must repeat this process a number of times with each denomination. Each time the process is completed, it's called a "round." Each round of %1 makes it exponentially more difficult to determine where your funds originated.&lt;/li&gt; &lt;li&gt;This mixing process happens in the background without any intervention on your part. When you wish to make a transaction, your funds will already be mixed. No additional waiting is required.&lt;/li&gt; &lt;/ol&gt; &lt;hr&gt;&lt;b&gt;IMPORTANT:&lt;/b&gt; Your wallet only contains 1000 of these "change addresses." Every time a mixing event happens, up to 9 of your addresses are used up. This means those 1000 addresses last for about 100 mixing events. When 900 of them are used, your wallet must create more addresses. It can only do this, however, if you have automatic backups enabled.&lt;br&gt; Consequently, users who have backups disabled will also have %1 disabled. &lt;hr&gt;For more information, see the &lt;a style="%2" href="%3"&gt;%1 documentation&lt;/a&gt;.</source>
-        <translation>&lt;h3&gt;Podstawy %1&lt;/h3&gt; %1 daje ci prawdziwą anonimowość finansową poprzez zacieranie śladów prowadzących do osoby która wysłała daną transakcję. Wszystkie monety Vivo w twoim portfelu składają się z różnych "kwot" o których możesz myśleć jako osobne nominały monet.&lt;br&gt; %1 używa innowacyjny proces do mieszania twoich monet razem z monetami dwóch innych użytkowników bez potrzeby opuszczania portfela. Przez cały czas posiadasz kontrolę nad twoimi funduszami. &lt;hr&gt;&lt;b&gt;%1 działa w ten sposób: &lt;/b&gt;&lt;ol type="1"&gt;&lt;li&gt; %1 rozpoczyna rozmienianie twoich monet na standardowe nominały czyli 0.001 DASH, 0.01 DASH, 0.1 DASH, 1 DASH, 10 DASH - coś w rodzaju nominałów banknotów. &lt;/li&gt;&lt;li&gt; Następnie, twój portfel wysyła prośbę do specjalnie skonfigurowanych serewerów sieci zwanych jako "masternody". Masternody te zostają poinformowane że chcesz wymieszać pewne nominały swoich monet. Żadne informacje mogące cię zidentyfikować zostają wysłane do masternodów, więc nie wiedzą one kim jesteś. &lt;/li&gt;&lt;li&gt; Kiedy dwoje innych użytkowników wyśle podobne prośby o wymieszanie takich samych nominałów, rozpoczyna się sesja miksowania. Masternode miesza dane nominały oraz wydaje polecenie portfelom danych użytkowników aby te wysłały wymieszane kwoty do samych siebie ale na nowy adres (również znany jako adres reszty). &lt;/li&gt;&lt;li&gt; Aby całkowicie zanonimizować fundusze, twój portfel wielokrotnie powtarza ten sam proces z każdym nominałem. Pojedyńczy proces nazywa się "runda". Trudność wyśledzenia źródła funduszy rośnie wykładniczo z każdą dodatkową rundą %1. &lt;/li&gt;&lt;li&gt; Proces mieszania odbywa się w tle, bez jakiejkolwiek potrzeby interwencji. Kiedy chcesz dokonać anonimowej transakcji twoje fundusze będą już wymieszane i gotowe do wysyłki. &lt;/li&gt;&lt;/ol&gt;&lt;hr&gt;&lt;b&gt; UWAGA:&lt;/b&gt; Twój portfel posiada jedynie 1000 "adresów reszty." Za każdym razem kiedy odbywa się sesja miksowania monet, aż 9 adresów może zostać zużytych. Oznacza to, że 1000 adresów reszty może wystarczyć na około 100 rund miksowania. Jeśli 900 adresów zostanie zużyte twój portfel musi wygenerować więcej adresów. Twój portfel może to zrobić jedynie jeśli masz włączone automatyczne tworzenie kopii zapasowych. &lt;br&gt;Jeżeli użytkownik nie ma włączonej opcji automatycznego tworzenia kopii zapasowych to onzacza że nie będzie mógł korzystać z %1. &lt;hr&gt; Więcej  informacji możesz znaleźć w &lt;a style="%2" href="%3"&gt; pełnej dokumentacji %1&lt;/a&gt;.</translation>
+        <source>&lt;h3&gt;%1 Basics&lt;/h3&gt; %1 gives you true financial privacy by obscuring the origins of your funds. All the Vivo in your wallet is comprised of different "inputs" which you can think of as separate, discrete coins.&lt;br&gt; %1 uses an innovative process to mix your inputs with the inputs of two or more other people, without having your coins ever leave your wallet. You retain control of your money at all times.&lt;hr&gt; &lt;b&gt;The %1 process works like this:&lt;/b&gt;&lt;ol type="1"&gt; &lt;li&gt;%1 begins by breaking your transaction inputs down into standard denominations. These denominations are 0.001 VIVO, 0.01 VIVO, 0.1 VIVO, 1 VIVO and 10 VIVO -- sort of like the paper money you use every day.&lt;/li&gt; &lt;li&gt;Your wallet then sends requests to specially configured software nodes on the network, called "masternodes." These masternodes are informed then that you are interested in mixing a certain denomination. No identifiable information is sent to the masternodes, so they never know "who" you are.&lt;/li&gt; &lt;li&gt;When two or more other people send similar messages, indicating that they wish to mix the same denomination, a mixing session begins. The masternode mixes up the inputs and instructs all three users' wallets to pay the now-transformed input back to themselves. Your wallet pays that denomination directly to itself, but in a different address (called a change address).&lt;/li&gt; &lt;li&gt;In order to fully obscure your funds, your wallet must repeat this process a number of times with each denomination. Each time the process is completed, it's called a "round." Each round of %1 makes it exponentially more difficult to determine where your funds originated.&lt;/li&gt; &lt;li&gt;This mixing process happens in the background without any intervention on your part. When you wish to make a transaction, your funds will already be mixed. No additional waiting is required.&lt;/li&gt; &lt;/ol&gt; &lt;hr&gt;&lt;b&gt;IMPORTANT:&lt;/b&gt; Your wallet only contains 1000 of these "change addresses." Every time a mixing event happens, up to 9 of your addresses are used up. This means those 1000 addresses last for about 100 mixing events. When 900 of them are used, your wallet must create more addresses. It can only do this, however, if you have automatic backups enabled.&lt;br&gt; Consequently, users who have backups disabled will also have %1 disabled. &lt;hr&gt;For more information, see the &lt;a style="%2" href="%3"&gt;%1 documentation&lt;/a&gt;.</source>
+        <translation>&lt;h3&gt;Podstawy %1&lt;/h3&gt; %1 daje ci prawdziwą anonimowość finansową poprzez zacieranie śladów prowadzących do osoby która wysłała daną transakcję. Wszystkie monety Dash w twoim portfelu składają się z różnych "kwot" o których możesz myśleć jako osobne nominały monet.&lt;br&gt; %1 używa innowacyjny proces do mieszania twoich monet razem z monetami dwóch innych użytkowników bez potrzeby opuszczania portfela. Przez cały czas posiadasz kontrolę nad twoimi funduszami. &lt;hr&gt;&lt;b&gt;%1 działa w ten sposób: &lt;/b&gt;&lt;ol type="1"&gt;&lt;li&gt; %1 rozpoczyna rozmienianie twoich monet na standardowe nominały czyli 0.001 VIVO, 0.01 VIVO, 0.1 VIVO, 1 VIVO, 10 VIVO - coś w rodzaju nominałów banknotów. &lt;/li&gt;&lt;li&gt; Następnie, twój portfel wysyła prośbę do specjalnie skonfigurowanych serewerów sieci zwanych jako "masternody". Masternody te zostają poinformowane że chcesz wymieszać pewne nominały swoich monet. Żadne informacje mogące cię zidentyfikować zostają wysłane do masternodów, więc nie wiedzą one kim jesteś. &lt;/li&gt;&lt;li&gt; Kiedy dwoje innych użytkowników wyśle podobne prośby o wymieszanie takich samych nominałów, rozpoczyna się sesja miksowania. Masternode miesza dane nominały oraz wydaje polecenie portfelom danych użytkowników aby te wysłały wymieszane kwoty do samych siebie ale na nowy adres (również znany jako adres reszty). &lt;/li&gt;&lt;li&gt; Aby całkowicie zanonimizować fundusze, twój portfel wielokrotnie powtarza ten sam proces z każdym nominałem. Pojedyńczy proces nazywa się "runda". Trudność wyśledzenia źródła funduszy rośnie wykładniczo z każdą dodatkową rundą %1. &lt;/li&gt;&lt;li&gt; Proces mieszania odbywa się w tle, bez jakiejkolwiek potrzeby interwencji. Kiedy chcesz dokonać anonimowej transakcji twoje fundusze będą już wymieszane i gotowe do wysyłki. &lt;/li&gt;&lt;/ol&gt;&lt;hr&gt;&lt;b&gt; UWAGA:&lt;/b&gt; Twój portfel posiada jedynie 1000 "adresów reszty." Za każdym razem kiedy odbywa się sesja miksowania monet, aż 9 adresów może zostać zużytych. Oznacza to, że 1000 adresów reszty może wystarczyć na około 100 rund miksowania. Jeśli 900 adresów zostanie zużyte twój portfel musi wygenerować więcej adresów. Twój portfel może to zrobić jedynie jeśli masz włączone automatyczne tworzenie kopii zapasowych. &lt;br&gt;Jeżeli użytkownik nie ma włączonej opcji automatycznego tworzenia kopii zapasowych to onzacza że nie będzie mógł korzystać z %1. &lt;hr&gt; Więcej  informacji możesz znaleźć w &lt;a style="%2" href="%3"&gt; pełnej dokumentacji %1&lt;/a&gt;.</translation>
     </message>
 </context>
 <context>
@@ -1623,8 +1623,8 @@ Czy chcesz kontynuować?</translation>
         <translation><numerusform>(wystarczające do przywrócenia kopii zapasowych starszych niż %n dzień)</numerusform><numerusform>(wystarczające do przywrócenia kopii zapasowych starszych niż %n dni)</numerusform><numerusform>(wystarczające do przywrócenia kopii zapasowych starszych niż %n dni)</numerusform><numerusform>(wystarczające do przywrócenia kopii zapasowych starszych niż %n dni)</numerusform></translation>
     </message>
     <message>
-        <source>%1 will download and store a copy of the Vivo block chain.</source>
-        <translation>%1 pobierze i zapisze lokalnie kopię łańcucha bloków Vivo.</translation>
+        <source>%1 will download and store a copy of the Dash block chain.</source>
+        <translation>%1 pobierze i zapisze lokalnie kopię łańcucha bloków Dash.</translation>
     </message>
     <message>
         <source>The wallet will also be stored in this directory.</source>
@@ -1901,7 +1901,7 @@ Czy chcesz kontynuować?</translation>
     </message>
     <message>
         <source>Recent transactions may not yet be visible, and therefore your wallet's balance might be incorrect. This information will be correct once your wallet has finished synchronizing with the Vivo network, as detailed below.</source>
-        <translation>Ostatnie transakcje mogą jeszcze być niewidoczne. Saldo może być błędne. Poprawne informacje pojawią się po zakończeniu synchronizacji z siecią Vivo. Stan synchronizacji widzisz poniżej.</translation>
+        <translation>Ostatnie transakcje mogą jeszcze być niewidoczne. Saldo może być błędne. Poprawne informacje pojawią się po zakończeniu synchronizacji z siecią Dash. Stan synchronizacji widzisz poniżej.</translation>
     </message>
     <message>
         <source>Attempting to spend Vivo that are affected by not-yet-displayed transactions will not be accepted by the network.</source>
@@ -2140,7 +2140,7 @@ Czy chcesz kontynuować?</translation>
         <translation>Transakcje z wyjściami równymi lub mniejszymi od tej kwoty będą uznawane za pył, gdy zostaną otrzymane ze źródeł zewnętrznych.</translation>
     </message>
     <message>
-        <source>duffs</source>
+        <source>VLVOs</source>
         <translation>duffów</translation>
     </message>
     <message>
@@ -2232,8 +2232,8 @@ Czy chcesz kontynuować?</translation>
         <translation>Maksimum</translation>
     </message>
     <message>
-        <source>Automatically open the Vivo Core client port on the router. This only works when your router supports UPnP and it is enabled.</source>
-        <translation>Automatycznie otwórz port klienta Vivo Core na ruterze. Opcja działa jedynie, jeżeli router obsługuje UPnP i funkcja UPnP jest włączona.</translation>
+        <source>Automatically open the Dash Core client port on the router. This only works when your router supports UPnP and it is enabled.</source>
+        <translation>Automatycznie otwórz port klienta Dash Core na ruterze. Opcja działa jedynie, jeżeli router obsługuje UPnP i funkcja UPnP jest włączona.</translation>
     </message>
     <message>
         <source>Map port using NA&amp;T-PMP</source>
@@ -2249,7 +2249,7 @@ Czy chcesz kontynuować?</translation>
     </message>
     <message>
         <source>Connect to the Vivo network through a SOCKS5 proxy.</source>
-        <translation>Połącz się z siecią Vivo przez proxy SOCKS5.</translation>
+        <translation>Połącz się z siecią Dash przez proxy SOCKS5.</translation>
     </message>
     <message>
         <source>&amp;Connect through SOCKS5 proxy (default proxy):</source>
@@ -2314,8 +2314,8 @@ https://explore.transifex.com/vivo/vivo/</translation>
         <translation>Mapuj port używając &amp;UPnP</translation>
     </message>
     <message>
-        <source>Automatically open the Vivo Core client port on the router. This only works when your router supports NAT-PMP and it is enabled. The external port could be random.</source>
-        <translation>Automatycznie otwórz port klienta Vivo Core na routerze. Działa to tylko wtedy, gdy router obsługuje NAT-PMP i jest włączony. Port zewnętrzny może być losowy.</translation>
+        <source>Automatically open the Dash Core client port on the router. This only works when your router supports NAT-PMP and it is enabled. The external port could be random.</source>
+        <translation>Automatycznie otwórz port klienta Dash Core na routerze. Działa to tylko wtedy, gdy router obsługuje NAT-PMP i jest włączony. Port zewnętrzny może być losowy.</translation>
     </message>
     <message>
         <source>Proxy &amp;IP:</source>
@@ -2367,7 +2367,7 @@ https://explore.transifex.com/vivo/vivo/</translation>
     </message>
     <message>
         <source>Connect to the Vivo network through a separate SOCKS5 proxy for Tor onion services.</source>
-        <translation>Połącz się z siecią Vivo za pomocą oddzielnego proxy SOCKS5 dla usług Tor onion.</translation>
+        <translation>Połącz się z siecią Dash za pomocą oddzielnego proxy SOCKS5 dla usług Tor onion.</translation>
     </message>
     <message>
         <source>Use separate SOCKS&amp;5 proxy to reach peers via Tor onion services:</source>
@@ -2470,7 +2470,7 @@ https://explore.transifex.com/vivo/vivo/</translation>
     </message>
     <message>
         <source>The displayed information may be out of date. Your wallet automatically synchronizes with the Vivo network after a connection is established, but this process has not completed yet.</source>
-        <translation>Wyświetlona informacja może być przedawniona. Twój portfel automatycznie zsynchronizuje się z siecią Vivo, gdy tylko zostanie ustanowione połączenie, jednak proces ten jeszcze się nie zakończył.</translation>
+        <translation>Wyświetlona informacja może być przedawniona. Twój portfel automatycznie zsynchronizuje się z siecią Dash, gdy tylko zostanie ustanowione połączenie, jednak proces ten jeszcze się nie zakończył.</translation>
     </message>
     <message>
         <source>Available:</source>
@@ -2832,16 +2832,16 @@ https://explore.transifex.com/vivo/vivo/</translation>
         <translation>Błąd żądania płatności</translation>
     </message>
     <message>
-        <source>Cannot start vivo: click-to-pay handler</source>
-        <translation>Nie można włączyć vivo: kliknij-aby-zapłacić ubsługującemu.</translation>
+        <source>Cannot start dash: click-to-pay handler</source>
+        <translation>Nie można włączyć dash: kliknij-aby-zapłacić ubsługującemu.</translation>
     </message>
     <message>
         <source>URI handling</source>
         <translation>Obsługa URI</translation>
     </message>
     <message>
-        <source>'vivo://' is not a valid URI. Use 'vivo:' instead.</source>
-        <translation>'Vivo: //' nie jest prawidłowym identyfikatorem URI. Zamiast tego użyj 'Vivo:'.</translation>
+        <source>'dash://' is not a valid URI. Use 'dash:' instead.</source>
+        <translation>'Dash: //' nie jest prawidłowym identyfikatorem URI. Zamiast tego użyj 'Dash:'.</translation>
     </message>
     <message>
         <source>Cannot process payment request as BIP70 is no longer supported.
@@ -2850,8 +2850,8 @@ Due to discontinued support, you should request the merchant to provide you with
 Z powodu zaniechania obsługi należy poprosić sprzedawcę o dostarczenie adresu URL zgodnego z BIP21 lub użyć portfela, który nadal obsługuje BIP70.</translation>
     </message>
     <message>
-        <source>URI cannot be parsed! This can be caused by an invalid Vivo address or malformed URI parameters.</source>
-        <translation>URI nie może zostać przeanalizowany! Mogło to być spowodowane przez niewłaściwy adres Vivo lub niewłaściwe parametry URI</translation>
+        <source>URI cannot be parsed! This can be caused by an invalid Dash address or malformed URI parameters.</source>
+        <translation>URI nie może zostać przeanalizowany! Mogło to być spowodowane przez niewłaściwy adres Dash lub niewłaściwe parametry URI</translation>
     </message>
     <message>
         <source>Payment request file handling</source>
@@ -3235,8 +3235,8 @@ Zostaniesz teraz przekierowany do monitorowania i rozgłaszania nowej propozycji
         <translation>Kwota</translation>
     </message>
     <message>
-        <source>Enter a Vivo address (e.g. %1)</source>
-        <translation>Wpisz adres Vivo (np. %1)</translation>
+        <source>Enter a Dash address (e.g. %1)</source>
+        <translation>Wpisz adres Dash (np. %1)</translation>
     </message>
     <message>
         <source>Appearance Setup</source>
@@ -3785,8 +3785,8 @@ Zostaniesz teraz przekierowany do monitorowania i rozgłaszania nowej propozycji
         <translation>Adresy lokalne</translation>
     </message>
     <message>
-        <source>Network addresses that your Vivo node is currently using to communicate with other nodes.</source>
-        <translation>Adresy sieciowe, których węzeł Vivo aktualnie używa do komunikacji z innymi węzłami.</translation>
+        <source>Network addresses that your Dash node is currently using to communicate with other nodes.</source>
+        <translation>Adresy sieciowe, których węzeł Dash aktualnie używa do komunikacji z innymi węzłami.</translation>
     </message>
     <message>
         <source>Number of regular Masternodes</source>
@@ -4195,7 +4195,7 @@ Aby uzyskać więcej informacji na temat korzystania z tej konsoli, wpisz %6.
     <name>ReceiveCoinsDialog</name>
     <message>
         <source>An optional message to attach to the payment request, which will be displayed when the request is opened. Note: The message will not be sent with the payment over the Vivo network.</source>
-        <translation>Opcjonalna wiadomość do żądania płatności. Wiadomość wyświetli się po otwarciu żądania. Pamiętaj: Wiadomość nie zostanie wysłana razem z płatnością poprzez sieć Vivo.</translation>
+        <translation>Opcjonalna wiadomość do żądania płatności. Wiadomość wyświetli się po otwarciu żądania. Pamiętaj: Wiadomość nie zostanie wysłana razem z płatnością poprzez sieć Dash.</translation>
     </message>
     <message>
         <source>&amp;Message:</source>
@@ -4207,7 +4207,7 @@ Aby uzyskać więcej informacji na temat korzystania z tej konsoli, wpisz %6.
     </message>
     <message>
         <source>An optional message to attach to the payment request, which will be displayed when the request is opened.&lt;br&gt;Note: The message will not be sent with the payment over the Vivo network.</source>
-        <translation>Opcjonalna wiadomość do żądania płatności. Wiadomość wyświetli się po otwarciu żądania.&lt;br&gt; Pamiętaj: Wiadomość nie zostanie wysłana razem z płatnością poprzez sieć Vivo.</translation>
+        <translation>Opcjonalna wiadomość do żądania płatności. Wiadomość wyświetli się po otwarciu żądania.&lt;br&gt; Pamiętaj: Wiadomość nie zostanie wysłana razem z płatnością poprzez sieć Dash.</translation>
     </message>
     <message>
         <source>An optional label to associate with the new receiving address (used by you to identify an invoice).  It is also attached to the payment request.</source>
@@ -4498,8 +4498,8 @@ Aby uzyskać więcej informacji na temat korzystania z tej konsoli, wpisz %6.
         <translation>Opłata za transakcję:</translation>
     </message>
     <message>
-        <source>When there is less transaction volume than space in the blocks, miners as well as relaying nodes may enforce a minimum fee. Paying only this minimum fee is just fine, but be aware that this can result in a never confirming transaction once there is more demand for vivo transactions than the network can process.</source>
-        <translation>Gdy wolumen transakcji jest mniejszy niż miejsce w blokach, górnicy oraz węzły przekazujące mogą narzucić minimalną opłatę. Płacenie tylko tej minimalnej opłaty jest w porządku, ale należy pamiętać, że może to spowodować, że transakcja nigdy nie zostanie potwierdzone gdy pojawi się większe zapotrzebowanie na transakcje Vivo, niż sieć może przetworzyć.</translation>
+        <source>When there is less transaction volume than space in the blocks, miners as well as relaying nodes may enforce a minimum fee. Paying only this minimum fee is just fine, but be aware that this can result in a never confirming transaction once there is more demand for dash transactions than the network can process.</source>
+        <translation>Gdy wolumen transakcji jest mniejszy niż miejsce w blokach, górnicy oraz węzły przekazujące mogą narzucić minimalną opłatę. Płacenie tylko tej minimalnej opłaty jest w porządku, ale należy pamiętać, że może to spowodować, że transakcja nigdy nie zostanie potwierdzone gdy pojawi się większe zapotrzebowanie na transakcje Dash, niż sieć może przetworzyć.</translation>
     </message>
     <message>
         <source>A too low fee might result in a never confirming transaction (read the tooltip)</source>
@@ -4514,7 +4514,7 @@ Aby uzyskać więcej informacji na temat korzystania z tej konsoli, wpisz %6.
         <translation>Docelowy czas potwierdzenia:</translation>
     </message>
     <message>
-        <source>If the custom fee is set to 1000 duffs and the transaction is only 250 bytes, then "per kilobyte" only pays 250 duffs in fee,&lt;br /&gt;while "at least" pays 1000 duffs. For transactions bigger than a kilobyte both pay by kilobyte.</source>
+        <source>If the custom fee is set to 1000 VLVOs and the transaction is only 250 bytes, then "per kilobyte" only pays 250 VLVOs in fee,&lt;br /&gt;while "at least" pays 1000 VLVOs. For transactions bigger than a kilobyte both pay by kilobyte.</source>
         <translation>Jeśli ręcznie ustalona opłata wynosi 1000 Duffów, a sama transakcja ma tylko 250 bajtów, to opłata "za kilobajt" wynosi tylko 250 duffów. &lt;br/&gt;Dzieje się tak dla każdej transakcji poniżej 1000 duffów. W przypadku transakcji większych niż jeden kilobajt opłata jest naliczana od kilobajta. </translation>
     </message>
     <message>
@@ -4803,8 +4803,8 @@ Aby uzyskać więcej informacji na temat korzystania z tej konsoli, wpisz %6.
         <translation><numerusform>Potwierdzenia zaczną się za około %n blok</numerusform><numerusform>Potwierdzenia zaczną się za około %n bloki</numerusform><numerusform>Potwierdzenia zaczną się za około %n bloków</numerusform><numerusform>Potwierdzenia zaczną się za około %n bloków</numerusform></translation>
     </message>
     <message>
-        <source>Warning: Invalid Vivo address</source>
-        <translation>Ostrzeżenie: adres Vivo jest nieprawidlowy </translation>
+        <source>Warning: Invalid Dash address</source>
+        <translation>Ostrzeżenie: adres Dash jest nieprawidlowy </translation>
     </message>
     <message>
         <source>Warning: Unknown change address</source>
@@ -4830,8 +4830,8 @@ Aby uzyskać więcej informacji na temat korzystania z tej konsoli, wpisz %6.
         <translation>Zapłać &amp;dla:</translation>
     </message>
     <message>
-        <source>The Vivo address to send the payment to</source>
-        <translation>Adres Vivo na który wysłać fundusze</translation>
+        <source>The Dash address to send the payment to</source>
+        <translation>Adres Dash na który wysłać fundusze</translation>
     </message>
     <message>
         <source>Choose previously used address</source>
@@ -4870,7 +4870,7 @@ Aby uzyskać więcej informacji na temat korzystania z tej konsoli, wpisz %6.
         <translation>Kwota do wysłania w wybranej jednostce</translation>
     </message>
     <message>
-        <source>The fee will be deducted from the amount being sent. The recipient will receive a lower amount of Vivo than you enter in the amount field. If multiple recipients are selected, the fee is split equally.</source>
+        <source>The fee will be deducted from the amount being sent. The recipient will receive a lower amount of Dash than you enter in the amount field. If multiple recipients are selected, the fee is split equally.</source>
         <translation>Opłata zostanie odliczona od wysyłanej kwoty. Odbiorca otrzyma mniej, niż wprowadziłeś w polu kwoty. W razie wielu odbiorców, opłata zostanie równo podzielona.</translation>
     </message>
     <message>
@@ -4886,8 +4886,8 @@ Aby uzyskać więcej informacji na temat korzystania z tej konsoli, wpisz %6.
         <translation>Wiadomość:</translation>
     </message>
     <message>
-        <source>A message that was attached to the vivo: URI which will be stored with the transaction for your reference. Note: This message will not be sent over the Vivo network.</source>
-        <translation>Wiadomość, która została dołączona do vivo: Link, który zostanie zapisany wraz z transakcją do wglądu w przyszłości. Zauważ, że sama wiadomość nie zostanie wysłana przez sieć Vivo.</translation>
+        <source>A message that was attached to the dash: URI which will be stored with the transaction for your reference. Note: This message will not be sent over the Vivo network.</source>
+        <translation>Wiadomość, która została dołączona do dash: Link, który zostanie zapisany wraz z transakcją do wglądu w przyszłości. Zauważ, że sama wiadomość nie zostanie wysłana przez sieć Dash.</translation>
     </message>
 </context>
 <context>
@@ -4923,12 +4923,12 @@ Aby uzyskać więcej informacji na temat korzystania z tej konsoli, wpisz %6.
         <translation>Podpi&amp;sz Wiadomość</translation>
     </message>
     <message>
-        <source>You can sign messages/agreements with your addresses to prove you can receive Vivo sent to them. Be careful not to sign anything vague or random, as phishing attacks may try to trick you into signing your identity over to them. Only sign fully-detailed statements you agree to.</source>
+        <source>You can sign messages/agreements with your addresses to prove you can receive Dash sent to them. Be careful not to sign anything vague or random, as phishing attacks may try to trick you into signing your identity over to them. Only sign fully-detailed statements you agree to.</source>
         <translation>Możesz podpisywać wiadomości swoimi adresami aby udowodnić, że jesteś ich właścicielem. Uważaj, aby nie podpisywać niczego co wzbudza Twoje podejrzenia, ponieważ ktoś może stosować phishing próbując nakłonić Cię do ich podpisania. Akceptuj i podpisuj tylko w pełni zrozumiałe komunikaty i wiadomości.</translation>
     </message>
     <message>
-        <source>The Vivo address to sign the message with</source>
-        <translation>Adres Vivo do podpisu wiadomości</translation>
+        <source>The Dash address to sign the message with</source>
+        <translation>Adres Dash do podpisu wiadomości</translation>
     </message>
     <message>
         <source>Choose previously used address</source>
@@ -4959,8 +4959,8 @@ Aby uzyskać więcej informacji na temat korzystania z tej konsoli, wpisz %6.
         <translation>Kopiuje aktualny podpis do schowka systemowego</translation>
     </message>
     <message>
-        <source>Sign the message to prove you own this Vivo address</source>
-        <translation>Podpisz wiadomość, aby udowodnić, że jesteś właścicielem adresu Vivo.</translation>
+        <source>Sign the message to prove you own this Dash address</source>
+        <translation>Podpisz wiadomość, aby udowodnić, że jesteś właścicielem adresu Dash.</translation>
     </message>
     <message>
         <source>Sign &amp;Message</source>
@@ -4983,8 +4983,8 @@ Aby uzyskać więcej informacji na temat korzystania z tej konsoli, wpisz %6.
         <translation>Wpisz adres odbiorcy, podaj wiadomość (upewnij się, że dokładnie skopiujesz wszystkie zakończenia linii, spacje, tabulacje itp.) oraz podpis poniżej by sprawdzić wiadomość. Uważaj by nie dodać więcej do podpisu niż do samej podpisywanej wiadomości by uniknąć ataku man-in-the-middle (człowiek pośrodku)</translation>
     </message>
     <message>
-        <source>The Vivo address the message was signed with</source>
-        <translation>Adres Vivo, którym wiadomość została podpisana</translation>
+        <source>The Dash address the message was signed with</source>
+        <translation>Adres Dash, którym wiadomość została podpisana</translation>
     </message>
     <message>
         <source>The signed message to verify</source>
@@ -4995,8 +4995,8 @@ Aby uzyskać więcej informacji na temat korzystania z tej konsoli, wpisz %6.
         <translation>Podpis złożony podczas podpisywania wiadomości</translation>
     </message>
     <message>
-        <source>Verify the message to ensure it was signed with the specified Vivo address</source>
-        <translation>Zweryfikuj wiadomość, aby upewnić się, że została zapisana przez konkretny adres Vivo</translation>
+        <source>Verify the message to ensure it was signed with the specified Dash address</source>
+        <translation>Zweryfikuj wiadomość, aby upewnić się, że została zapisana przez konkretny adres Dash</translation>
     </message>
     <message>
         <source>Verify &amp;Message</source>
@@ -5776,7 +5776,7 @@ Przejdź do Plik &gt; Otwórz portfel, aby załadować portfel.
     </message>
 </context>
 <context>
-    <name>vivo-core</name>
+    <name>dash-core</name>
     <message>
         <source>This error could occur if this wallet was not shutdown cleanly and was last loaded using a build with a newer version of Berkeley DB. If so, please use the software that last loaded this wallet</source>
         <translation>Ten błąd mógł wystąpić, jeśli portfel nie został poprawnie zamknięty i został ostatnio załadowany przy użyciu kompilacji z nowszą wersją Berkeley DB. Jeśli tak, użyj oprogramowania, które ostatnio załadowało ten portfel</translation>
@@ -6030,8 +6030,8 @@ Przejdź do Plik &gt; Otwórz portfel, aby załadować portfel.
         <translation>Błąd ładowania %s: Portfel zewnętrznego sygnatariusza jest ładowany bez skompilowanej obsługi zewnętrznego sygnatariusza</translation>
     </message>
     <message>
-        <source>Error: Dumpfile version is not supported. This version of vivo-wallet only supports version 1 dumpfiles. Got dumpfile with version %s</source>
-        <translation>Błąd: Wersja pliku zrzutu nie jest obsługiwana. Ta wersja vivo-wallet obsługuje tylko pliki zrzutu w wersji 1. Otrzymano plik zrzutu w wersji %s</translation>
+        <source>Error: Dumpfile version is not supported. This version of dash-wallet only supports version 1 dumpfiles. Got dumpfile with version %s</source>
+        <translation>Błąd: Wersja pliku zrzutu nie jest obsługiwana. Ta wersja dash-wallet obsługuje tylko pliki zrzutu w wersji 1. Otrzymano plik zrzutu w wersji %s</translation>
     </message>
     <message>
         <source>Failed to create backup, file already exists! This could happen if you restarted wallet in less than 60 seconds. You can continue if you are ok with this.</source>
@@ -6742,8 +6742,8 @@ Przejdź do Plik &gt; Otwórz portfel, aby załadować portfel.
         <translation>Ostatnia kolejka została utworzona zbyt niedawno.</translation>
     </message>
     <message>
-        <source>%s corrupt. Try using the wallet tool vivo-wallet to salvage or restoring a backup.</source>
-        <translation>%s uszkodzony. Spróbuj użyć narzędzia vivo-wallet aby odzyskać lub odbudować portfel z kopi zapasowej.</translation>
+        <source>%s corrupt. Try using the wallet tool dash-wallet to salvage or restoring a backup.</source>
+        <translation>%s uszkodzony. Spróbuj użyć narzędzia dash-wallet aby odzyskać lub odbudować portfel z kopi zapasowej.</translation>
     </message>
     <message>
         <source>%s is set very high! Fees this large could be paid on a single transaction.</source>

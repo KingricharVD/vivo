@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-# Copyright (c) 2026 The Vivo Core developers
+# Copyright (c) 2026 The Dash Core developers
 # Distributed under the MIT software license, see the accompanying
 # file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
@@ -98,7 +98,7 @@ def main():
     os.makedirs(DIR_OUT, exist_ok=True)
 
     # Generate bundle icon
-    with tempfile.TemporaryDirectory(prefix="vivo_icons_") as tmpdir:
+    with tempfile.TemporaryDirectory(prefix="dash_icons_") as tmpdir:
         generate_icns(tmpdir)
 
     # Generate runtime icons

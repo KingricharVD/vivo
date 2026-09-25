@@ -1,7 +1,7 @@
 GUI changes
 -----------
 
-- Vivo-Qt now labels masternode registration and update transactions in the
+- Dash-Qt now labels masternode registration and update transactions in the
   transaction history as **Masternode Registration** and **Masternode Update**
   instead of generic "Payment to yourself" rows. A new **Masternode** filter
   shows only these operations. The amount shown is the transaction's net effect

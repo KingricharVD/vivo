@@ -4,7 +4,7 @@ use std::{
     ops::Deref,
 };
 
-use bls_vivo_sys::{GetLastErrorMsg, SecAllocBytes, SecFree};
+use bls_dash_sys::{GetLastErrorMsg, SecAllocBytes, SecFree};
 
 use crate::BlsError;
 

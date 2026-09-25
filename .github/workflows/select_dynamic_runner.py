@@ -1,4 +1,4 @@
-# Copyright (c) 2026 The Vivo Core developers
+# Copyright (c) 2026 The Dash Core developers
 # Distributed under the MIT software license, see the accompanying
 # file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
@@ -13,10 +13,10 @@ from typing import Callable, Dict, Iterable, List, Optional, Sequence, Tuple
 
 
 DEFAULT_REPOS = (
-    "vivopay/vivo",
-    "vivopay/platform",
-    "vivopay/grovedb",
-    "vivopay/rust-vivocore",
+    "dashpay/dash",
+    "dashpay/platform",
+    "dashpay/grovedb",
+    "dashpay/rust-dashcore",
 )
 DEFAULT_STATUSES = ("queued", "in_progress")
 DEFAULT_RUNNER_AMD64 = "ubuntu-24.04"
@@ -46,7 +46,7 @@ def request_json(url: str, token: str) -> Tuple[Dict, Dict[str, str]]:
     for use_auth in attempts:
         headers = {
             "Accept": "application/vnd.github+json",
-            "User-Agent": "vivo-ci-runner-selector",
+            "User-Agent": "dash-ci-runner-selector",
             "X-GitHub-Api-Version": "2022-11-28",
         }
         if use_auth:

@@ -1,4 +1,4 @@
-// Copyright (c) 2019-2025 The Vivo Core developers
+// Copyright (c) 2019-2025 The Dash Core developers
 // Distributed under the MIT/X11 software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
@@ -513,16 +513,16 @@ static RPCHelpMan getcoinjoininfo()
 Span<const CRPCCommand> GetWalletCoinJoinRPCCommands()
 {
     static const CRPCCommand commands[]{
-        {"vivo", &coinjoin},
-        {"vivo", &coinjoin_reset},
-        {"vivo", &coinjoin_start},
-        {"vivo", &coinjoin_status},
-        {"vivo", &coinjoin_stop},
-        {"vivo", &coinjoinsalt},
-        {"vivo", &coinjoinsalt_generate},
-        {"vivo", &coinjoinsalt_get},
-        {"vivo", &coinjoinsalt_set},
-        {"vivo", &getcoinjoininfo},
+        {"dash", &coinjoin},
+        {"dash", &coinjoin_reset},
+        {"dash", &coinjoin_start},
+        {"dash", &coinjoin_status},
+        {"dash", &coinjoin_stop},
+        {"dash", &coinjoinsalt},
+        {"dash", &coinjoinsalt_generate},
+        {"dash", &coinjoinsalt_get},
+        {"dash", &coinjoinsalt_set},
+        {"dash", &getcoinjoininfo},
     };
     return commands;
 }
@@ -531,7 +531,7 @@ Span<const CRPCCommand> GetWalletCoinJoinRPCCommands()
 void RegisterCoinJoinRPCCommands(CRPCTable& t)
 {
     static const CRPCCommand commands_wallet[]{
-        {"vivo", &getcoinjoininfo},
+        {"dash", &getcoinjoininfo},
     };
     // If we aren't compiling with wallet support, we still need to register RPCs that are
     // capable of working without wallet support. We have to do this even if wallet support

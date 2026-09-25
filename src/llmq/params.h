@@ -1,4 +1,4 @@
-// Copyright (c) 2021-2025 The Vivo Core developers
+// Copyright (c) 2021-2025 The Dash Core developers
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
@@ -46,7 +46,7 @@ enum class LLMQType : uint8_t {
 };
 
 // Configures a LLMQ and its DKG
-// See https://github.com/vivopay/dips/blob/master/dip-0006.md for more details
+// See https://github.com/dashpay/dips/blob/master/dip-0006.md for more details
 struct LLMQParams {
     LLMQType type{LLMQType::LLMQ_NONE};
 
@@ -190,7 +190,7 @@ static constexpr std::array<LLMQParams, 14> available_llmqs = {
     },
 
     /**
-     * llmq_test (Vivo Core 0.17) aka llmq_test_v17
+     * llmq_test (Dash Core 0.17) aka llmq_test_v17
      * This quorum is only used for testing
      *
      */
@@ -457,7 +457,7 @@ static constexpr std::array<LLMQParams, 14> available_llmqs = {
      * This quorum is deployed on mainnet and requires
      * 80 - 100 participants
      *
-     * Used by Vivo Platform
+     * Used by Dash Platform
      */
     LLMQParams{
         .type = LLMQType::LLMQ_100_67,
@@ -485,7 +485,7 @@ static constexpr std::array<LLMQParams, 14> available_llmqs = {
      * This quorum is deployed on Testnet and requires
      * 25 participants
      *
-     * Used by Vivo Platform
+     * Used by Dash Platform
      */
     LLMQParams{
         .type = LLMQType::LLMQ_25_67,

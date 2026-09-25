@@ -1,4 +1,4 @@
-// Copyright (c) 2025 The Vivo Core developers
+// Copyright (c) 2025 The Dash Core developers
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
@@ -362,7 +362,7 @@ BOOST_FIXTURE_TEST_CASE(unrequested_clsig_is_dropped_and_scored, TestChain100Set
     // of this fixture already take us out of it.
     BOOST_REQUIRE(!m_node.chainman->ActiveChainstate().IsInitialBlockDownload());
 
-    // Every Vivo-specific message is offered to CMNAuth first, which asserts a loaded metadata
+    // Every Dash-specific message is offered to CMNAuth first, which asserts a loaded metadata
     // manager. The fixture leaves it unloaded, so initialise an empty cache here.
     BOOST_REQUIRE(m_node.mn_metaman->LoadCache(/*load_cache=*/false));
 

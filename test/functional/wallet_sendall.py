@@ -173,7 +173,7 @@ class SendallTest(BitcoinTestFramework):
         self.nodes[0].createwallet("dustwallet")
         dust_wallet = self.nodes[0].get_wallet_rpc("dustwallet")
 
-        # dust threshold for Vivo is ~550 duffs, accordingly
+        # dust threshold for Dash is ~550 VLVOs, accordingly
         # this code is different with Bitcoin Core's functional tests, which uses 400 & 300 sats
         self.def_wallet.sendtoaddress(dust_wallet.getnewaddress(), 0.00000700)
         self.def_wallet.sendtoaddress(dust_wallet.getnewaddress(), 0.00000600)

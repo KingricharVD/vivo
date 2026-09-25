@@ -1,4 +1,4 @@
-// Copyright (c) 2025 The Vivo Core developers
+// Copyright (c) 2025 The Dash Core developers
 // Distributed under the MIT/X11 software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
@@ -575,12 +575,12 @@ static CTxOut MakeDenomOutput(CAmount nAmount, uint8_t tag = 0x01)
 
 BOOST_AUTO_TEST_CASE(validate_promotion_entry_valid)
 {
-    // Valid promotion: 10 inputs of 0.1 DASH → 1 output of 1.0 DASH
+    // Valid promotion: 10 inputs of 0.1 VIVO → 1 output of 1.0 DASH
     std::vector<CTxIn> vecTxIn;
     std::vector<CTxOut> vecTxOut;
 
-    // Get the 0.1 DASH denomination (index 2: 1 << 2 = 4)
-    const int nSmallerDenom = 1 << 2;  // 0.1 DASH
+    // Get the 0.1 VIVO denomination (index 2: 1 << 2 = 4)
+    const int nSmallerDenom = 1 << 2;  // 0.1 VIVO
     const int nLargerDenom = 1 << 1;   // 1.0 DASH
     const CAmount nLargerAmount = CoinJoin::DenominationToAmount(nLargerDenom);
 
@@ -605,7 +605,7 @@ BOOST_AUTO_TEST_CASE(validate_promotion_entry_wrong_input_count)
     std::vector<CTxIn> vecTxIn;
     std::vector<CTxOut> vecTxOut;
 
-    const int nSmallerDenom = 1 << 2;  // 0.1 DASH
+    const int nSmallerDenom = 1 << 2;  // 0.1 VIVO
     const int nLargerDenom = 1 << 1;   // 1.0 DASH
     const CAmount nLargerAmount = CoinJoin::DenominationToAmount(nLargerDenom);
 
@@ -648,7 +648,7 @@ BOOST_AUTO_TEST_CASE(validate_promotion_entry_non_adjacent_denoms)
     std::vector<CTxIn> vecTxIn;
     std::vector<CTxOut> vecTxOut;
 
-    const int nSmallerDenom = 1 << 3;  // 0.01 DASH
+    const int nSmallerDenom = 1 << 3;  // 0.01 VIVO
     const int nLargerDenom = 1 << 1;   // 1.0 DASH (not adjacent to 0.01)
     const CAmount nLargerAmount = CoinJoin::DenominationToAmount(nLargerDenom);
 
@@ -664,11 +664,11 @@ BOOST_AUTO_TEST_CASE(validate_promotion_entry_non_adjacent_denoms)
 
 BOOST_AUTO_TEST_CASE(validate_demotion_entry_valid)
 {
-    // Valid demotion: 1 input of 1.0 DASH → 10 outputs of 0.1 DASH
+    // Valid demotion: 1 input of 1.0 DASH → 10 outputs of 0.1 VIVO
     std::vector<CTxIn> vecTxIn;
     std::vector<CTxOut> vecTxOut;
 
-    const int nSmallerDenom = 1 << 2;  // 0.1 DASH
+    const int nSmallerDenom = 1 << 2;  // 0.1 VIVO
     const CAmount nSmallerAmount = CoinJoin::DenominationToAmount(nSmallerDenom);
     const int nLargerDenom = 1 << 1;   // 1.0 DASH
 
@@ -820,7 +820,7 @@ BOOST_AUTO_TEST_CASE(isvalidstructure_demotion_structure)
     CCoinJoinBroadcastTx demo;
     {
         CMutableTransaction mtx;
-        const CAmount nSmallerAmount = CoinJoin::DenominationToAmount(1 << 2); // 0.1 DASH
+        const CAmount nSmallerAmount = CoinJoin::DenominationToAmount(1 << 2); // 0.1 VIVO
 
         // 1 input
         CTxIn in;
@@ -996,9 +996,9 @@ BOOST_AUTO_TEST_CASE(promotion_demotion_value_preservation)
 {
     // Verify that 10 smaller = 1 larger (value is preserved exactly)
     // CoinJoin denominations are designed so that 10 * smaller == larger
-    // e.g., 10 * (0.1 DASH + 100 sat) = 1.0 DASH + 1000 sat
+    // e.g., 10 * (0.1 VIVO + 100 sat) = 1.0 DASH + 1000 sat
 
-    const CAmount nSmallerAmount = CoinJoin::DenominationToAmount(1 << 2); // 0.1 DASH
+    const CAmount nSmallerAmount = CoinJoin::DenominationToAmount(1 << 2); // 0.1 VIVO
     const CAmount nLargerAmount = CoinJoin::DenominationToAmount(1 << 1);  // 1.0 DASH
 
     // Value must match EXACTLY for promotion/demotion to preserve value
@@ -1032,7 +1032,7 @@ BOOST_AUTO_TEST_CASE(isvalidstructure_mixed_session_postfork)
         // Total: 13 inputs, 4 outputs
 
         const CAmount nSmallestDenom = CoinJoin::GetSmallestDenomination();
-        const CAmount nSecondSmallest = CoinJoin::DenominationToAmount(1 << 3); // 0.01 DASH
+        const CAmount nSecondSmallest = CoinJoin::DenominationToAmount(1 << 3); // 0.01 VIVO
 
         // Standard participants (3 x 1:1)
         for (int i = 0; i < 3; ++i) {
@@ -1110,7 +1110,7 @@ BOOST_AUTO_TEST_CASE(validate_entry_session_denom_consistency)
     // For promotion: inputs must be session denom (smaller), output must be larger adjacent
     // For demotion: input must be larger adjacent, outputs must be session denom (smaller)
 
-    const int nSessionDenom = 1 << 2;  // 0.1 DASH (session denom)
+    const int nSessionDenom = 1 << 2;  // 0.1 VIVO (session denom)
     const int nLargerDenom = CoinJoin::GetLargerAdjacentDenom(nSessionDenom);
 
     BOOST_CHECK(nLargerDenom != 0);
@@ -1128,10 +1128,10 @@ BOOST_AUTO_TEST_CASE(validate_entry_session_denom_consistency)
     BOOST_CHECK(CoinJoin::ValidatePromotionEntry(promoVin, promoVout, nSessionDenom, msg));
 
     // Test with wrong session denom (largest denom can't promote)
-    const int nLargestDenom = 1 << 0;  // 10 DASH
+    const int nLargestDenom = 1 << 0;  // 10 VIVO
     msg = MSG_NOERR;
     BOOST_CHECK(!CoinJoin::ValidatePromotionEntry(promoVin, promoVout, nLargestDenom, msg));
-    BOOST_CHECK(msg == ERR_DENOM);  // No larger adjacent for 10 DASH
+    BOOST_CHECK(msg == ERR_DENOM);  // No larger adjacent for 10 VIVO
 
     // Create a valid demotion entry structure
     std::vector<CTxIn> demoVin;
@@ -1460,7 +1460,7 @@ BOOST_AUTO_TEST_CASE(validate_promotion_entry_edge_cases)
 {
     // Additional edge cases for ValidatePromotionEntry
 
-    const int nSessionDenom = 1 << 2;  // 0.1 DASH
+    const int nSessionDenom = 1 << 2;  // 0.1 VIVO
     const int nLargerDenom = CoinJoin::GetLargerAdjacentDenom(nSessionDenom);
     const CAmount nLargerAmount = CoinJoin::DenominationToAmount(nLargerDenom);
 
@@ -1509,7 +1509,7 @@ BOOST_AUTO_TEST_CASE(validate_demotion_entry_edge_cases)
 {
     // Additional edge cases for ValidateDemotionEntry
 
-    const int nSessionDenom = 1 << 2;  // 0.1 DASH (output denom)
+    const int nSessionDenom = 1 << 2;  // 0.1 VIVO (output denom)
     const CAmount nSessionAmount = CoinJoin::DenominationToAmount(nSessionDenom);
 
     // Verify the larger adjacent denom exists for this test to be meaningful
@@ -1542,9 +1542,9 @@ BOOST_AUTO_TEST_CASE(validate_demotion_entry_edge_cases)
     msg = MSG_NOERR;
     BOOST_CHECK(!CoinJoin::ValidateDemotionEntry(validVin, nineOutputs, nSessionDenom, msg));
 
-    // Test that demotion from smallest denomination (0.001 DASH) fails
+    // Test that demotion from smallest denomination (0.001 VIVO) fails
     // because there's no smaller denomination to demote to
-    const int nSmallestDenom = 1 << 4;  // 0.001 DASH
+    const int nSmallestDenom = 1 << 4;  // 0.001 VIVO
     BOOST_CHECK_EQUAL(CoinJoin::GetSmallerAdjacentDenom(nSmallestDenom), 0);  // No smaller exists
 }
 

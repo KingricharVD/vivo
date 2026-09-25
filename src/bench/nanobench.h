@@ -2360,7 +2360,7 @@ struct IterationLogic::Impl {
                 os << "| ";
                 auto showUnstable = isWarningsEnabled() && rErrorMedian >= 0.05;
                 if (showUnstable) {
-                    os << ":wavy_vivo: ";
+                    os << ":wavy_dash: ";
                 }
                 os << fmt::MarkDownCode(mBench.name());
                 if (showUnstable) {

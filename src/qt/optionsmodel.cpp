@@ -1,5 +1,5 @@
 // Copyright (c) 2011-2021 The Bitcoin Core developers
-// Copyright (c) 2014-2026 The Vivo Core developers
+// Copyright (c) 2014-2026 The Dash Core developers
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
@@ -59,7 +59,7 @@ static const char* SettingName(OptionsModel::OptionID option)
     case OptionsModel::ProxyPortTor: return "onion";
     case OptionsModel::ProxyUseTor: return "onion";
     case OptionsModel::Language: return "lang";
-    //! Vivo
+    //! Dash
     case OptionsModel::CoinJoinAmount: return "coinjoinamount";
     case OptionsModel::CoinJoinDenomsGoal: return "coinjoindenomsgoal";
     case OptionsModel::CoinJoinDenomsHardCap: return "coinjoindenomshardcap";
@@ -232,15 +232,15 @@ bool OptionsModel::Init(bilingual_str& error)
     fMinimizeOnClose = settings.value("fMinimizeOnClose").toBool();
 
     // Display
-    if (!settings.contains("DisplayVivoUnit")) {
-        settings.setValue("DisplayVivoUnit", QVariant::fromValue(BitcoinUnit::DASH));
+    if (!settings.contains("DisplayDashUnit")) {
+        settings.setValue("DisplayDashUnit", QVariant::fromValue(BitcoinUnit::DASH));
     }
-    QVariant unit = settings.value("DisplayVivoUnit");
+    QVariant unit = settings.value("DisplayDashUnit");
     if (unit.canConvert<BitcoinUnit>()) {
         m_display_bitcoin_unit = unit.value<BitcoinUnit>();
     } else {
         m_display_bitcoin_unit = BitcoinUnit::DASH;
-        settings.setValue("DisplayVivoUnit", QVariant::fromValue(m_display_bitcoin_unit));
+        settings.setValue("DisplayDashUnit", QVariant::fromValue(m_display_bitcoin_unit));
     }
 
     if (!settings.contains("strThirdPartyTxUrls"))
@@ -1084,7 +1084,7 @@ void OptionsModel::setDisplayUnit(const QVariant& new_unit)
     if (new_unit.isNull() || new_unit.value<BitcoinUnit>() == m_display_bitcoin_unit) return;
     m_display_bitcoin_unit = new_unit.value<BitcoinUnit>();
     QSettings settings;
-    settings.setValue("DisplayVivoUnit", QVariant::fromValue(m_display_bitcoin_unit));
+    settings.setValue("DisplayDashUnit", QVariant::fromValue(m_display_bitcoin_unit));
     Q_EMIT displayUnitChanged(m_display_bitcoin_unit);
 }
 
@@ -1193,7 +1193,7 @@ void OptionsModel::checkAndMigrate()
     migrate_setting(ProxyUseTor, "fUseSeparateProxyTor");
     migrate_setting(Language, "language");
 
-    //! Vivo
+    //! Dash
     if (GUIUtil::fontsLoaded()) {
         migrate_setting(FontFamily, "fontFamily");
         migrate_setting(FontScale, "fontScale");

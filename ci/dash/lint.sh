@@ -1,15 +1,15 @@
 #!/usr/bin/env bash
-# Copyright (c) 2025 The Vivo Core developers
+# Copyright (c) 2025 The Dash Core developers
 # Distributed under the MIT software license, see the accompanying
 # file COPYING or http://www.opensource.org/licenses/mit-license.php.
 #
-# This script runs the Vivo-specific linters
+# This script runs the Dash-specific linters
 
 export LC_ALL=C.UTF-8
 
 set -e
 
-source ./ci/vivo/matrix.sh
+source ./ci/dash/matrix.sh
 
 # Check commit scripts for PRs
 if [ "$PULL_REQUEST" != "false" ]; then

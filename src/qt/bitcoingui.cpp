@@ -1,5 +1,5 @@
 // Copyright (c) 2011-2021 The Bitcoin Core developers
-// Copyright (c) 2014-2025 The Vivo Core developers
+// Copyright (c) 2014-2025 The Dash Core developers
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
@@ -385,10 +385,10 @@ void BitcoinGUI::stopConnectingAnimation()
 void BitcoinGUI::createActions()
 {
     sendCoinsAction = new QAction(tr("&Send"), this);
-    sendCoinsAction->setStatusTip(tr("Send coins to a Vivo address"));
+    sendCoinsAction->setStatusTip(tr("Send coins to a Dash address"));
     QString strCoinJoinName = QString::fromStdString(gCoinJoinName);
     coinJoinCoinsAction = new QAction(QString("&%1").arg(strCoinJoinName), this);
-    coinJoinCoinsAction->setStatusTip(tr("Send %1 funds to a Vivo address").arg(strCoinJoinName));
+    coinJoinCoinsAction->setStatusTip(tr("Send %1 funds to a Dash address").arg(strCoinJoinName));
     coinJoinCoinsAction->setToolTip(coinJoinCoinsAction->statusTip());
 
     receiveCoinsAction = new QAction(tr("&Receive"), this);
@@ -434,9 +434,9 @@ void BitcoinGUI::createActions()
     unlockWalletAction->setToolTip(tr("Unlock wallet"));
     lockWalletAction = new QAction(tr("&Lock Wallet"), this);
     signMessageAction = new QAction(tr("Sign &message…"), this);
-    signMessageAction->setStatusTip(tr("Sign messages with your Vivo addresses to prove you own them"));
+    signMessageAction->setStatusTip(tr("Sign messages with your Dash addresses to prove you own them"));
     verifyMessageAction = new QAction(tr("&Verify message…"), this);
-    verifyMessageAction->setStatusTip(tr("Verify messages to ensure they were signed with specified Vivo addresses"));
+    verifyMessageAction->setStatusTip(tr("Verify messages to ensure they were signed with specified Dash addresses"));
     m_load_psbt_action = new QAction(tr("&Load PSBT from file…"), this);
     m_load_psbt_action->setStatusTip(tr("Load Partially Signed Blockchain Transaction"));
     m_load_psbt_clipboard_action = new QAction(tr("Load PSBT from &clipboard…"), this);
@@ -503,7 +503,7 @@ void BitcoinGUI::createActions()
 
     showHelpMessageAction = new QAction(tr("&Command-line options"), this);
     showHelpMessageAction->setMenuRole(QAction::NoRole);
-    showHelpMessageAction->setStatusTip(tr("Show the %1 help message to get a list with possible Vivo command-line options").arg(PACKAGE_NAME));
+    showHelpMessageAction->setStatusTip(tr("Show the %1 help message to get a list with possible Dash command-line options").arg(PACKAGE_NAME));
 
     showCoinJoinHelpAction = new QAction(tr("%1 &information").arg(strCoinJoinName), this);
     showCoinJoinHelpAction->setMenuRole(QAction::NoRole);
@@ -1596,7 +1596,7 @@ void BitcoinGUI::updateWidth()
         ++nButtonsVisible;
     }
     // Add 30 per button as padding and use minimum 980 which is the minimum required to show all tab's contents
-    // Use nButtonsVisible + 1 <- for the vivo logo
+    // Use nButtonsVisible + 1 <- for the dash logo
     int nWidth = std::max<int>(980, (nWidthWidestButton + 30) * (nButtonsVisible + 1));
     setMinimumWidth(nWidth);
 

@@ -11,7 +11,7 @@
 
 [Unit]
 Description=Vivo daemon
-Documentation=https://github.com/vivopay/vivo/blob/master/doc/init.md
+Documentation=https://github.com/dashpay/dash/blob/master/doc/init.md
 
 # https://www.freedesktop.org/wiki/Software/systemd/NetworkTarget/
 After=network-online.target
@@ -26,7 +26,7 @@ ExecStart=/usr/bin/vivod -pid=/run/vivod/vivod.pid \
 
 # Make sure the config directory is readable by the service user
 PermissionsStartOnly=true
-ExecStartPre=/bin/chgrp vivocore /etc/vivo
+ExecStartPre=/bin/chgrp vivocore /etc/dash
 
 # Process management
 ####################
@@ -42,7 +42,7 @@ TimeoutStopSec=600
 # Directory creation and permissions
 ####################################
 
-# Run as vivo:vivo
+# Run as dash:dash
 User=vivocore
 Group=vivocore
 
@@ -50,7 +50,7 @@ Group=vivocore
 RuntimeDirectory=vivod
 RuntimeDirectoryMode=0710
 
-# /etc/vivo
+# /etc/dash
 ConfigurationDirectory=vivo
 ConfigurationDirectoryMode=0710
 

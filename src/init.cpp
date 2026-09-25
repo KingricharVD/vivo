@@ -1,6 +1,6 @@
 // Copyright (c) 2009-2010 Satoshi Nakamoto
 // Copyright (c) 2009-2021 The Bitcoin Core developers
-// Copyright (c) 2014-2026 The Vivo Core developers
+// Copyright (c) 2014-2026 The Dash Core developers
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
@@ -1424,7 +1424,7 @@ bool AppInitParameterInteraction(const ArgsManager& args)
 
 static bool LockDataDirectory(bool probeOnly)
 {
-    // Make sure only a single Vivo Core process is using the data directory.
+    // Make sure only a single Dash Core process is using the data directory.
     const fs::path& datadir = gArgs.GetDataDirNet();
     if (!DirIsWritable(datadir)) {
         return InitError(strprintf(_("Cannot write to data directory '%s'; check permissions."), fs::PathToString(datadir)));
@@ -1492,9 +1492,9 @@ bool AppInitMain(NodeContext& node, interfaces::BlockAndHeaderTipInfo* tip_info)
     // Warn about relative -datadir path.
     if (args.IsArgSet("-datadir") && !args.GetPathArg("-datadir").is_absolute()) {
         LogPrintf("Warning: relative datadir option '%s' specified, which will be interpreted relative to the " /* Continued */
-                  "current working directory '%s'. This is fragile, because if Vivo Core is started in the future "
+                  "current working directory '%s'. This is fragile, because if Dash Core is started in the future "
                   "from a different location, it will be unable to locate the current data files. There could "
-                  "also be data loss if Vivo Core is started while in a temporary directory.\n",
+                  "also be data loss if Dash Core is started while in a temporary directory.\n",
                   args.GetArg("-datadir", ""), fs::PathToString(fs::current_path()));
     }
 
@@ -2106,7 +2106,7 @@ bool AppInitMain(NodeContext& node, interfaces::BlockAndHeaderTipInfo* tip_info)
     const bool quorums_recovery = args.GetBoolArg("-llmq-data-recovery", llmq::DEFAULT_ENABLE_QUORUM_DATA_RECOVERY);
     const bool quorums_watch = args.GetBoolArg("-watchquorums", llmq::DEFAULT_WATCH_QUORUMS);
     const llmq::QvvecSyncModeMap sync_map{llmq::GetEnabledQuorumVvecSyncEntries(args)};
-    const util::DbWrapperParams vivo_db_params{.path = args.GetDataDirNet(), .memory = false, .wipe = (fReindex || fReindexChainState)};
+    const util::DbWrapperParams dash_db_params{.path = args.GetDataDirNet(), .memory = false, .wipe = (fReindex || fReindexChainState)};
     if (const auto operator_sk_str = args.GetArg("-masternodeblsprivkey", ""); !operator_sk_str.empty()) {
         const CBLSSecretKey operator_sk{ParseHex(operator_sk_str)};
         if (!operator_sk.IsValid()) {
@@ -2117,11 +2117,11 @@ bool AppInitMain(NodeContext& node, interfaces::BlockAndHeaderTipInfo* tip_info)
                                                           *node.govman, *node.chain_helper->superblocks,
                                                           *node.sporkman, *node.chainlocks, *node.mempool, *node.clhandler, *node.isman,
                                                           *node.llmq_ctx->qman, *node.llmq_ctx->qsnapman, *node.llmq_ctx->sigman,
-                                                          *node.mn_sync, operator_sk, vivo_db_params, quorums_watch);
+                                                          *node.mn_sync, operator_sk, dash_db_params, quorums_watch);
         RegisterValidationInterface(node.active_ctx.get());
     } else if (quorums_watch) {
         node.observer_ctx = std::make_unique<llmq::ObserverContext>(*node.dmnman, *node.llmq_ctx->qman, *node.llmq_ctx->qsnapman,
-                                                                    chainman, *node.sporkman, vivo_db_params);
+                                                                    chainman, *node.sporkman, dash_db_params);
         RegisterValidationInterface(node.observer_ctx.get());
     }
 
@@ -2147,7 +2147,7 @@ bool AppInitMain(NodeContext& node, interfaces::BlockAndHeaderTipInfo* tip_info)
     );
     RegisterValidationInterface(node.ds_notification_interface.get());
 
-    // ********************************************************* Step 7d: Setup other Vivo services
+    // ********************************************************* Step 7d: Setup other Dash services
 
     node.peerman->AddExtraHandler(std::make_unique<NetInstantSend>(node.peerman.get(), *node.isman, node.active_ctx ? node.active_ctx->is_signer.get() : nullptr, *node.llmq_ctx->sigman, *node.llmq_ctx->qman, *node.chainlocks, chainman, *node.mempool, *node.mn_sync));
     node.peerman->AddExtraHandler(std::make_unique<llmq::NetSigning>(node.peerman.get(), *node.llmq_ctx->sigman, node.active_ctx ? node.active_ctx->shareman.get() : nullptr, *node.sporkman));
@@ -2306,7 +2306,7 @@ bool AppInitMain(NodeContext& node, interfaces::BlockAndHeaderTipInfo* tip_info)
         return false;
     }
 
-    // ********************************************************* Step 10a: schedule Vivo-specific tasks
+    // ********************************************************* Step 10a: schedule Dash-specific tasks
 
     node.peerman->StartHandlers();
     node.clhandler->Start();

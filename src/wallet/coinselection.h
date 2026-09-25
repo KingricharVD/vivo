@@ -160,7 +160,7 @@ struct CoinSelectionParams {
      * associated with the same address. This helps reduce privacy leaks resulting from address
      * reuse. Dust outputs are not eligible to be added to output groups and thus not considered. */
     bool m_avoid_partial_spends = false;
-    /** Vivo: which class of coins may be selected (from CCoinControl::nCoinType). */
+    /** Dash: which class of coins may be selected (from CCoinControl::nCoinType). */
     CoinType m_coin_type{CoinType::ALL_COINS};
 
     CoinSelectionParams(FastRandomContext& rng_fast, size_t change_output_size, size_t change_spend_size,

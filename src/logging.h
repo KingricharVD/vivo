@@ -70,7 +70,7 @@ namespace BCLog {
         TXRECONCILIATION = (1 << 27),
         SCAN        = (1 << 28),
 
-        //Start Vivo
+        //Start Dash
         CHAINLOCKS  = ((uint64_t)1 << 32),
         GOBJECT     = ((uint64_t)1 << 33),
         INSTANTSEND = ((uint64_t)1 << 34),
@@ -90,7 +90,7 @@ namespace BCLog {
                     | EHF | CREDITPOOL,
 
         NET_NETCONN = NET | NETCONN, // use this to have something logged in NET and NETCONN as well
-        //End Vivo
+        //End Dash
 
         ALL         = ~(uint64_t)0,
     };

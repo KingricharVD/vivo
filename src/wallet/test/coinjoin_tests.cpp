@@ -1,4 +1,4 @@
-// Copyright (c) 2020-2025 The Vivo Core developers
+// Copyright (c) 2020-2025 The Dash Core developers
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
@@ -233,7 +233,7 @@ public:
 
 BOOST_FIXTURE_TEST_CASE(coinjoin_pending_observation_tests, CTransactionBuilderTestSetup)
 {
-    // 0.100001 DASH, a valid CoinJoin denomination
+    // 0.100001 VIVO, a valid CoinJoin denomination
     constexpr CAmount nDenomAmount{10000100};
     BOOST_REQUIRE(CoinJoin::IsDenominatedAmount(nDenomAmount));
     CompactTallyItem tallyItem = GetTallyItem({nDenomAmount, nDenomAmount, nDenomAmount, nDenomAmount});
@@ -347,7 +347,7 @@ BOOST_FIXTURE_TEST_CASE(coinjoin_pending_observation_tests, CTransactionBuilderT
 
 BOOST_FIXTURE_TEST_CASE(coinjoin_pending_observation_reload_tests, CTransactionBuilderTestSetup)
 {
-    // 0.100001 DASH, a valid CoinJoin denomination
+    // 0.100001 VIVO, a valid CoinJoin denomination
     constexpr CAmount nDenomAmount{10000100};
     CompactTallyItem tallyItem = GetTallyItem({nDenomAmount});
     const COutPoint outpointPending = tallyItem.outpoints[0];
@@ -392,7 +392,7 @@ BOOST_FIXTURE_TEST_CASE(coinjoin_pending_observation_reload_tests, CTransactionB
 
 BOOST_FIXTURE_TEST_CASE(coinjoin_pending_observation_unreadable_tests, CTransactionBuilderTestSetup)
 {
-    // 0.100001 DASH, a valid CoinJoin denomination
+    // 0.100001 VIVO, a valid CoinJoin denomination
     constexpr CAmount nDenomAmount{10000100};
     CompactTallyItem tallyItem = GetTallyItem({nDenomAmount, nDenomAmount});
     const COutPoint outpointPersisted = tallyItem.outpoints[0];
@@ -496,7 +496,7 @@ BOOST_FIXTURE_TEST_CASE(coinjoin_newkeypool_stops_mixing_tests, CTransactionBuil
 
 BOOST_FIXTURE_TEST_CASE(coinjoin_rebalance_rounds_reset_tests, CTransactionBuilderTestSetup)
 {
-    // 0.100001 DASH and its larger adjacent denomination 1.00001 DASH; the standard
+    // 0.100001 VIVO and its larger adjacent denomination 1.00001 VIVO; the standard
     // denominations are constructed so PROMOTION_RATIO smaller coins equal one larger coin
     constexpr CAmount nSmallerAmount{10000100};
     constexpr CAmount nLargerAmount{nSmallerAmount * CoinJoin::PROMOTION_RATIO};
@@ -554,7 +554,7 @@ BOOST_FIXTURE_TEST_CASE(coinjoin_rebalance_rounds_reset_tests, CTransactionBuild
 
 BOOST_FIXTURE_TEST_CASE(coinjoin_rounds_cache_unknown_tx_tests, CTransactionBuilderTestSetup)
 {
-    constexpr CAmount nDenomAmount{10000100}; // 0.100001 DASH
+    constexpr CAmount nDenomAmount{10000100}; // 0.100001 VIVO
     BOOST_REQUIRE(CoinJoin::IsDenominatedAmount(nDenomAmount));
 
     CompactTallyItem tallyItem = GetTallyItem({nDenomAmount});

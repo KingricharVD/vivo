@@ -14,6 +14,6 @@ services:
     privileged: true
     network_mode: host
     volumes:
-      - "../../..:/src/vivo:rw"
-      - "../../../../vivo-detached-sigs:/src/vivo-detached-sigs:rw"
+      - "../../..:/src/dash:rw"
+      - "../../../../dash-detached-sigs:/src/dash-detached-sigs:rw"
       - "../../../../guix.sigs:/src/guix.sigs:rw"

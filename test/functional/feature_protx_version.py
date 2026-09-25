@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-# Copyright (c) 2015-2025 The Vivo Core developers
+# Copyright (c) 2015-2025 The Dash Core developers
 # Distributed under the MIT software license, see the accompanying
 # file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
@@ -16,7 +16,7 @@ from test_framework.p2p import P2PInterface
 from test_framework.messages import CBlock, CBlockHeader, CCbTx, CMerkleBlock, from_hex, hash256, msg_getmnlistd, \
     QuorumId, ser_uint256
 from test_framework.test_framework import (
-    VivoTestFramework,
+    DashTestFramework,
     MasternodeInfo,
 )
 from test_framework.util import (
@@ -46,7 +46,7 @@ class TestP2PConn(P2PInterface):
         return self.last_mnlistdiff
 
 
-class ProTxVersionTest(VivoTestFramework):
+class ProTxVersionTest(DashTestFramework):
     def add_options(self, parser):
         self.add_wallet_options(parser)
 
@@ -58,7 +58,7 @@ class ProTxVersionTest(VivoTestFramework):
             # test; it is activated explicitly at the end.
             f'-vbparams=v24:{self.mocktime}:999999999999:350:10:8:6:5:0',
         ]] * 2
-        self.set_vivo_test_params(2, 1, evo_count=2, extra_args=self.extra_args)
+        self.set_dash_test_params(2, 1, evo_count=2, extra_args=self.extra_args)
 
     def get_peer_ids(self, node_idx):
         return {peer['id'] for peer in self.nodes[node_idx].getpeerinfo()}

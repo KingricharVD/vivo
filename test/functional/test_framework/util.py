@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 # Copyright (c) 2014-2020 The Bitcoin Core developers
-# Copyright (c) 2014-2025 The Vivo Core developers
+# Copyright (c) 2014-2025 The Dash Core developers
 # Distributed under the MIT software license, see the accompanying
 # file COPYING or http://www.opensource.org/licenses/mit-license.php.
 """Helpful routines for regression testing."""
@@ -247,9 +247,9 @@ def ceildiv(a, b):
     return -(-a // b)
 
 
-def get_fee(tx_size, feerate_vivo_kvb):
+def get_fee(tx_size, feerate_dash_kvb):
     """Calculate the fee in DASH given a feerate is DASH/kvB. Reflects CFeeRate::GetFee"""
-    feerate_sat_kvb = int(feerate_vivo_kvb * Decimal(1e8)) # Fee in sat/kvb as an int to avoid float precision errors
+    feerate_sat_kvb = int(feerate_dash_kvb * Decimal(1e8)) # Fee in sat/kvb as an int to avoid float precision errors
     target_fee_sat = ceildiv(feerate_sat_kvb * tx_size, 1000) # Round calculated fee up to nearest sat
     return satoshi_round(target_fee_sat / Decimal(1e8)) # Truncate DASH result to nearest sat
 

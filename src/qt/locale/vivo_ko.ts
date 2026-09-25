@@ -66,11 +66,11 @@
         <translation>선택 (&amp;H)</translation>
     </message>
     <message>
-        <source>These are your Vivo addresses for sending payments. Always check the amount and the receiving address before sending coins.</source>
+        <source>These are your Dash addresses for sending payments. Always check the amount and the receiving address before sending coins.</source>
         <translation>송금을 위한 대시 주소입니다. 코인을 보내기 전에 항상 금액과 받는 주소를 확인하세요.</translation>
     </message>
     <message>
-        <source>These are your Vivo addresses for receiving payments. Use the 'Create new receiving address' button in the receive tab to create new addresses.</source>
+        <source>These are your Dash addresses for receiving payments. Use the 'Create new receiving address' button in the receive tab to create new addresses.</source>
         <translation>이것은 지불을 받는 데 사용되는 당신의 대시 주소입니다. 새로운 주소를 생성하기 위해서는 수신 탭의 '새로운 받기 주소 생성하기' 버튼을 클릭하세요.</translation>
     </message>
     <message>
@@ -365,7 +365,7 @@
         <translation>보내기(&amp;S)</translation>
     </message>
     <message>
-        <source>Send coins to a Vivo address</source>
+        <source>Send coins to a Dash address</source>
         <translation>대시 주소로 코인 전송</translation>
     </message>
     <message>
@@ -373,7 +373,7 @@
         <translation>받기(&amp;R)</translation>
     </message>
     <message>
-        <source>Request payments (generates QR codes and vivo: URIs)</source>
+        <source>Request payments (generates QR codes and dash: URIs)</source>
         <translation>지불 요청하기 (QR코드와 대시 URI가 생성됩니다.)</translation>
     </message>
     <message>
@@ -489,7 +489,7 @@
         <translation>%1 정보(&amp;A)</translation>
     </message>
     <message>
-        <source>Send %1 funds to a Vivo address</source>
+        <source>Send %1 funds to a Dash address</source>
         <translation>%1 금액을 대시 주소로 전송</translation>
     </message>
     <message>
@@ -525,11 +525,11 @@
         <translation>지갑 잠금(&amp;L)</translation>
     </message>
     <message>
-        <source>Sign messages with your Vivo addresses to prove you own them</source>
+        <source>Sign messages with your Dash addresses to prove you own them</source>
         <translation>본인의 대시 주소임을 증명하기 위하여 메시지에 서명합니다.</translation>
     </message>
     <message>
-        <source>Verify messages to ensure they were signed with specified Vivo addresses</source>
+        <source>Verify messages to ensure they were signed with specified Dash addresses</source>
         <translation>특정 대시 주소에 서명된 것인지 확인하기 위하여 메시지를 검증합니다.</translation>
     </message>
     <message>
@@ -593,7 +593,7 @@
         <translation>명령줄 옵션(&amp;C)</translation>
     </message>
     <message>
-        <source>Show the %1 help message to get a list with possible Vivo command-line options</source>
+        <source>Show the %1 help message to get a list with possible Dash command-line options</source>
         <translation>사용 가능한 대시 명령줄 옵션 목록을 가져오기 위해 %1 도움말 메시지를 표시합니다.</translation>
     </message>
     <message>
@@ -655,7 +655,7 @@
         <translation>지갑 설정 파일 열기(&amp;W)</translation>
     </message>
     <message>
-        <source>Open a vivo: URI</source>
+        <source>Open a dash: URI</source>
         <translation>대시: URI 열기</translation>
     </message>
     <message>
@@ -1298,7 +1298,7 @@
         <translation>보내기 주소 편집</translation>
     </message>
     <message>
-        <source>The entered address "%1" is not a valid Vivo address.</source>
+        <source>The entered address "%1" is not a valid Dash address.</source>
         <translation>입력한 주소 "%1" 는 올바른 대시 주소가 아닙니다.</translation>
     </message>
     <message>
@@ -1547,7 +1547,7 @@ Do you wish to continue?</source>
         <translation>%1 정보</translation>
     </message>
     <message>
-        <source>&lt;h3&gt;%1 Basics&lt;/h3&gt; %1 gives you true financial privacy by obscuring the origins of your funds. All the Vivo in your wallet is comprised of different "inputs" which you can think of as separate, discrete coins.&lt;br&gt; %1 uses an innovative process to mix your inputs with the inputs of two or more other people, without having your coins ever leave your wallet. You retain control of your money at all times.&lt;hr&gt; &lt;b&gt;The %1 process works like this:&lt;/b&gt;&lt;ol type="1"&gt; &lt;li&gt;%1 begins by breaking your transaction inputs down into standard denominations. These denominations are 0.001 DASH, 0.01 DASH, 0.1 DASH, 1 DASH and 10 DASH -- sort of like the paper money you use every day.&lt;/li&gt; &lt;li&gt;Your wallet then sends requests to specially configured software nodes on the network, called "masternodes." These masternodes are informed then that you are interested in mixing a certain denomination. No identifiable information is sent to the masternodes, so they never know "who" you are.&lt;/li&gt; &lt;li&gt;When two or more other people send similar messages, indicating that they wish to mix the same denomination, a mixing session begins. The masternode mixes up the inputs and instructs all three users' wallets to pay the now-transformed input back to themselves. Your wallet pays that denomination directly to itself, but in a different address (called a change address).&lt;/li&gt; &lt;li&gt;In order to fully obscure your funds, your wallet must repeat this process a number of times with each denomination. Each time the process is completed, it's called a "round." Each round of %1 makes it exponentially more difficult to determine where your funds originated.&lt;/li&gt; &lt;li&gt;This mixing process happens in the background without any intervention on your part. When you wish to make a transaction, your funds will already be mixed. No additional waiting is required.&lt;/li&gt; &lt;/ol&gt; &lt;hr&gt;&lt;b&gt;IMPORTANT:&lt;/b&gt; Your wallet only contains 1000 of these "change addresses." Every time a mixing event happens, up to 9 of your addresses are used up. This means those 1000 addresses last for about 100 mixing events. When 900 of them are used, your wallet must create more addresses. It can only do this, however, if you have automatic backups enabled.&lt;br&gt; Consequently, users who have backups disabled will also have %1 disabled. &lt;hr&gt;For more information, see the &lt;a style="%2" href="%3"&gt;%1 documentation&lt;/a&gt;.</source>
+        <source>&lt;h3&gt;%1 Basics&lt;/h3&gt; %1 gives you true financial privacy by obscuring the origins of your funds. All the Vivo in your wallet is comprised of different "inputs" which you can think of as separate, discrete coins.&lt;br&gt; %1 uses an innovative process to mix your inputs with the inputs of two or more other people, without having your coins ever leave your wallet. You retain control of your money at all times.&lt;hr&gt; &lt;b&gt;The %1 process works like this:&lt;/b&gt;&lt;ol type="1"&gt; &lt;li&gt;%1 begins by breaking your transaction inputs down into standard denominations. These denominations are 0.001 VIVO, 0.01 VIVO, 0.1 VIVO, 1 VIVO and 10 VIVO -- sort of like the paper money you use every day.&lt;/li&gt; &lt;li&gt;Your wallet then sends requests to specially configured software nodes on the network, called "masternodes." These masternodes are informed then that you are interested in mixing a certain denomination. No identifiable information is sent to the masternodes, so they never know "who" you are.&lt;/li&gt; &lt;li&gt;When two or more other people send similar messages, indicating that they wish to mix the same denomination, a mixing session begins. The masternode mixes up the inputs and instructs all three users' wallets to pay the now-transformed input back to themselves. Your wallet pays that denomination directly to itself, but in a different address (called a change address).&lt;/li&gt; &lt;li&gt;In order to fully obscure your funds, your wallet must repeat this process a number of times with each denomination. Each time the process is completed, it's called a "round." Each round of %1 makes it exponentially more difficult to determine where your funds originated.&lt;/li&gt; &lt;li&gt;This mixing process happens in the background without any intervention on your part. When you wish to make a transaction, your funds will already be mixed. No additional waiting is required.&lt;/li&gt; &lt;/ol&gt; &lt;hr&gt;&lt;b&gt;IMPORTANT:&lt;/b&gt; Your wallet only contains 1000 of these "change addresses." Every time a mixing event happens, up to 9 of your addresses are used up. This means those 1000 addresses last for about 100 mixing events. When 900 of them are used, your wallet must create more addresses. It can only do this, however, if you have automatic backups enabled.&lt;br&gt; Consequently, users who have backups disabled will also have %1 disabled. &lt;hr&gt;For more information, see the &lt;a style="%2" href="%3"&gt;%1 documentation&lt;/a&gt;.</source>
         <translation>&lt;h3&gt;%1 기본 정보&lt;/h3&gt; %1은 당신의 자금 출처를 가려 진정한 재정적 프라이버시를 보장합니다. 당신의 지갑에 보관된 모든 대시는 각기 다른 "입력값"으로 구성되어 있습니다. 쉽게 생각하면 별도의 분리된 동전으로 구성되어 있다고 볼 수 있습니다.&lt;br&gt;  %1은 당신의 코인이 지갑을 떠나지 않고도 그 입력값을 다른 두 사람의 입력값과 섞는 혁신적인 방식을 사용합니다. 이로써 당신의 자금은 언제나 당신의 통제 하에 있습니다.&lt;hr&gt;&lt;b&gt; %1은 다음과 같은 방식으로 작동합니다.&lt;/b&gt;&lt;ol type="1"&gt;&lt;li&gt; %1은 당신의 거래 입력값을 표준 단위로 쪼개는 것으로 시작합니다. 이렇게 분할하는 단위는 0.001대시, 0.01대시, 0.1대시, 1대시 혹은 10대시 입니다 - 귀하가 일상적으로 사용하는 지폐와 비슷하다고 생각하셔도 좋습니다. &lt;/li&gt;&lt;li&gt;이후 당신의 지갑은 "마스터노드"라고 불리는 네트워크의 특수 구성 소프트웨어 노드에 요청을 전송합니다. 이로써 이들 마스터노드는 당신이 특정 금액을 믹싱하고자 한다는 정보를 수신합니다. 마스터노드에는 당신의 개인 정보를 식별할 수 있는 어떤 내용도 전송되지 않습니다. 즉 당신이 "누구"인지 알 수 있는 방법은 없습니다.&lt;/li&gt;&lt;li&gt; 두 명의 다른 사람이 비슷한 메시지를 보내어 그들 역시 같은 단위의 금액을 믹싱하고 싶다는 정보를 나타내면 믹싱 세션이 시작됩니다. 마스터노드는 이들 입력값을 믹싱하여 세 사용자의 지갑에 변환된 입력을 지불하도록 지시합니다. 당신의 지갑은 해당 입력값을 곧바로 스스로에게 지불하지만, 지불되는 주소는 '변경 주소'라고 불리는 다른 주소로 보내집니다.&lt;/li&gt;&lt;li&gt; 당신의 자금을 완전히 가리기 위해서, 당신의 지갑은 이 과정을 각 대시 분할 단위만큼 여러번 반복합니다. 이러한 반복을 ‘라운드’라고 부릅니다. 프라이빗샌드의 각 라운드가 진행됨에 따라 당신이 송금하고자 하는 자금의 출처는 기하급수적으로 높은 수준으로 가려집니다.&lt;/li&gt;&lt;li&gt; 이 믹싱 과정은 당신이 개입할 필요 없이 백그라운드에서 진행됩니다. 당신이 거래를 원하는 경우, 당신의 자금은 이미 믹싱을 거친 것입니다. 추가적으로 대기할 필요 역시 없습니다. &lt;/li&gt;&lt;/ol&gt;&lt;hr&gt;&lt;b&gt;중요:&lt;/b&gt; 당신의 지갑은 1,000개의 ‘변경 주소’만을 가지고 있습니다. 믹싱을 실행할 때마다 최대 9개의 주소가 사용됩니다. 이는 곧 이들 1000개의 주소가 약 100개의 믹싱 작업을 위해 사용될 수 있다는 것을 의미합니다. 전체 1,000개의 주소 중 900개가 사용된 경우 당신의 지갑은 더 많은 주소를 만들어야 합니다. 그러나 이 작업은 당신이 자동 백업을 설정한 경우에만 수행됩니다. &lt;br&gt;따라서 백업이 비활성화된 사용자는 %1 역시 비활성화 됩니다. &lt;hr&gt;더 많은 정보를 위해서는 &lt;a style="%2" href="%3"&gt;%1 문서&lt;/a&gt;를 참조하세요.</translation>
     </message>
 </context>
@@ -1623,7 +1623,7 @@ Do you wish to continue?</source>
         <translation><numerusform>(%n일 전 백업을 복원하기에 충분)</numerusform></translation>
     </message>
     <message>
-        <source>%1 will download and store a copy of the Vivo block chain.</source>
+        <source>%1 will download and store a copy of the Dash block chain.</source>
         <translation>%1은 비트코인 블록체인의 사본을 다운로드하여 저장합니다.</translation>
     </message>
     <message>
@@ -2140,8 +2140,8 @@ Do you wish to continue?</source>
         <translation>외부 출처에서 수신한 이 금액 이하의 출력이 있는 트랜잭션은 더스트로 간주됩니다.</translation>
     </message>
     <message>
-        <source>duffs</source>
-        <translation>duffs</translation>
+        <source>VLVOs</source>
+        <translation>VLVOs</translation>
     </message>
     <message>
         <source>External Signer (e.g. hardware wallet)</source>
@@ -2232,7 +2232,7 @@ Do you wish to continue?</source>
         <translation>최대</translation>
     </message>
     <message>
-        <source>Automatically open the Vivo Core client port on the router. This only works when your router supports UPnP and it is enabled.</source>
+        <source>Automatically open the Dash Core client port on the router. This only works when your router supports UPnP and it is enabled.</source>
         <translation>라우터에서 대시 코어 클라이언트를 자동으로 엽니다. 이 기능은 당신의 라우터가 UPnP를 지원하고 해당 기능이 작동하는 경우에만 가능합니다.</translation>
     </message>
     <message>
@@ -2314,7 +2314,7 @@ https://explore.transifex.com/vivo/vivo/</translation>
         <translation>UPnP를 사용하는 맵 포트(&amp;U)</translation>
     </message>
     <message>
-        <source>Automatically open the Vivo Core client port on the router. This only works when your router supports NAT-PMP and it is enabled. The external port could be random.</source>
+        <source>Automatically open the Dash Core client port on the router. This only works when your router supports NAT-PMP and it is enabled. The external port could be random.</source>
         <translation>라우터에서 대시 코어 클라이언트 포트를 자동으로 엽니다. 이 기능은 당신의 라우터가 NAT-PMP를 지원하고 활성화되어 있는 경우에만 작동합니다. 이 외부 포트는 무작위일 수 있습니다.</translation>
     </message>
     <message>
@@ -2832,7 +2832,7 @@ https://explore.transifex.com/vivo/vivo/</translation>
         <translation>지불 요청 오류</translation>
     </message>
     <message>
-        <source>Cannot start vivo: click-to-pay handler</source>
+        <source>Cannot start dash: click-to-pay handler</source>
         <translation>대시를 시작할 수 없습니다: 원클릭 지불 핸들러</translation>
     </message>
     <message>
@@ -2840,8 +2840,8 @@ https://explore.transifex.com/vivo/vivo/</translation>
         <translation>URI 처리</translation>
     </message>
     <message>
-        <source>'vivo://' is not a valid URI. Use 'vivo:' instead.</source>
-        <translation>'vivo://' 는 유효하지 않은 URI 입니다. 'vivo:' 를 사용하세요.</translation>
+        <source>'dash://' is not a valid URI. Use 'dash:' instead.</source>
+        <translation>'dash://' 는 유효하지 않은 URI 입니다. 'dash:' 를 사용하세요.</translation>
     </message>
     <message>
         <source>Cannot process payment request as BIP70 is no longer supported.
@@ -2850,7 +2850,7 @@ Due to discontinued support, you should request the merchant to provide you with
 지원이 계속되지 않는 이유로, 판매자에게 BIP21 호환 가능한 URI의 제공 혹은 BIP70을 계속해서 지원하는 지갑을 사용하도록 요청해야 합니다.</translation>
     </message>
     <message>
-        <source>URI cannot be parsed! This can be caused by an invalid Vivo address or malformed URI parameters.</source>
+        <source>URI cannot be parsed! This can be caused by an invalid Dash address or malformed URI parameters.</source>
         <translation>URI를 분석할 수 없습니다! 대시 주소가 유효하지 않거나 URI 파라미터 구성에 오류가 존재할 수 있습니다.</translation>
     </message>
     <message>
@@ -3235,7 +3235,7 @@ You will now be redirected to monitor and broadcast your new proposal, you can r
         <translation>거래액</translation>
     </message>
     <message>
-        <source>Enter a Vivo address (e.g. %1)</source>
+        <source>Enter a Dash address (e.g. %1)</source>
         <translation>대시 주소 입력 (예: %1)</translation>
     </message>
     <message>
@@ -3785,8 +3785,8 @@ You will now be redirected to monitor and broadcast your new proposal, you can r
         <translation>로컬 주소</translation>
     </message>
     <message>
-        <source>Network addresses that your Vivo node is currently using to communicate with other nodes.</source>
-        <translation>귀하의 Vivo 노드가 다른 노드와 통신하기 위해 현재 사용 중인 네트워크 주소입니다.</translation>
+        <source>Network addresses that your Dash node is currently using to communicate with other nodes.</source>
+        <translation>귀하의 Dash 노드가 다른 노드와 통신하기 위해 현재 사용 중인 네트워크 주소입니다.</translation>
     </message>
     <message>
         <source>Number of regular Masternodes</source>
@@ -4499,7 +4499,7 @@ For more information on using this console, type %6.
         <translation>거래 수수료:</translation>
     </message>
     <message>
-        <source>When there is less transaction volume than space in the blocks, miners as well as relaying nodes may enforce a minimum fee. Paying only this minimum fee is just fine, but be aware that this can result in a never confirming transaction once there is more demand for vivo transactions than the network can process.</source>
+        <source>When there is less transaction volume than space in the blocks, miners as well as relaying nodes may enforce a minimum fee. Paying only this minimum fee is just fine, but be aware that this can result in a never confirming transaction once there is more demand for dash transactions than the network can process.</source>
         <translation>거래량이 블록 내 공간보다 적은 경우, 채굴자 및 노드 중계자가 최소 수수료를 실시할 수 있습니다. 이 최소 수수료를 지불하는 것은 괜찮지만, 네트워크가 처리할 수 있는 것보다 대시 거래에 대한 수요가 많으면 거래가 확인되지 않을 수 있다는 점에 유의하시기 바랍니다.</translation>
     </message>
     <message>
@@ -4515,7 +4515,7 @@ For more information on using this console, type %6.
         <translation>승인 시간 목표:</translation>
     </message>
     <message>
-        <source>If the custom fee is set to 1000 duffs and the transaction is only 250 bytes, then "per kilobyte" only pays 250 duffs in fee,&lt;br /&gt;while "at least" pays 1000 duffs. For transactions bigger than a kilobyte both pay by kilobyte.</source>
+        <source>If the custom fee is set to 1000 VLVOs and the transaction is only 250 bytes, then "per kilobyte" only pays 250 VLVOs in fee,&lt;br /&gt;while "at least" pays 1000 VLVOs. For transactions bigger than a kilobyte both pay by kilobyte.</source>
         <translation>만일 사용자 지정 수수료가 1000 더프로 설정되어 있으나 거래는 250바이트에 불과한 경우, 'KB 당'은 오직 250 더프를 수수료로 지불하는 한편 &lt;br /&gt;'최소'는 1000더프를 지불합니다. 1 KB보다 큰 거래를 진행하는 경우 두 옵션 모두 KB 당으로 지불합니다.</translation>
     </message>
     <message>
@@ -4804,7 +4804,7 @@ For more information on using this console, type %6.
         <translation><numerusform>%n 블록 내 거래 확인을 시작하기 위해 추정 완료</numerusform></translation>
     </message>
     <message>
-        <source>Warning: Invalid Vivo address</source>
+        <source>Warning: Invalid Dash address</source>
         <translation>경고: 잘못된 대시 주소입니다</translation>
     </message>
     <message>
@@ -4831,7 +4831,7 @@ For more information on using this console, type %6.
         <translation>송금할 대상(&amp;T):</translation>
     </message>
     <message>
-        <source>The Vivo address to send the payment to</source>
+        <source>The Dash address to send the payment to</source>
         <translation>이 대시 주소로 송금합니다.</translation>
     </message>
     <message>
@@ -4871,7 +4871,7 @@ For more information on using this console, type %6.
         <translation>선택한 단위로 표시한 송금 금액</translation>
     </message>
     <message>
-        <source>The fee will be deducted from the amount being sent. The recipient will receive a lower amount of Vivo than you enter in the amount field. If multiple recipients are selected, the fee is split equally.</source>
+        <source>The fee will be deducted from the amount being sent. The recipient will receive a lower amount of Dash than you enter in the amount field. If multiple recipients are selected, the fee is split equally.</source>
         <translation>수수료는 보내는 금액에서 차감됩니다. 수령인은 당신이 수량란에 입력한 것 보다 적은 금액을 받게 됩니다. 만일 다중의 수령인이 선택되었다면 수수료는 수령인간에 동일하게 분할됩니다.</translation>
     </message>
     <message>
@@ -4887,7 +4887,7 @@ For more information on using this console, type %6.
         <translation>메시지:</translation>
     </message>
     <message>
-        <source>A message that was attached to the vivo: URI which will be stored with the transaction for your reference. Note: This message will not be sent over the Vivo network.</source>
+        <source>A message that was attached to the dash: URI which will be stored with the transaction for your reference. Note: This message will not be sent over the Vivo network.</source>
         <translation>대시: URI에 첨부된 메시지는 거래와 함께 참고용으로 저장됩니다. 주의: 이 메시지는 대시 네트워크로 전송되지 않습니다.</translation>
     </message>
 </context>
@@ -4924,11 +4924,11 @@ For more information on using this console, type %6.
         <translation>메시지 서명(&amp;S)</translation>
     </message>
     <message>
-        <source>You can sign messages/agreements with your addresses to prove you can receive Vivo sent to them. Be careful not to sign anything vague or random, as phishing attacks may try to trick you into signing your identity over to them. Only sign fully-detailed statements you agree to.</source>
+        <source>You can sign messages/agreements with your addresses to prove you can receive Dash sent to them. Be careful not to sign anything vague or random, as phishing attacks may try to trick you into signing your identity over to them. Only sign fully-detailed statements you agree to.</source>
         <translation>당신의 주소로 대시를 받을 수 있다는 점을 증명하기 위하여 메시지/계약서에 서명할 수 있습니다. 내용이 분명하지 않거나 무작위인 경우 서명하지 않도록 주의하세요. 피싱 공격이 당신의 서명을 얻기 위해 유도하는 것일 수 있습니다. 오직 완전한 세부 내용을 갖추고 당신이 동의하는 내용에만 서명하세요.</translation>
     </message>
     <message>
-        <source>The Vivo address to sign the message with</source>
+        <source>The Dash address to sign the message with</source>
         <translation>메시지에 서명하기 위한 대시 주소</translation>
     </message>
     <message>
@@ -4960,7 +4960,7 @@ For more information on using this console, type %6.
         <translation>현재 서명을 시스템 클립보드에 복사</translation>
     </message>
     <message>
-        <source>Sign the message to prove you own this Vivo address</source>
+        <source>Sign the message to prove you own this Dash address</source>
         <translation>이 대시 주소가 당신의 소유임을 증명하기 위해 메시지에 서명하세요.</translation>
     </message>
     <message>
@@ -4984,7 +4984,7 @@ For more information on using this console, type %6.
         <translation>메시지를 검증하기 위하여 아래에 수신인의 주소, 메시지(띄어쓰기, 들여쓰기, 행 나눔 등을 정확히 입력하기 위해 복사하여 입력) 및 서명을 입력하세요. 중간자 공격에 의한 피해를 피하기 위해 서명된 메시지 자체에 필요한 것 보다 많은 정보를 읽어 들이지 않도록 주의하세요. 이 기능은 서명 당사자가 해당 주소로 수신하였다는 점을 증명할 뿐이며, 거래의 발송 정보를 담지 않습니다.</translation>
     </message>
     <message>
-        <source>The Vivo address the message was signed with</source>
+        <source>The Dash address the message was signed with</source>
         <translation>메시지에 서명된 대시 주소</translation>
     </message>
     <message>
@@ -4996,7 +4996,7 @@ For more information on using this console, type %6.
         <translation>메시지가 서명된 때 특정된 서명</translation>
     </message>
     <message>
-        <source>Verify the message to ensure it was signed with the specified Vivo address</source>
+        <source>Verify the message to ensure it was signed with the specified Dash address</source>
         <translation>특정 대시 주소에 서명된 것인지 확인하기 위하여 메시지를 검증합니다.</translation>
     </message>
     <message>
@@ -5777,7 +5777,7 @@ Go to File &gt; Open Wallet to load a wallet.
     </message>
 </context>
 <context>
-    <name>vivo-core</name>
+    <name>dash-core</name>
     <message>
         <source>This error could occur if this wallet was not shutdown cleanly and was last loaded using a build with a newer version of Berkeley DB. If so, please use the software that last loaded this wallet</source>
         <translation>이 오류는 이 지갑이 완전히 종료되지 않은 채 마지막으로 로딩하면서 최신 버전의 Berkeley DB로 빌드를 사용한 경우 발생할 수 있습니다. 이와 같은 경우 이 지갑을 마지막으로 로딩한 소프트웨어를 사용하십시오.</translation>
@@ -6031,8 +6031,8 @@ Go to File &gt; Open Wallet to load a wallet.
         <translation>%s 로드 오류: 외부 서명자 지원이 컴파일되지 않은 상태에서 외부 서명자 지갑을 로드하고 있습니다</translation>
     </message>
     <message>
-        <source>Error: Dumpfile version is not supported. This version of vivo-wallet only supports version 1 dumpfiles. Got dumpfile with version %s</source>
-        <translation>오류: 덤프 파일 버전이 지원되지 않습니다. 이 버전의 vivo-wallet은 버전 1 덤프 파일만 지원합니다. 버전 %s의 덤프 파일을 받았습니다</translation>
+        <source>Error: Dumpfile version is not supported. This version of dash-wallet only supports version 1 dumpfiles. Got dumpfile with version %s</source>
+        <translation>오류: 덤프 파일 버전이 지원되지 않습니다. 이 버전의 dash-wallet은 버전 1 덤프 파일만 지원합니다. 버전 %s의 덤프 파일을 받았습니다</translation>
     </message>
     <message>
         <source>Failed to create backup, file already exists! This could happen if you restarted wallet in less than 60 seconds. You can continue if you are ok with this.</source>
@@ -6743,8 +6743,8 @@ Go to File &gt; Open Wallet to load a wallet.
         <translation>지난 큐가 너무 최근 생성되었습니다.</translation>
     </message>
     <message>
-        <source>%s corrupt. Try using the wallet tool vivo-wallet to salvage or restoring a backup.</source>
-        <translation>%s이(가) 손상되었습니다. 지갑 도구 vivo-wallet을 사용하여 백업을 복구하거나 복원하십시오.</translation>
+        <source>%s corrupt. Try using the wallet tool dash-wallet to salvage or restoring a backup.</source>
+        <translation>%s이(가) 손상되었습니다. 지갑 도구 dash-wallet을 사용하여 백업을 복구하거나 복원하십시오.</translation>
     </message>
     <message>
         <source>%s is set very high! Fees this large could be paid on a single transaction.</source>

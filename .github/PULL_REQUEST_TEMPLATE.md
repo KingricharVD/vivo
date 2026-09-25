@@ -8,7 +8,7 @@ _Pull requests without a rationale and clear improvement may be closed
 immediately._
 
 _Please provide clear motivation for your patch and explain how it improves
-Vivo Core user experience or Vivo Core developer experience
+Dash Core user experience or Dash Core developer experience
 significantly:_
 
 * _Any test improvements or new tests that improve coverage are always welcome._
@@ -21,7 +21,7 @@ significantly:_
   was fixed._
 * _Features are welcome, but might be rejected due to design or scope issues.
   If a feature is based on a lot of dependencies, contributors should first
-  consider building the system outside of Vivo Core, if possible._
+  consider building the system outside of Dash Core, if possible._
 
 
 ## Issue being fixed or feature implemented

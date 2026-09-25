@@ -1,4 +1,4 @@
-// Copyright (c) 2026 The Vivo Core developers
+// Copyright (c) 2026 The Dash Core developers
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
@@ -15,7 +15,7 @@ namespace wallet::platformkeys {
 
 Path IdentityAuthKeyPath(uint32_t coin_type, uint32_t identity_index, uint32_t key_index)
 {
-    // vivoj DerivationPathFactory.blockchainIdentityECDSADerivationPath(index):
+    // dashj DerivationPathFactory.blockchainIdentityECDSADerivationPath(index):
     // m/9'/coin'/5'/0'(sub-feature)/0'(key type ECDSA)/identity'/key'
     return {
         PathElement::Hardened(FEATURE_PURPOSE),
@@ -63,7 +63,7 @@ Path PlatformKeyPath(uint32_t coin_type, const PlatformKeyRequest& request)
 
 Path FriendshipPath(uint32_t coin_type, uint32_t account, Span<const uint8_t> user_a_id, Span<const uint8_t> user_b_id)
 {
-    // vivoj FriendKeyChain.getContactPath():
+    // dashj FriendKeyChain.getContactPath():
     // m/9'/coin'/15'/account'/identity_a/identity_b with two 256-bit ids
     // NOT hardened (DIP-14/DIP-15), enabling watch-only xpub derivation.
     assert(user_a_id.size() == 32);
@@ -135,7 +135,7 @@ bool ComputeECDHSecret(const CKey& key, const CPubKey& counterparty, SecureVecto
 
     secret_out.assign(32, 0);
     // Default KDF: SHA256 of the compressed shared point — identical to
-    // vivoj's Secp256k1ECDHAgreement (VivoPay contact request encryption).
+    // dashj's Secp256k1ECDHAgreement (DashPay contact request encryption).
     if (!secp256k1_ecdh(secp256k1_context_static, secret_out.data(), &pubkey,
                         UCharCast(key.begin()), nullptr, nullptr)) {
         secret_out.clear();

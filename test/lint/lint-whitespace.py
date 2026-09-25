@@ -23,7 +23,7 @@ EXCLUDED_DIRS = ["depends/patches/",
                  "src/crc32c/",
                  "src/secp256k1/",
                  "src/minisketch/",
-                 "src/vivobls/",
+                 "src/dashbls/",
                  "src/immer/",
                  "doc/release-notes/",
                  "src/qt/locale"]

@@ -46,7 +46,7 @@ class MutatedBlocksTest(BitcoinTestFramework):
         block.solve()
 
         # Create mutated version of the block by changing the transaction
-        # version on the self-transfer. Vivo has no witness data, so mutating a
+        # version on the self-transfer. Dash has no witness data, so mutating a
         # transaction (which changes its hash and hence the block's merkle root)
         # is what trips the mutation check.
         mutated_block = copy.deepcopy(block)

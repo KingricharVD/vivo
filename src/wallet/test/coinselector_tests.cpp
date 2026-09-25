@@ -394,7 +394,7 @@ BOOST_AUTO_TEST_CASE(bnb_search_test)
         add_coin(9 * CENT, 2, expected_result);
         add_coin(1 * CENT, 2, expected_result);
         const auto result12 = SelectCoins(*wallet, available_coins, /*pre_set_inputs=*/{}, 10 * CENT, coin_control, coin_selection_params_bnb);
-        // NOTE: Vivo does not use BnB and therefore, this check will fail
+        // NOTE: Dash does not use BnB and therefore, this check will fail
         // BOOST_CHECK(EquivalentResult(expected_result, *result12));
         available_coins.Clear();
 
@@ -962,7 +962,7 @@ BOOST_AUTO_TEST_CASE(SelectCoins_effective_value_test)
         dummyWallet->SetWalletFlag(WALLET_FLAG_DESCRIPTORS);
         dummyWallet->SetupDescriptorScriptPubKeyMans("", "");
 
-        add_coin(available_coins, *dummyWallet, 100000); // 0.001 DASH
+        add_coin(available_coins, *dummyWallet, 100000); // 0.001 VIVO
     }
 
     CAmount target{99900}; // 0.000999 DASH

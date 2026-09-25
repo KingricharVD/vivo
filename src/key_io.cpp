@@ -49,7 +49,7 @@ CTxDestination DecodeDestination(const std::string& str, const CChainParams& par
     bool is_bech32 = (ToLower(str.substr(0, params.Bech32PlatformHRP().size())) == params.Bech32PlatformHRP());
 
     if (!is_bech32 && DecodeBase58Check(str, data, 21)) {
-        // base58-encoded Vivo addresses.
+        // base58-encoded Dash addresses.
         // Public-key-hash-addresses have version 76 (or 140 testnet).
         // The data vector contains RIPEMD160(SHA256(pubkey)), where pubkey is the serialized public key.
         const std::vector<unsigned char>& pubkey_prefix = params.Base58Prefix(CChainParams::PUBKEY_ADDRESS);
@@ -85,7 +85,7 @@ CTxDestination DecodeDestination(const std::string& str, const CChainParams& par
         return CNoDestination();
     }
 
-    // Vivo has no Bech32m encoding for L1 destinations: a string using the Platform
+    // Dash has no Bech32m encoding for L1 destinations: a string using the Platform
     // HRP can only be a DIP-18 Platform address, which never encodes an L1 destination.
     // Decode it anyway to tell the user why exactly it got rejected.
     std::string platform_error_str;

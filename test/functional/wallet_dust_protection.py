@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-# Copyright (c) 2026 The Vivo Core developers
+# Copyright (c) 2026 The Dash Core developers
 # Distributed under the MIT software license, see the accompanying
 # file COPYING or http://www.opensource.org/licenses/mit-license.php.
 """Test -dustprotectionthreshold CLI option.
@@ -15,7 +15,7 @@ from test_framework.util import (
     assert_equal,
 )
 
-# 1 DASH = 100_000_000 duffs
+# 1 VIVO = 100_000_000 VLVOs
 DUFFS = Decimal('0.00000001')
 
 
@@ -27,7 +27,7 @@ class WalletDustProtectionTest(BitcoinTestFramework):
         self.setup_clean_chain = True
         self.num_nodes = 4
         # node0: sender (no dust protection)
-        # node1: receiver with dust protection at 10000 duffs
+        # node1: receiver with dust protection at 10000 VLVOs
         # node2: multi-wallet node with dust protection
         # node3: receiver with no dust protection (threshold=0, the default)
         self.extra_args = [
@@ -59,7 +59,7 @@ class WalletDustProtectionTest(BitcoinTestFramework):
 
         addr = node1.getnewaddress()
 
-        # Send exactly 10000 duffs (at threshold)
+        # Send exactly 10000 VLVOs (at threshold)
         txid = node0.sendtoaddress(addr, 10000 * DUFFS)
         self.sync_mempools()
 
@@ -114,7 +114,7 @@ class WalletDustProtectionTest(BitcoinTestFramework):
             node1.lockunspent(True, locked)
 
         addr = node1.getnewaddress()
-        # Send 10001 duffs (just above 10000 threshold)
+        # Send 10001 VLVOs (just above 10000 threshold)
         self.nodes[0].sendtoaddress(addr, 10001 * DUFFS)
         self.sync_mempools()
 

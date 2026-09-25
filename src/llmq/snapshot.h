@@ -1,4 +1,4 @@
-// Copyright (c) 2021-2025 The Vivo Core developers
+// Copyright (c) 2021-2025 The Dash Core developers
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
@@ -94,7 +94,7 @@ public:
  * Only the highest base at or below each constructed diff target is ever used, and a
  * response builds at most 3 * signingActiveQuorumCount snapshot diffs (96 for llmq_60_75)
  * plus the target cycles and the tip, so no request can usefully carry more than ~101 bases.
- * Shipping clients send far fewer: VivoSync sends one, vivoj at most six, vivo-spv at most
+ * Shipping clients send far fewer: DashSync sends one, dashj at most six, dash-spv at most
  * one. Without a limit the wire format allows MAX_PROTOCOL_MESSAGE_LENGTH / sizeof(uint256)
  * = 98304 entries, each of which costs a block-index lookup under cs_main. */
 static constexpr size_t MAX_BASE_BLOCK_HASHES{4096};

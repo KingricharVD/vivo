@@ -1,6 +1,6 @@
 // Copyright (c) 2009-2010 Satoshi Nakamoto
 // Copyright (c) 2009-2021 The Bitcoin Core developers
-// Copyright (c) 2014-2025 The Vivo Core developers
+// Copyright (c) 2014-2025 The Dash Core developers
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
@@ -473,7 +473,7 @@ protected:
     //! Manages the UTXO set, which is a reflection of the contents of `m_chain`.
     std::unique_ptr<CoinsViews> m_coins_views;
 
-    //! Vivo
+    //! Dash
     const std::unique_ptr<CChainstateHelper>& m_chain_helper;
     CEvoDB& m_evoDb;
 
@@ -812,7 +812,7 @@ enum class SnapshotCompletionResult {
     // not match the one expected by the snapshot chainstate.
     BASE_BLOCKHASH_MISMATCH,
 
-    // Vivo's derived Evo state or per-chainstate best-block markers did not
+    // Dash's derived Evo state or per-chainstate best-block markers did not
     // converge at the snapshot base block.
     EVO_STATE_MISMATCH,
 };

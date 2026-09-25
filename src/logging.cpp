@@ -183,7 +183,7 @@ const CLogCategoryDesc LogCategories[] =
     {BCLog::ALL, "1"},
     {BCLog::ALL, "all"},
 
-    //Start Vivo
+    //Start Dash
     {BCLog::CHAINLOCKS, "chainlocks"},
     {BCLog::GOBJECT, "gobject"},
     {BCLog::INSTANTSEND, "instantsend"},
@@ -197,8 +197,8 @@ const CLogCategoryDesc LogCategories[] =
     {BCLog::NETCONN, "netconn"},
     {BCLog::CREDITPOOL, "creditpool"},
     {BCLog::EHF, "ehf"},
-    {BCLog::DASH, "vivo"},
-    //End Vivo
+    {BCLog::DASH, "dash"},
+    //End Dash
 };
 
 bool GetLogCategory(BCLog::LogFlags& flag, const std::string& str)
@@ -297,7 +297,7 @@ std::string LogCategoryToStr(BCLog::LogFlags category)
         return "txreconciliation";
     case BCLog::LogFlags::SCAN:
         return "scan";
-    /* Start Vivo */
+    /* Start Dash */
     case BCLog::LogFlags::CHAINLOCKS:
         return "chainlocks";
     case BCLog::LogFlags::GOBJECT:
@@ -325,10 +325,10 @@ std::string LogCategoryToStr(BCLog::LogFlags category)
     case BCLog::LogFlags::EHF:
         return "ehf";
     case BCLog::LogFlags::DASH:
-        return "vivo";
+        return "dash";
     case BCLog::LogFlags::NET_NETCONN:
         return "net|netconn";
-    /* End Vivo */
+    /* End Dash */
     case BCLog::LogFlags::ALL:
         return "all";
     }
@@ -472,7 +472,7 @@ void BCLog::Logger::LogPrintStr(const std::string& str, const std::string& loggi
 
     if (m_log_threadnames && m_started_new_line) {
         const auto& threadname = util::ThreadGetInternalName();
-        // 16 chars total, "vivo-" is 5 of them and another 1 is a NUL terminator
+        // 16 chars total, "dash-" is 5 of them and another 1 is a NUL terminator
         str_prefixed.insert(0, "[" + strprintf("%10s", (threadname.empty() ? "unknown" : threadname)) + "] ");
     }
 

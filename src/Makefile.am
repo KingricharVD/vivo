@@ -1,5 +1,5 @@
 # Copyright (c) 2013-2016 The Bitcoin Core developers
-# Copyright (c) 2014-2018 The Vivo Core developers
+# Copyright (c) 2014-2018 The Dash Core developers
 # Distributed under the MIT software license, see the accompanying
 # file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
@@ -46,7 +46,7 @@ endif # ENABLE_CRASH_HOOKS
 endif # ENABLE_STACKTRACES
 
 BITCOIN_INCLUDES=-I$(builddir) -I$(srcdir)/$(MINISKETCH_INCLUDE_DIR_INT) -I$(srcdir)/secp256k1/include -I$(srcdir)/$(UNIVALUE_INCLUDE_DIR_INT) $(LEVELDB_CPPFLAGS)
-BITCOIN_INCLUDES+=-isystem$(srcdir)/vivobls/include -isystem$(srcdir)/vivobls/depends/relic/include -isystem$(srcdir)/vivobls/depends/minialloc/include
+BITCOIN_INCLUDES+=-isystem$(srcdir)/dashbls/include -isystem$(srcdir)/dashbls/depends/relic/include -isystem$(srcdir)/dashbls/depends/minialloc/include
 BITCOIN_INCLUDES+=-isystem$(srcdir)/immer
 
 LIBBITCOIN_NODE=libbitcoin_node.a
@@ -56,17 +56,17 @@ LIBBITCOIN_CLI=libbitcoin_cli.a
 LIBBITCOIN_UTIL=libbitcoin_util.a
 LIBBITCOIN_CRYPTO_BASE=crypto/libbitcoin_crypto_base.la
 LIBBITCOINQT=qt/libbitcoinqt.a
-LIBDASHBLS=vivobls/libvivobls.la
+LIBDASHBLS=dashbls/libdashbls.la
 LIBSECP256K1=secp256k1/libsecp256k1.la
 
 if ENABLE_ZMQ
 LIBBITCOIN_ZMQ=libbitcoin_zmq.a
 endif
 if BUILD_BITCOIN_LIBS
-LIBBITCOINCONSENSUS=libvivoconsensus.la
+LIBBITCOINCONSENSUS=libdashconsensus.la
 endif
 if BUILD_BITCOIN_KERNEL_LIB
-LIBBITCOINKERNEL=libvivokernel.la
+LIBBITCOINKERNEL=libdashkernel.la
 endif
 if ENABLE_WALLET
 LIBBITCOIN_WALLET=libbitcoin_wallet.a
@@ -160,7 +160,7 @@ if BUILD_BITCOIN_CHAINSTATE
 endif
 
 .PHONY: FORCE check-symbols check-security
-# vivo core #
+# dash core #
 BITCOIN_CORE_H = \
   active/context.h \
   active/dkgsession.h \
@@ -1088,7 +1088,7 @@ libbitcoin_cli_a_SOURCES = \
 nodist_libbitcoin_util_a_SOURCES = $(srcdir)/obj/build.h
 #
 
-# vivod & vivo-node binaries #
+# dashd & dash-node binaries #
 bitcoin_daemon_sources = bitcoind.cpp
 bitcoin_bin_cppflags = $(AM_CPPFLAGS) $(BITCOIN_INCLUDES)
 bitcoin_bin_cxxflags = $(AM_CXXFLAGS) $(PIE_FLAGS)
@@ -1125,7 +1125,7 @@ vivo_node_CXXFLAGS = $(bitcoin_bin_cxxflags)
 vivo_node_LDFLAGS = $(bitcoin_bin_ldflags)
 vivo_node_LDADD = $(LIBBITCOIN_NODE) $(bitcoin_bin_ldadd) $(LIBBITCOIN_IPC) $(LIBMULTIPROCESS_LIBS)
 
-# vivo-cli binary #
+# dash-cli binary #
 vivo_cli_SOURCES = bitcoin-cli.cpp
 vivo_cli_CPPFLAGS = $(AM_CPPFLAGS) $(BITCOIN_INCLUDES) $(EVENT_CFLAGS)
 vivo_cli_CXXFLAGS = $(AM_CXXFLAGS) $(PIE_FLAGS)
@@ -1144,7 +1144,7 @@ vivo_cli_LDADD = \
 vivo_cli_LDADD += $(BACKTRACE_LIBS) $(EVENT_LIBS) $(GMP_LIBS)
 #
 
-# vivo-tx binary #
+# dash-tx binary #
 vivo_tx_SOURCES = bitcoin-tx.cpp
 vivo_tx_CPPFLAGS = $(AM_CPPFLAGS) $(BITCOIN_INCLUDES)
 vivo_tx_CXXFLAGS = $(AM_CXXFLAGS) $(PIE_FLAGS)
@@ -1166,7 +1166,7 @@ vivo_tx_LDADD = \
 vivo_tx_LDADD += $(BACKTRACE_LIBS) $(GMP_LIBS)
 #
 
-# vivo-wallet binary #
+# dash-wallet binary #
 vivo_wallet_SOURCES = bitcoin-wallet.cpp
 vivo_wallet_SOURCES += init/bitcoin-wallet.cpp
 vivo_wallet_CPPFLAGS = $(bitcoin_bin_cppflags)
@@ -1193,7 +1193,7 @@ vivo_wallet_SOURCES += vivo-wallet-res.rc
 endif
 #
 
-# vivo-util binary #
+# dash-util binary #
 vivo_util_SOURCES = bitcoin-util.cpp
 vivo_util_CPPFLAGS = $(AM_CPPFLAGS) $(BITCOIN_INCLUDES)
 vivo_util_CXXFLAGS = $(AM_CXXFLAGS) $(PIE_FLAGS)
@@ -1214,48 +1214,48 @@ vivo_util_LDADD = \
 
 vivo_util_LDADD += $(BOOST_LIBS)
 
-# vivo-chainstate binary #
+# dash-chainstate binary #
 vivo_chainstate_SOURCES = bitcoin-chainstate.cpp
 vivo_chainstate_CPPFLAGS = $(AM_CPPFLAGS) $(BITCOIN_INCLUDES) $(BOOST_CPPFLAGS)
 vivo_chainstate_CXXFLAGS = $(AM_CXXFLAGS) $(PIE_FLAGS)
 
 # $(LIBTOOL_APP_LDFLAGS) deliberately omitted here so that we can test linking
-# vivo-chainstate against libvivokernel as a shared or static library by
+# dash-chainstate against libdashkernel as a shared or static library by
 # setting --{en,dis}able-shared.
 vivo_chainstate_LDFLAGS = $(RELDFLAGS) $(AM_LDFLAGS) $(PTHREAD_FLAGS)
 vivo_chainstate_LDADD = $(LIBBITCOINKERNEL)
 #
 
-# vivokernel library #
+# dashkernel library #
 if BUILD_BITCOIN_KERNEL_LIB
 lib_LTLIBRARIES += $(LIBBITCOINKERNEL)
 
-libvivokernel_la_LDFLAGS = $(AM_LDFLAGS) -no-undefined $(RELDFLAGS) $(PTHREAD_FLAGS)
-libvivokernel_la_LIBADD = $(LIBBITCOIN_CRYPTO) $(LIBUNIVALUE) $(LIBLEVELDB) $(LIBMEMENV) $(LIBSECP256K1) $(LIBDASHBLS) $(GMP_LIBS)
-libvivokernel_la_CPPFLAGS = $(AM_CPPFLAGS) -I$(builddir)/obj -I$(srcdir)/secp256k1/include -DBUILD_BITCOIN_INTERNAL -isystem$(srcdir)/vivobls/include -isystem$(srcdir)/vivobls/depends/relic/include -isystem$(srcdir)/vivobls/depends/minialloc/include -isystem$(srcdir)/immer $(BOOST_CPPFLAGS) $(LEVELDB_CPPFLAGS) -I$(srcdir)/$(UNIVALUE_INCLUDE_DIR_INT)
+libdashkernel_la_LDFLAGS = $(AM_LDFLAGS) -no-undefined $(RELDFLAGS) $(PTHREAD_FLAGS)
+libdashkernel_la_LIBADD = $(LIBBITCOIN_CRYPTO) $(LIBUNIVALUE) $(LIBLEVELDB) $(LIBMEMENV) $(LIBSECP256K1) $(LIBDASHBLS) $(GMP_LIBS)
+libdashkernel_la_CPPFLAGS = $(AM_CPPFLAGS) -I$(builddir)/obj -I$(srcdir)/secp256k1/include -DBUILD_BITCOIN_INTERNAL -isystem$(srcdir)/dashbls/include -isystem$(srcdir)/dashbls/depends/relic/include -isystem$(srcdir)/dashbls/depends/minialloc/include -isystem$(srcdir)/immer $(BOOST_CPPFLAGS) $(LEVELDB_CPPFLAGS) -I$(srcdir)/$(UNIVALUE_INCLUDE_DIR_INT)
 
-# libvivokernel requires default symbol visibility, explicitly specify that
+# libdashkernel requires default symbol visibility, explicitly specify that
 # here so that things still work even when user configures with
 #   --enable-reduce-exports
 #
 # Note this is a quick hack that will be removed as we incrementally define what
 # to export from the library.
-libvivokernel_la_CXXFLAGS = $(AM_CXXFLAGS) $(PIE_FLAGS) -fvisibility=default
+libdashkernel_la_CXXFLAGS = $(AM_CXXFLAGS) $(PIE_FLAGS) -fvisibility=default
 
 # TODO: For now, Specify -static in both CXXFLAGS and LDFLAGS when building for
 #       windows targets so libtool will only build a static version of this
 #       library. There are unresolved problems when building dll's for mingw-w64
 #       and attempting to statically embed libstdc++, libpthread, etc.
 if TARGET_WINDOWS
-libvivokernel_la_LDFLAGS += -static
-libvivokernel_la_CXXFLAGS += -static
+libdashkernel_la_LDFLAGS += -static
+libdashkernel_la_CXXFLAGS += -static
 endif
 
-# TODO: libvivokernel is a work in progress consensus engine library, as more
+# TODO: libdashkernel is a work in progress consensus engine library, as more
 #       and more modules are decoupled from the consensus engine, this list will
 #       shrink to only those which are absolutely necessary. For example, things
 #       like index/*.cpp will be removed.
-libvivokernel_la_SOURCES = \
+libdashkernel_la_SOURCES = \
   kernel/bitcoinkernel.cpp \
   arith_uint256.cpp \
   base58.cpp \
@@ -1404,23 +1404,23 @@ libvivokernel_la_SOURCES = \
 
 # Required for obj/build.h to be generated first.
 # More details: https://www.gnu.org/software/automake/manual/html_node/Built-Sources-Example.html
-libvivokernel_la-clientversion.l$(OBJEXT): obj/build.h
+libdashkernel_la-clientversion.l$(OBJEXT): obj/build.h
 endif # BUILD_BITCOIN_KERNEL_LIB
 #
 
-# vivoconsensus library #
+# dashconsensus library #
 if BUILD_BITCOIN_LIBS
 lib_LTLIBRARIES += $(LIBBITCOINCONSENSUS)
 
 include_HEADERS = script/bitcoinconsensus.h
-libvivoconsensus_la_SOURCES = support/cleanse.cpp $(crypto_libbitcoin_crypto_base_la_SOURCES) $(crypto_libbitcoin_crypto_sph_la_SOURCES) $(libbitcoin_consensus_a_SOURCES)
+libdashconsensus_la_SOURCES = support/cleanse.cpp $(crypto_libbitcoin_crypto_base_la_SOURCES) $(crypto_libbitcoin_crypto_sph_la_SOURCES) $(libbitcoin_consensus_a_SOURCES)
 
-libvivoconsensus_la_LDFLAGS = $(AM_LDFLAGS) -no-undefined $(RELDFLAGS)
-libvivoconsensus_la_LIBADD = $(LIBDASHBLS) $(LIBSECP256K1) $(GMP_LIBS)
-libvivoconsensus_la_CPPFLAGS = $(AM_CPPFLAGS) -I$(builddir)/obj -I$(srcdir)/secp256k1/include -DBUILD_BITCOIN_INTERNAL -DDISABLE_OPTIMIZED_SHA256
-libvivoconsensus_la_CPPFLAGS += -isystem$(srcdir)/vivobls/include -isystem$(srcdir)/vivobls/depends/relic/include -isystem$(srcdir)/vivobls/depends/minialloc/include
-libvivoconsensus_la_CPPFLAGS += -isystem$(srcdir)/immer
-libvivoconsensus_la_CXXFLAGS = $(AM_CXXFLAGS) $(PIE_FLAGS)
+libdashconsensus_la_LDFLAGS = $(AM_LDFLAGS) -no-undefined $(RELDFLAGS)
+libdashconsensus_la_LIBADD = $(LIBDASHBLS) $(LIBSECP256K1) $(GMP_LIBS)
+libdashconsensus_la_CPPFLAGS = $(AM_CPPFLAGS) -I$(builddir)/obj -I$(srcdir)/secp256k1/include -DBUILD_BITCOIN_INTERNAL -DDISABLE_OPTIMIZED_SHA256
+libdashconsensus_la_CPPFLAGS += -isystem$(srcdir)/dashbls/include -isystem$(srcdir)/dashbls/depends/relic/include -isystem$(srcdir)/dashbls/depends/minialloc/include
+libdashconsensus_la_CPPFLAGS += -isystem$(srcdir)/immer
+libdashconsensus_la_CXXFLAGS = $(AM_CXXFLAGS) $(PIE_FLAGS)
 
 endif
 #
@@ -1454,7 +1454,7 @@ CLEANFILES += zmq/*.gcda zmq/*.gcno
 CLEANFILES += obj/build.h
 
 IMMER_DIST = immer/immer
-LIBDASHBLS_DIST = vivobls
+LIBDASHBLS_DIST = dashbls
 
 EXTRA_DIST = \
   $(CTAES_DIST)   \
@@ -1470,7 +1470,7 @@ $(top_srcdir)/$(subdir)/config/bitcoin-config.h.in:  $(am__configure_deps)
 
 
 clean-local:
-	-$(MAKE) -C vivobls clean
+	-$(MAKE) -C dashbls clean
 	-$(MAKE) -C secp256k1 clean
 	-rm -f leveldb/*/*.gcda leveldb/*/*.gcno leveldb/helpers/memenv/*.gcda leveldb/helpers/memenv/*.gcno
 	-rm -f config.h

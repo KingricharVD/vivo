@@ -145,8 +145,8 @@ class TestFrameworkScript(unittest.TestCase):
                 self.assertEqual(encode_platform_p2sh(hrp, payload), addr)
 
         # DIP-18 P2PKH
-        test_platform_roundtrip('vivo', 'vivo1krma5z3ttj75la4m93xcndna9ullamq9y5e9n5rs', DIP18_TYPE_P2PKH)
-        test_platform_roundtrip('tvivo', 'tvivo1krma5z3ttj75la4m93xcndna9ullamq9y5fzq2j7', DIP18_TYPE_P2PKH)
+        test_platform_roundtrip('dash', 'dash1krma5z3ttj75la4m93xcndna9ullamq9y5e9n5rs', DIP18_TYPE_P2PKH)
+        test_platform_roundtrip('tdash', 'tdash1krma5z3ttj75la4m93xcndna9ullamq9y5fzq2j7', DIP18_TYPE_P2PKH)
         # DIP-18 P2SH
-        test_platform_roundtrip('vivo', 'vivo1sppl5xpu70aka8nacc4kj2htflydspzkxch4cad6', DIP18_TYPE_P2SH)
-        test_platform_roundtrip('tvivo', 'tvivo1sppl5xpu70aka8nacc4kj2htflydspzkxc8jtru5', DIP18_TYPE_P2SH)
+        test_platform_roundtrip('dash', 'dash1sppl5xpu70aka8nacc4kj2htflydspzkxch4cad6', DIP18_TYPE_P2SH)
+        test_platform_roundtrip('tdash', 'tdash1sppl5xpu70aka8nacc4kj2htflydspzkxc8jtru5', DIP18_TYPE_P2SH)

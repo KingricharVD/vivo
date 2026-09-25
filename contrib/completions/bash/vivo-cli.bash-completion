@@ -4,7 +4,7 @@
 # file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
 # call $vivo-cli for RPC
-_vivo_rpc() {
+_dash_rpc() {
     # determine already specified args necessary for RPC
     local rpcargs=()
     for i in ${COMP_LINE}; do
@@ -14,16 +14,16 @@ _vivo_rpc() {
                 ;;
         esac
     done
-    $vivo_cli "${rpcargs[@]}" "$@"
+    $dash_cli "${rpcargs[@]}" "$@"
 }
 
-_vivo_cli() {
+_dash_cli() {
     local cur prev words=() cword
-    local vivo_cli
+    local dash_cli
 
     # save and use original argument to invoke vivo-cli for -help, help and RPC
     # as vivo-cli might not be in $PATH
-    vivo_cli="$1"
+    dash_cli="$1"
 
     COMPREPLY=()
     _get_comp_words_by_ref -n = cur prev words cword
@@ -112,12 +112,12 @@ _vivo_cli() {
 
             # only parse -help if senseful
             if [[ -z "$cur" || "$cur" =~ ^- ]]; then
-                helpopts=$($vivo_cli -help 2>&1 | awk '$1 ~ /^-/ { sub(/=.*/, "="); print $1 }' )
+                helpopts=$($dash_cli -help 2>&1 | awk '$1 ~ /^-/ { sub(/=.*/, "="); print $1 }' )
             fi
 
             # only parse help if senseful
             if [[ -z "$cur" || "$cur" =~ ^[a-z] ]]; then
-                commands=$(_vivo_rpc help 2>/dev/null | awk '$1 ~ /^[a-z]/ { print $1; }')
+                commands=$(_dash_rpc help 2>/dev/null | awk '$1 ~ /^[a-z]/ { print $1; }')
             fi
 
             COMPREPLY=( $( compgen -W "$helpopts $commands" -- "$cur" ) )
@@ -130,7 +130,7 @@ _vivo_cli() {
             ;;
     esac
 } &&
-complete -F _vivo_cli vivo-cli
+complete -F _dash_cli vivo-cli
 
 # Local variables:
 # mode: shell-script

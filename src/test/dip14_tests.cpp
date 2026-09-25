@@ -1,4 +1,4 @@
-// Copyright (c) 2026 The Vivo Core developers
+// Copyright (c) 2026 The Dash Core developers
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
@@ -43,7 +43,7 @@ PathElement Elem32(uint32_t index, bool hardened)
     return e;
 }
 
-//! Master key from the seed shared by all DIP-14 test vectors (vivopay/dips
+//! Master key from the seed shared by all DIP-14 test vectors (dashpay/dips
 //! dip-0014.md), from mnemonic "birth kingdom trash renew flavor utility
 //! donkey gasp regular alert pave layer".
 CExtKey MasterKey()

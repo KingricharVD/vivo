@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 # Copyright (c) 2014-present The Bitcoin Core developers
-# Copyright (c) 2014-2025 The Vivo Core developers
+# Copyright (c) 2014-2025 The Dash Core developers
 # Distributed under the MIT software license, see the accompanying
 # file COPYING or http://www.opensource.org/licenses/mit-license.php.
 """Base class for RPC testing."""
@@ -69,7 +69,7 @@ TEST_EXIT_PASSED = 0
 TEST_EXIT_FAILED = 1
 TEST_EXIT_SKIPPED = 77
 
-TMPDIR_PREFIX = "vivo_func_test_"
+TMPDIR_PREFIX = "dash_func_test_"
 
 class SkipTest(Exception):
     """This exception is raised to skip a test"""
@@ -191,9 +191,9 @@ class BitcoinTestFramework(metaclass=BitcoinTestMetaClass):
         previous_releases_path = os.getenv("PREVIOUS_RELEASES_DIR") or os.getcwd() + "/releases"
         parser = argparse.ArgumentParser(usage="%(prog)s [options]")
         parser.add_argument("--nocleanup", dest="nocleanup", default=False, action="store_true",
-                            help="Leave vivods and test.* datadir on exit or error")
+                            help="Leave dashds and test.* datadir on exit or error")
         parser.add_argument("--noshutdown", dest="noshutdown", default=False, action="store_true",
-                            help="Don't stop vivods after the test execution")
+                            help="Don't stop dashds after the test execution")
         parser.add_argument("--cachedir", dest="cachedir", default=os.path.abspath(os.path.dirname(os.path.realpath(__file__)) + "/../../cache"),
                             help="Directory for caching pregenerated datadirs (default: %(default)s)")
         parser.add_argument("--tmpdir", dest="tmpdir", help="Root directory for datadirs (must not exist)")
@@ -214,9 +214,9 @@ class BitcoinTestFramework(metaclass=BitcoinTestMetaClass):
         parser.add_argument("--pdbonfailure", dest="pdbonfailure", default=False, action="store_true",
                             help="Attach a python debugger if test fails")
         parser.add_argument("--usecli", dest="usecli", default=False, action="store_true",
-                            help="use vivo-cli instead of RPC for all commands")
-        parser.add_argument("--vivod-arg", dest="vivod_extra_args", default=[], action="append",
-                            help="Pass extra args to all vivod instances")
+                            help="use dash-cli instead of RPC for all commands")
+        parser.add_argument("--dashd-arg", dest="dashd_extra_args", default=[], action="append",
+                            help="Pass extra args to all dashd instances")
         parser.add_argument("--timeoutscale", dest="timeout_scale", default=1, type=int,
                             help=argparse.SUPPRESS)
         parser.add_argument("--perf", dest="perf", default=False, action="store_true",
@@ -273,10 +273,10 @@ class BitcoinTestFramework(metaclass=BitcoinTestMetaClass):
         """Update self.options with the paths of all binaries from environment variables or their default values"""
 
         binaries = {
-            "vivod": ("bitcoind", "DASHD"),
-            "vivo-cli": ("bitcoincli", "DASHCLI"),
-            "vivo-util": ("bitcoinutil", "DASHUTIL"),
-            "vivo-wallet": ("bitcoinwallet", "DASHWALLET"),
+            "dashd": ("bitcoind", "DASHD"),
+            "dash-cli": ("bitcoincli", "DASHCLI"),
+            "dash-util": ("bitcoinutil", "DASHUTIL"),
+            "dash-wallet": ("bitcoinwallet", "DASHWALLET"),
         }
         for binary, [attribute_name, env_variable_name] in binaries.items():
             default_filename = os.path.join(
@@ -297,7 +297,7 @@ class BitcoinTestFramework(metaclass=BitcoinTestMetaClass):
 
         self.set_binary_paths()
 
-        self.extra_args_from_options = self.options.vivod_extra_args
+        self.extra_args_from_options = self.options.dashd_extra_args
 
         os.environ['PATH'] = os.pathsep.join([
             os.path.join(config['environment']['BUILDDIR'], 'src'),
@@ -362,7 +362,7 @@ class BitcoinTestFramework(metaclass=BitcoinTestMetaClass):
         else:
             for node in self.nodes:
                 node.cleanup_on_exit = False
-            self.log.info("Note: vivods were not stopped and may still be running")
+            self.log.info("Note: dashds were not stopped and may still be running")
 
         should_clean_up = (
             not self.options.nocleanup and
@@ -460,7 +460,7 @@ class BitcoinTestFramework(metaclass=BitcoinTestMetaClass):
     def setup_nodes(self):
         """Override this method to customize test node setup"""
 
-        """ NOTE! If this method is updated - backport changes to  VivoTestFramework.setup_nodes"""
+        """ NOTE! If this method is updated - backport changes to  DashTestFramework.setup_nodes"""
         self.add_nodes(self.num_nodes, self.extra_args)
         self.start_nodes()
         # Bump mocktime before wallets are created, so that wallet timers (e.g. the
@@ -550,9 +550,9 @@ class BitcoinTestFramework(metaclass=BitcoinTestMetaClass):
         if versions is None:
             versions = [None] * num_nodes
         if binary is None:
-            binary = [get_bin_from_version(v, 'vivod', self.options.bitcoind) for v in versions]
+            binary = [get_bin_from_version(v, 'dashd', self.options.bitcoind) for v in versions]
         if binary_cli is None:
-            binary_cli = [get_bin_from_version(v, 'vivo-cli', self.options.bitcoincli) for v in versions]
+            binary_cli = [get_bin_from_version(v, 'dash-cli', self.options.bitcoincli) for v in versions]
         assert_equal(len(extra_confs), num_nodes)
         assert_equal(len(extra_args), num_nodes)
         assert_equal(len(versions), num_nodes)
@@ -623,7 +623,7 @@ class BitcoinTestFramework(metaclass=BitcoinTestMetaClass):
         self.nodes.append(t_node)
         return t_node
 
-    # TODO: move it to VivoTestFramework where it belongs
+    # TODO: move it to DashTestFramework where it belongs
     def dynamically_initialize_datadir(self, mnidx):
         source_data_dir = get_datadir_path(self.options.tmpdir, 0)  # use node0 as a source
         new_data_dir = get_datadir_path(self.options.tmpdir, len(self.nodes))
@@ -650,7 +650,7 @@ class BitcoinTestFramework(metaclass=BitcoinTestMetaClass):
         return new_data_dir
 
     def start_node(self, i, *args, **kwargs):
-        """Start a vivod"""
+        """Start a dashd"""
 
         node = self.nodes[i]
 
@@ -661,7 +661,7 @@ class BitcoinTestFramework(metaclass=BitcoinTestMetaClass):
             coverage.write_all_rpc_commands(self.options.coveragedir, node.rpc)
 
     def start_nodes(self, extra_args=None, *args, **kwargs):
-        """Start multiple vivods"""
+        """Start multiple dashds"""
 
         if extra_args is None:
             extra_args = [None] * self.num_nodes
@@ -681,11 +681,11 @@ class BitcoinTestFramework(metaclass=BitcoinTestMetaClass):
                 coverage.write_all_rpc_commands(self.options.coveragedir, node.rpc)
 
     def stop_node(self, i, expected_stderr='', wait=0):
-        """Stop a vivod test node"""
+        """Stop a dashd test node"""
         self.nodes[i].stop_node(expected_stderr=expected_stderr, wait=wait)
 
     def stop_nodes(self, wait=0):
-        """Stop multiple vivod test nodes"""
+        """Stop multiple dashd test nodes"""
         for node in self.nodes:
             # Issue RPC to stop nodes
             node.stop_node(wait=wait, wait_until_stopped=False)
@@ -924,7 +924,7 @@ class BitcoinTestFramework(metaclass=BitcoinTestMetaClass):
         # User can provide log level as a number or string (eg DEBUG). loglevel was caught as a string, so try to convert it to an int
         ll = int(self.options.loglevel) if self.options.loglevel.isdigit() else self.options.loglevel.upper()
         ch.setLevel(ll)
-        # Format logs the same as vivod's debug.log with microprecision (so log files can be concatenated and sorted)
+        # Format logs the same as dashd's debug.log with microprecision (so log files can be concatenated and sorted)
         formatter = logging.Formatter(fmt='%(asctime)s.%(msecs)03d000Z %(name)s (%(levelname)s): %(message)s', datefmt='%Y-%m-%dT%H:%M:%S')
         formatter.converter = time.gmtime
         fh.setFormatter(formatter)
@@ -1044,9 +1044,9 @@ class BitcoinTestFramework(metaclass=BitcoinTestMetaClass):
             raise SkipTest("bcc python module not available")
 
     def skip_if_no_bitcoind_tracepoints(self):
-        """Skip the running test if vivod has not been compiled with USDT tracepoint support."""
+        """Skip the running test if dashd has not been compiled with USDT tracepoint support."""
         if not self.is_usdt_compiled():
-            raise SkipTest("vivod has not been built with USDT tracepoints enabled.")
+            raise SkipTest("dashd has not been built with USDT tracepoints enabled.")
 
     def skip_if_no_bpf_permissions(self):
         """Skip the running test if we don't have permissions to do BPF syscalls and load BPF maps."""
@@ -1065,9 +1065,9 @@ class BitcoinTestFramework(metaclass=BitcoinTestMetaClass):
             raise SkipTest("not on a POSIX system")
 
     def skip_if_no_bitcoind_zmq(self):
-        """Skip the running test if vivod has not been compiled with zmq support."""
+        """Skip the running test if dashd has not been compiled with zmq support."""
         if not self.is_zmq_compiled():
-            raise SkipTest("vivod has not been built with zmq enabled.")
+            raise SkipTest("dashd has not been built with zmq enabled.")
 
     def skip_if_no_wallet(self):
         """Skip the running test if wallet has not been compiled."""
@@ -1090,19 +1090,19 @@ class BitcoinTestFramework(metaclass=BitcoinTestMetaClass):
             raise SkipTest("BDB has not been compiled.")
 
     def skip_if_no_wallet_tool(self):
-        """Skip the running test if vivo-wallet has not been compiled."""
+        """Skip the running test if dash-wallet has not been compiled."""
         if not self.is_wallet_tool_compiled():
-            raise SkipTest("vivo-wallet has not been compiled")
+            raise SkipTest("dash-wallet has not been compiled")
 
     def skip_if_no_bitcoin_util(self):
-        """Skip the running test if vivo-util has not been compiled."""
+        """Skip the running test if dash-util has not been compiled."""
         if not self.is_bitcoin_util_compiled():
-            raise SkipTest("vivo-util has not been compiled")
+            raise SkipTest("dash-util has not been compiled")
 
     def skip_if_no_cli(self):
-        """Skip the running test if vivo-cli has not been compiled."""
+        """Skip the running test if dash-cli has not been compiled."""
         if not self.is_cli_compiled():
-            raise SkipTest("vivo-cli has not been compiled.")
+            raise SkipTest("dash-cli has not been compiled.")
 
     def skip_if_no_previous_releases(self):
         """Skip the running test if previous releases are not available."""
@@ -1123,7 +1123,7 @@ class BitcoinTestFramework(metaclass=BitcoinTestMetaClass):
             raise SkipTest("external signer support has not been compiled.")
 
     def is_cli_compiled(self):
-        """Checks whether vivo-cli was compiled."""
+        """Checks whether dash-cli was compiled."""
         return self.config["components"].getboolean("ENABLE_CLI")
 
     def is_external_signer_compiled(self):
@@ -1143,11 +1143,11 @@ class BitcoinTestFramework(metaclass=BitcoinTestMetaClass):
             return self.is_bdb_compiled()
 
     def is_wallet_tool_compiled(self):
-        """Checks whether vivo-wallet was compiled."""
+        """Checks whether dash-wallet was compiled."""
         return self.config["components"].getboolean("ENABLE_WALLET_TOOL")
 
     def is_bitcoin_util_compiled(self):
-        """Checks whether vivo-util was compiled."""
+        """Checks whether dash-util was compiled."""
         return self.config["components"].getboolean("ENABLE_UTIL_TOOL")
 
     def is_zmq_compiled(self):
@@ -1485,7 +1485,7 @@ class MasternodeInfo:
 
         return ret
 
-class VivoTestFramework(BitcoinTestFramework):
+class DashTestFramework(BitcoinTestFramework):
     def set_test_params(self):
         """Tests must this method to change default values for number of nodes, topology, etc"""
         raise NotImplementedError
@@ -1522,7 +1522,7 @@ class VivoTestFramework(BitcoinTestFramework):
             f"testactivationheight=mn_rr@{self.mn_rr_height}",
         ])
 
-    def set_vivo_test_params(self, num_nodes, masterodes_count, extra_args=None, evo_count=0):
+    def set_dash_test_params(self, num_nodes, masterodes_count, extra_args=None, evo_count=0):
         self.mn_count = masterodes_count
         self.evo_count = evo_count
         self.num_nodes = num_nodes
@@ -1536,7 +1536,7 @@ class VivoTestFramework(BitcoinTestFramework):
         assert_equal(len(extra_args), num_nodes)
         self.extra_args = [copy.deepcopy(a) for a in extra_args]
         # masternodes creates connections for quorums by ThreadOpenConnections too
-        # it can't be disabled for VivoTestFramework same as BitcoinTestFramework
+        # it can't be disabled for DashTestFramework same as BitcoinTestFramework
         self.disable_autoconnect = False
 
         # LLMQ default test params (no need to pass -llmqtestparams)
@@ -1544,7 +1544,7 @@ class VivoTestFramework(BitcoinTestFramework):
         self.llmq_threshold = 2
         self.llmq_size_dip0024 = 4
 
-        # This is nRequestTimeout in vivo-q-recovery thread
+        # This is nRequestTimeout in dash-q-recovery thread
         self.quorum_data_thread_request_timeout_seconds = 10
         # This is EXPIRATION_TIMEOUT + EXPIRATION_BIAS in CQuorumDataRequest
         self.quorum_data_request_expiration_timeout = 360
@@ -1603,7 +1603,7 @@ class VivoTestFramework(BitcoinTestFramework):
     def activate_mn_rr(self):
         self.activate_by_name('mn_rr', self.mn_rr_height)
 
-    def set_vivo_llmq_test_params(self, llmq_size, llmq_threshold):
+    def set_dash_llmq_test_params(self, llmq_size, llmq_threshold):
         self.llmq_size = llmq_size
         self.llmq_threshold = llmq_threshold
         for i in range(0, self.num_nodes):

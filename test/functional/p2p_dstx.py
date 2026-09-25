@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-# Copyright (c) 2026 The Vivo Core developers
+# Copyright (c) 2026 The Dash Core developers
 # Distributed under the MIT software license, see the accompanying
 # file COPYING or http://www.opensource.org/licenses/mit-license.php.
 """Test P2P CoinJoin broadcast transaction handling.
@@ -73,7 +73,7 @@ class P2PDSTXTest(BitcoinTestFramework):
             OP_CHECKSIG,
         ])
         # CoinJoin::IsDenominatedAmount requires a recognised denom; the
-        # smallest denom is 0.001 DASH + 0.0000001 fee == COIN//1000 + 1.
+        # smallest denom is 0.001 VIVO + 0.0000001 fee == COIN//1000 + 1.
         tx.vout = [CTxOut(nValue=COIN // 1000 + 1, scriptPubKey=p2pkh) for _ in tx.vin]
         if promotion:
             # A promotion spends PROMOTION_RATIO (10) inputs for a single output, so the two sides

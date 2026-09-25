@@ -12,8 +12,8 @@
 class ArgsManager;
 
 /**
- * CBaseChainParams defines the base parameters (shared between vivo-cli and vivod)
- * of a given instance of the Vivo system.
+ * CBaseChainParams defines the base parameters (shared between dash-cli and dashd)
+ * of a given instance of the Dash system.
  */
 class CBaseChainParams
 {

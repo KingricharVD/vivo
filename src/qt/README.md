@@ -34,12 +34,12 @@ To run:
 
 #### bitcoingui.(h/cpp)
 
-- Represents the main window of the Vivo UI.
+- Represents the main window of the Dash UI.
 
 #### \*model.(h/cpp)
 
 - The model. When it has a corresponding controller, it generally inherits from  [QAbstractTableModel](https://doc.qt.io/qt-5/qabstracttablemodel.html). Models that are used by controllers as helpers inherit from other Qt classes like [QValidator](https://doc.qt.io/qt-5/qvalidator.html).
-- ClientModel is used by the main application `vivogui` and several models like `peertablemodel`.
+- ClientModel is used by the main application `dashgui` and several models like `peertablemodel`.
 
 #### \*page.(h/cpp)
 

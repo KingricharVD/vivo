@@ -145,7 +145,7 @@ public:
         int h = 0;
         int w = GUIUtil::TextWidth(fm, BitcoinUnits::format(BitcoinUnit::DASH, BitcoinUnits::maxMoney(), false, BitcoinUnits::SeparatorStyle::ALWAYS));
         w += 2; // cursor blinking space
-        w += GUIUtil::vivoThemeActive() ? 24 : 0; // counteract padding from css
+        w += GUIUtil::dashThemeActive() ? 24 : 0; // counteract padding from css
         return QSize(w, h);
     }
 

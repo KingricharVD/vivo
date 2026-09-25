@@ -21,7 +21,7 @@ from test_framework.util import (
     assert_raises_rpc_error,
 )
 
-PLATFORM_HRP = 'tvivo'
+PLATFORM_HRP = 'tdash'
 PLATFORM_KEYHASH = bytes.fromhex('f7da0a2b5cbd4ff6bb2c4d89b67d2f3ffeec0525')
 PLATFORM_SCRIPTHASH = bytes.fromhex('43fa183cf3fb6e9e7dc62b692aeb4fc8d8045636')
 
@@ -30,10 +30,10 @@ def platform_address(encoding, type_byte, payload):
     return bech32_encode(encoding, PLATFORM_HRP, convertbits([type_byte] + list(payload), 8, 5))
 
 
-# DIP-18 Platform addresses (test vectors of DIP-0018): valid Bech32m, but never Vivo Core addresses
-BECH32_VALID = 'tvivo1krma5z3ttj75la4m93xcndna9ullamq9y5fzq2j7'
+# DIP-18 Platform addresses (test vectors of DIP-0018): valid Bech32m, but never Dash Core addresses
+BECH32_VALID = 'tdash1krma5z3ttj75la4m93xcndna9ullamq9y5fzq2j7'
 BECH32_VALID_CAPITALS = 'TDASH1KRMA5Z3TTJ75LA4M93XCNDNA9ULLAMQ9Y5FZQ2J7'
-BECH32_VALID_P2SH = 'tvivo1sppl5xpu70aka8nacc4kj2htflydspzkxc8jtru5'
+BECH32_VALID_P2SH = 'tdash1sppl5xpu70aka8nacc4kj2htflydspzkxc8jtru5'
 
 # Well-formed Bech32(m) strings whose DIP-18 payload is invalid
 BECH32_INVALID_ENCODING = platform_address(Encoding.BECH32, DIP18_TYPE_P2PKH, PLATFORM_KEYHASH)
@@ -41,13 +41,13 @@ BECH32_INVALID_TYPE_BYTE = platform_address(Encoding.BECH32M, 0x00, PLATFORM_KEY
 BECH32_INVALID_SIZE = platform_address(Encoding.BECH32M, DIP18_TYPE_P2PKH, PLATFORM_KEYHASH[:-1])
 
 BECH32_INVALID_PREFIX = 'bc1pw508d6qejxtdg4y5r3zarvary0c5xw7kw508d6qejxtdg4y5r3zarvary0c5xw7k7grplx'
-BECH32_TOO_LONG = 'tvivo1krma5z3ttj75la4m93xcndna9ullamq9y5fzq2j7krma5z3ttj75la4m93xcndna9ullamq9y5fzq2j7krma5z3ttj75la4m93xcndna9ullamq9y5fzq2j7'
-BECH32_ONE_ERROR = 'tvivo1krma4z3ttj75la4m93xcndna9ullamq9y5fzq2j7'
+BECH32_TOO_LONG = 'tdash1krma5z3ttj75la4m93xcndna9ullamq9y5fzq2j7krma5z3ttj75la4m93xcndna9ullamq9y5fzq2j7krma5z3ttj75la4m93xcndna9ullamq9y5fzq2j7'
+BECH32_ONE_ERROR = 'tdash1krma4z3ttj75la4m93xcndna9ullamq9y5fzq2j7'
 BECH32_ONE_ERROR_CAPITALS = 'TDASH1KRMA5Z3TTJ75LA4M93XCNDNA9ULLAMQ9Y4FZQ2J7'
-BECH32_TWO_ERRORS = 'tvivo1krma4z3ttj75la4m93xcndna8ullamq9y5fzq2j7'  # should be tvivo1krma5z3ttj75la4m93xcndna9ullamq9y5fzq2j7
-BECH32_P2SH_TWO_ERRORS = 'tvivo1sppl5xpu70aka8nacd4kj2htflydspzkxc8jtrs5'  # should be tvivo1sppl5xpu70aka8nacc4kj2htflydspzkxc8jtru5
-BECH32_NO_SEPARATOR = 'tvivokrma5z3ttj75la4m93xcndna9ullamq9y5fzq2j7'
-BECH32_INVALID_CHAR = 'tvivo1krmo5z3ttj75la4m93xcndna9ullamq9y5fzq2j7'
+BECH32_TWO_ERRORS = 'tdash1krma4z3ttj75la4m93xcndna8ullamq9y5fzq2j7'  # should be tdash1krma5z3ttj75la4m93xcndna9ullamq9y5fzq2j7
+BECH32_P2SH_TWO_ERRORS = 'tdash1sppl5xpu70aka8nacd4kj2htflydspzkxc8jtrs5'  # should be tdash1sppl5xpu70aka8nacc4kj2htflydspzkxc8jtru5
+BECH32_NO_SEPARATOR = 'tdashkrma5z3ttj75la4m93xcndna9ullamq9y5fzq2j7'
+BECH32_INVALID_CHAR = 'tdash1krmo5z3ttj75la4m93xcndna9ullamq9y5fzq2j7'
 
 BASE58_VALID = 'yjQ5gLvGRtmq1cwc4kePLCrzQ8GVCh9Gaz'
 BASE58_INVALID_PREFIX = 'XpG61qAVhdyN7AqVZQsHfJL7AEk4dPVinc'
@@ -151,7 +151,7 @@ class InvalidAddressErrorMessageTest(BitcoinTestFramework):
         assert_equal(info['isplatform'], True)
         assert_equal(info['isscript'], True)
 
-        # A regular Vivo address is not reported as a Platform one
+        # A regular Dash address is not reported as a Platform one
         assert 'isplatform' not in node.getaddressinfo(BASE58_VALID)
 
     def run_test(self):

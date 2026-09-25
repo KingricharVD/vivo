@@ -1,4 +1,4 @@
-// Copyright (c) 2014-2025 The Vivo Core developers
+// Copyright (c) 2014-2025 The Dash Core developers
 // Distributed under the MIT/X11 software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
@@ -1154,8 +1154,8 @@ bool CCoinJoinClientSession::DoAutomaticDenominating(ChainstateManager& chainman
         // Check all adjacent denomination pairs for promotion/demotion opportunities
         // Denominations: 10, 1, 0.1, 0.01, 0.001 (indices 0-4, smaller index = larger denom)
         for (size_t i = 0; i + 1 < CoinJoin::vecStandardDenominations.size(); ++i) {
-            const int nLargerDenom = 1 << i;       // Larger denomination (e.g., 10 DASH)
-            const int nSmallerDenom = 1 << (i + 1); // Smaller denomination (e.g., 1 DASH)
+            const int nLargerDenom = 1 << i;       // Larger denomination (e.g., 10 VIVO)
+            const int nSmallerDenom = 1 << (i + 1); // Smaller denomination (e.g., 1 VIVO)
 
             // Check if we should promote smaller -> larger; ShouldPromote() requires
             // PROMOTION_RATIO fully-mixed coins, the queue functions re-verify on selection

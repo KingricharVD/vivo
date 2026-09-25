@@ -1,4 +1,4 @@
-// Copyright (c) 2018-2025 The Vivo Core developers
+// Copyright (c) 2018-2025 The Dash Core developers
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
@@ -10,14 +10,14 @@
 #include <uint256.h>
 #include <util/strencodings.h>
 
-// bls-vivo uses relic, which may define DEBUG and ERROR, which leads to many warnings in some build setups
+// bls-dash uses relic, which may define DEBUG and ERROR, which leads to many warnings in some build setups
 #undef ERROR
 #undef DEBUG
-#include <vivobls/bls.hpp>
-#include <vivobls/privatekey.hpp>
-#include <vivobls/elements.hpp>
-#include <vivobls/schemes.hpp>
-#include <vivobls/threshold.hpp>
+#include <dashbls/bls.hpp>
+#include <dashbls/privatekey.hpp>
+#include <dashbls/elements.hpp>
+#include <dashbls/schemes.hpp>
+#include <dashbls/threshold.hpp>
 #undef DOUBLE
 #undef SEED
 

@@ -1,4 +1,4 @@
-// Copyright (c) 2026 The Vivo Core developers
+// Copyright (c) 2026 The Dash Core developers
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
@@ -61,7 +61,7 @@ struct GovernanceInvSetup : public TestingSetup {
         BOOST_REQUIRE(m_node.peerman);
 
         // Intentional unit-test boundary: TestingSetup does not run the
-        // init.cpp/AppInit startup path that registers the Vivo-specific
+        // init.cpp/AppInit startup path that registers the Dash-specific
         // handlers, so the INV branch in PeerManagerImpl::AlreadyHave would not
         // route MSG_GOVERNANCE_OBJECT[_VOTE] anywhere. Install the same
         // NetGovernance handler init.cpp registers so a real INV reaches
@@ -147,7 +147,7 @@ void ProcessInv(PeerManager& peerman, CNode& peer, const CInv& inv)
 CGovernanceObject MakeGovernanceObject(int64_t creation_time, const uint256& collateral_hash)
 {
     const std::string data{
-        R"({"type":1,"name":"proposal","start_epoch":1700000000,"end_epoch":1700100000,"payment_amount":1.0,"payment_address":"XwnLY9Tf7Zsef8gMGL2fhWA9ZmMjt4KPwV","url":"https://vivo.org"})"};
+        R"({"type":1,"name":"proposal","start_epoch":1700000000,"end_epoch":1700100000,"payment_amount":1.0,"payment_address":"XwnLY9Tf7Zsef8gMGL2fhWA9ZmMjt4KPwV","url":"https://dash.org"})"};
     return CGovernanceObject{uint256{}, /*revision=*/1, creation_time, collateral_hash, HexStr(data)};
 }
 

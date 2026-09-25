@@ -1,6 +1,6 @@
 // Copyright (c) 2010 Satoshi Nakamoto
 // Copyright (c) 2009-2021 The Bitcoin Core developers
-// Copyright (c) 2014-2025 The Vivo Core developers
+// Copyright (c) 2014-2025 The Dash Core developers
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
@@ -55,7 +55,7 @@ static RPCHelpMan debug()
         "libevent logging is configured on startup and cannot be modified by this RPC during runtime.\n"
         "There are also a few meta-categories:\n"
         " - \"all\", \"1\" and \"\" activate all categories at once;\n"
-        " - \"vivo\" activates all Vivo-specific categories at once;\n"
+        " - \"dash\" activates all Dash-specific categories at once;\n"
         " - \"none\" (or \"0\") deactivates all categories at once.\n"
         "Note: If specified category doesn't match any of the above, no error is thrown.\n"
         "Note: Consider using 'logging' RPC which has more features.\n"
@@ -69,8 +69,8 @@ static RPCHelpMan debug()
             RPCResult::Type::STR, "result", "\"Debug mode: \" followed by the specified category",
         },
         RPCExamples {
-            HelpExampleCli("debug", "vivo")
-    + HelpExampleRpc("debug", "vivo+net")
+            HelpExampleCli("debug", "dash")
+    + HelpExampleRpc("debug", "dash+net")
         },
         [&](const RPCHelpMan& self, const JSONRPCRequest& request) -> UniValue
 {
@@ -398,7 +398,7 @@ static RPCHelpMan getaddressmempool()
                     {RPCResult::Type::STR, "address", "The base58check encoded address"},
                     {RPCResult::Type::STR_HEX, "txid", "The related txid"},
                     {RPCResult::Type::NUM, "index", "The related input or output index"},
-                    {RPCResult::Type::NUM, "satoshis", "The difference of duffs"},
+                    {RPCResult::Type::NUM, "satoshis", "The difference of VLVOs"},
                     {RPCResult::Type::NUM_TIME, "timestamp", "The time the transaction entered the mempool (seconds)"},
                     {RPCResult::Type::STR_HEX, "prevtxid", /*optional=*/true, "The previous txid (if spending)"},
                     {RPCResult::Type::NUM, "prevout", /*optional=*/true, "The previous transaction output index (if spending)"},
@@ -481,7 +481,7 @@ static RPCHelpMan getaddressutxos()
                     {RPCResult::Type::STR_HEX, "txid", "The output txid"},
                     {RPCResult::Type::NUM, "outputIndex", "The output index"},
                     {RPCResult::Type::STR_HEX, "script", "The script hex-encoded"},
-                    {RPCResult::Type::NUM, "satoshis", "The number of duffs of the output"},
+                    {RPCResult::Type::NUM, "satoshis", "The number of VLVOs of the output"},
                     {RPCResult::Type::NUM, "height", "The block height"},
                 }},
             }},
@@ -553,7 +553,7 @@ static RPCHelpMan getaddressdeltas()
             {
                 {RPCResult::Type::OBJ, "", "",
                 {
-                    {RPCResult::Type::NUM, "satoshis", "The difference of duffs"},
+                    {RPCResult::Type::NUM, "satoshis", "The difference of VLVOs"},
                     {RPCResult::Type::STR_HEX, "txid", "The related txid"},
                     {RPCResult::Type::NUM, "index", "The related input or output index"},
                     {RPCResult::Type::NUM, "blockindex", "The related block index"},
@@ -643,10 +643,10 @@ static RPCHelpMan getaddressbalance()
         RPCResult{
             RPCResult::Type::OBJ, "", "",
                 {
-                    {RPCResult::Type::NUM, "balance", "The current total balance in duffs"},
-                    {RPCResult::Type::NUM, "balance_immature", "The current immature balance in duffs"},
-                    {RPCResult::Type::NUM, "balance_spendable", "The current spendable balance in duffs"},
-                    {RPCResult::Type::NUM, "received", "The total number of duffs received (including change)"},
+                    {RPCResult::Type::NUM, "balance", "The current total balance in VLVOs"},
+                    {RPCResult::Type::NUM, "balance_immature", "The current immature balance in VLVOs"},
+                    {RPCResult::Type::NUM, "balance_spendable", "The current spendable balance in VLVOs"},
+                    {RPCResult::Type::NUM, "received", "The total number of VLVOs received (including change)"},
                 }},
         RPCExamples{
             HelpExampleCli("getaddressbalance", "'{\"addresses\": [\"" + EXAMPLE_ADDRESS[0] + "\"]}'")
@@ -1034,7 +1034,7 @@ static RPCHelpMan logging()
             "The valid logging categories are: " + LogInstance().LogCategoriesString() + "\n"
             "In addition, the following are available as category names with special meanings:\n"
             "  - \"all\",  \"1\" : represent all logging categories.\n"
-            "  - \"vivo\" activates all Vivo-specific categories at once.\n"
+            "  - \"dash\" activates all Dash-specific categories at once.\n"
             "To deactivate all categories at once you can specify \"all\" in <exclude>.\n"
             "  - \"none\", \"0\" : even if other logging categories are specified, ignore all of them.\n"
             ,
@@ -1056,7 +1056,7 @@ static RPCHelpMan logging()
                 },
                 RPCExamples{
                     HelpExampleCli("logging", "\"[\\\"all\\\"]\" \"[\\\"http\\\"]\"")
-            + HelpExampleCli("logging", "'[\"vivo\"]' '[\"llmq\",\"zmq\"]'")
+            + HelpExampleCli("logging", "'[\"dash\"]' '[\"llmq\",\"zmq\"]'")
             + HelpExampleRpc("logging", "[\"all\"], \"[libevent]\"")
                 },
         [&](const RPCHelpMan& self, const JSONRPCRequest& request) -> UniValue
@@ -1144,7 +1144,7 @@ static RPCHelpMan echoipc()
                 // and spawn bitcoin-echo below instead of bitcoin-node. But
                 // using bitcoin-node avoids the need to build and install a
                 // new executable just for this one test.
-                auto init = ipc->spawnProcess("vivo-node");
+                auto init = ipc->spawnProcess("dash-node");
                 echo = init->makeEcho();
                 ipc->addCleanup(*echo, [init = init.release()] { delete init; });
             } else {
@@ -1249,10 +1249,10 @@ static const CRPCCommand commands[] =
     { "addressindex",       &getaddresstxids,         },
     { "addressindex",       &getaddressbalance,       },
 
-    /* Vivo features */
-    { "vivo",               &mnsync,                  },
-    { "vivo",               &spork,                   },
-    { "vivo",               &sporkupdate,             },
+    /* Dash features */
+    { "dash",               &mnsync,                  },
+    { "dash",               &spork,                   },
+    { "dash",               &sporkupdate,             },
 
     /* Not shown in help */
     { "hidden",             &setmocktime,             },

@@ -10,7 +10,7 @@ export CONTAINER_NAME="ci_native_msan"
 export HOST=x86_64-pc-linux-gnu
 # Built into the CI image by contrib/containers/ci/ci-msan.Dockerfile so that it
 # lands in a cached layer instead of being rebuilt on every run. Upstream does
-# the equivalent in ci/test/01_base_install.sh, which Vivo does not have.
+# the equivalent in ci/test/01_base_install.sh, which Dash does not have.
 LIBCXX_DIR="/cxx_build/"
 export MSAN_FLAGS="-fsanitize=memory -fsanitize-memory-track-origins=2 -fno-omit-frame-pointer -g -O1 -fno-optimize-sibling-calls"
 LIBCXX_FLAGS="-nostdinc++ -nostdlib++ -isystem ${LIBCXX_DIR}include/c++/v1 -L${LIBCXX_DIR}lib -Wl,-rpath,${LIBCXX_DIR}lib -lc++ -lc++abi -lpthread -Wno-unused-command-line-argument"
@@ -22,9 +22,9 @@ export GOAL="install"
 # CC/CXX/CFLAGS/CXXFLAGS are repeated here rather than left to depends'
 # config.site. Upstream dropped them in bitcoin#29800 because its
 # ci/test/03_test_script.sh sets CONFIG_SITE explicitly (bitcoin#26683);
-# ci/vivo/build_src.sh still uses the older --prefix form, and this is the only
+# ci/dash/build_src.sh still uses the older --prefix form, and this is the only
 # target whose compiler differs from the system default, so nothing else in
-# Vivo's CI exercises that hand-off.
+# Dash's CI exercises that hand-off.
 # _FORTIFY_SOURCE is not compatible with MSAN.
 # --with-asm=no and --with-backend=easy keep secp256k1 and relic off
 # hand-written assembly, which MSan cannot see through.

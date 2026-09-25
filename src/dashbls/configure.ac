@@ -1,5 +1,5 @@
 AC_PREREQ([2.60])
-AC_INIT([libvivobls],[2.0])
+AC_INIT([libdashbls],[2.0])
 AC_CONFIG_AUX_DIR([build-aux])
 AC_CONFIG_MACRO_DIR([build-aux/m4])
 
@@ -132,7 +132,7 @@ fi
 dnl Define enum mappings for relic config
 AC_DEFINE([RLC_VERSION], ["0.5.0"], [Relic Version])
 
-dnl vivobls: Library processor architecture
+dnl dashbls: Library processor architecture
 AC_DEFINE([AVR],     [1], [Atmel AVR ATMega128 8-bit architecture.])
 AC_DEFINE([MSP],     [2], [MSP430 16-bit architecture.])
 AC_DEFINE([ARM],     [3], [ARM 32-bit architecture.])

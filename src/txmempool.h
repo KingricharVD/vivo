@@ -786,7 +786,7 @@ private:
     void UpdateChildrenForRemoval(txiter entry) EXCLUSIVE_LOCKS_REQUIRED(cs);
 
     /**
-     * addUnchecked extension for Vivo-specific transactions (ProTx).
+     * addUnchecked extension for Dash-specific transactions (ProTx).
      */
     void addUncheckedProTx(indexed_transaction_set::iterator& newit, const CTransaction& tx);
 

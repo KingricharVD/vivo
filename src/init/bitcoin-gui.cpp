@@ -16,7 +16,7 @@
 
 namespace init {
 namespace {
-const char* EXE_NAME = "vivo-gui";
+const char* EXE_NAME = "dash-gui";
 
 class BitcoinGuiInit : public interfaces::Init
 {

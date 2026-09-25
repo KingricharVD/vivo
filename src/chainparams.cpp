@@ -1,6 +1,6 @@
 // Copyright (c) 2010 Satoshi Nakamoto
 // Copyright (c) 2009-2021 The Bitcoin Core developers
-// Copyright (c) 2014-2025 The Vivo Core developers
+// Copyright (c) 2014-2025 The Dash Core developers
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
@@ -206,8 +206,8 @@ public:
         consensus.WithdrawalsHeight = 2147483647; // 00000000000000210518749e17c00b035a2a4982c906236c28c41ea2231bf7ef
         consensus.MinBIP9WarningHeight = 2201472 + 2016; // withdrawals activation height + miner confirmation window
         consensus.powLimit = uint256S("00000fffff000000000000000000000000000000000000000000000000000000"); // ~uint256(0) >> 20
-        consensus.nPowTargetTimespan = 30 * 2 * 60; // Vivo: 1 day
-        consensus.nPowTargetSpacing = 2 * 60; // Vivo: 2.5 minutes
+        consensus.nPowTargetTimespan = 30 * 2 * 60; // Dash: 1 day
+        consensus.nPowTargetSpacing = 2 * 60; // Dash: 2.5 minutes
         consensus.fPowAllowMinDifficultyBlocks = false;
         consensus.fPowNoRetargeting = false;
         consensus.nPowKGWHeight = 15200;
@@ -262,6 +262,10 @@ public:
         vSeeds.emplace_back("seed.vivocoinseed.dynu.net");
         vSeeds.emplace_back("vivoseed.hashcube.com");
         vSeeds.emplace_back("vivoseed.mm.my");
+        // VIVO mainnet static bootstrap seed IPs
+        vSeeds.emplace_back("162.35.102.80");
+        vSeeds.emplace_back("163.245.218.219");
+
 
         // Vivo addresses start with 'X'
         base58Prefixes[PUBKEY_ADDRESS] = std::vector<unsigned char>(1,70);
@@ -274,7 +278,7 @@ public:
         // Vivo BIP32 prvkeys start with 'xprv' (Bitcoin defaults)
         base58Prefixes[EXT_SECRET_KEY] = {0x04, 0x88, 0xAD, 0xE4};
 
-        // DIP-18 Vivo Platform address HRP (bech32m)
+        // DIP-18 Dash Platform address HRP (bech32m)
         bech32_platform_hrp = "vivo";
 
         // Vivo BIP44 coin type is '5'
@@ -304,7 +308,7 @@ public:
         nPoolMaxParticipants = 20;
         nFulfilledRequestExpireTime = 60*60; // fulfilled requests expire in 1 hour
 
-        strSporkAddress = "VJKxiuJZwTwgqrd1ZAY8buRS5m5uA8KDHu";
+        strSporkAddress = "VSWKN1fcV5iyERr8wQTsA1QnicLBqq3Svp";
 
         nCreditPoolPeriodBlocks = 576;
 
@@ -326,6 +330,7 @@ public:
                 {378129, uint256S("0x000000002f22a53a0228c6b94c960ba923df660531911392841196f641970b5f")},
                 {420300, uint256S("0x0000000037e291974d11f3f0c5309632db5d1b5c70162014a11e3de7920a548b")},
                 {444770, uint256S("0x00000000a21f0077a24e0d814dcfca41144a49d671ad2f3adb9f5fe5f509efaa")},
+		{2169890, uint256S("0x00000012e30cd3fc22886e36570b48e7d7b426e27c9322255f6b5e9fff9bef15")},
             }
         };
 
@@ -385,8 +390,8 @@ public:
         consensus.WithdrawalsHeight = 1148500; // 000000212a6fec2ee2af040c6d7a176360b154cbaa998888170cfd9ae7dd632d
         consensus.MinBIP9WarningHeight = 1148500 + 2016;  // withdrawals activation height + miner confirmation window
         consensus.powLimit = uint256S("00000fffffffffffffffffffffffffffffffffffffffffffffffffffffffffff"); // ~uint256(0) >> 20
-        consensus.nPowTargetTimespan = 24 * 60 * 60; // Vivo: 1 day
-        consensus.nPowTargetSpacing = 2.5 * 60; // Vivo: 2.5 minutes
+        consensus.nPowTargetTimespan = 24 * 60 * 60; // Dash: 1 day
+        consensus.nPowTargetSpacing = 2.5 * 60; // Dash: 2.5 minutes
         consensus.fPowAllowMinDifficultyBlocks = true;
         consensus.fPowNoRetargeting = false;
         consensus.nPowKGWHeight = 4002; // nPowKGWHeight >= nPowDGWHeight means "no KGW"
@@ -432,23 +437,23 @@ public:
 
         vSeeds.clear();
         // nodes with support for servicebits filtering should be at the top
-        vSeeds.emplace_back("testnet-seed.vivodot.io."); // Just a static list of stable node(s), only supports x9
+        vSeeds.emplace_back("testnet-seed.dashdot.io."); // Just a static list of stable node(s), only supports x9
 
-        // Testnet Vivo addresses start with 'y'
+        // Testnet Dash addresses start with 'y'
         base58Prefixes[PUBKEY_ADDRESS] = std::vector<unsigned char>(1,140);
-        // Testnet Vivo script addresses start with '8' or '9'
+        // Testnet Dash script addresses start with '8' or '9'
         base58Prefixes[SCRIPT_ADDRESS] = std::vector<unsigned char>(1,19);
         // Testnet private keys start with '9' or 'c' (Bitcoin defaults)
         base58Prefixes[SECRET_KEY] =     std::vector<unsigned char>(1,239);
-        // Testnet Vivo BIP32 pubkeys start with 'tpub' (Bitcoin defaults)
+        // Testnet Dash BIP32 pubkeys start with 'tpub' (Bitcoin defaults)
         base58Prefixes[EXT_PUBLIC_KEY] = {0x04, 0x35, 0x87, 0xCF};
-        // Testnet Vivo BIP32 prvkeys start with 'tprv' (Bitcoin defaults)
+        // Testnet Dash BIP32 prvkeys start with 'tprv' (Bitcoin defaults)
         base58Prefixes[EXT_SECRET_KEY] = {0x04, 0x35, 0x83, 0x94};
 
-        // DIP-18 Vivo Platform address HRP (bech32m)
-        bech32_platform_hrp = "tvivo";
+        // DIP-18 Dash Platform address HRP (bech32m)
+        bech32_platform_hrp = "tdash";
 
-        // Testnet Vivo BIP44 coin type is '1' (All coin's testnet default)
+        // Testnet Dash BIP44 coin type is '1' (All coin's testnet default)
         nExtCoinType = 1;
 
         // long living quorum params
@@ -560,8 +565,8 @@ public:
         consensus.WithdrawalsHeight = 2;   // withdrawals activated immediately on devnet
         consensus.MinBIP9WarningHeight = 2 + 2016; // withdrawals activation height + miner confirmation window
         consensus.powLimit = uint256S("7fffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff"); // ~uint256(0) >> 1
-        consensus.nPowTargetTimespan = 24 * 60 * 60; // Vivo: 1 day
-        consensus.nPowTargetSpacing = 2.5 * 60; // Vivo: 2.5 minutes
+        consensus.nPowTargetTimespan = 24 * 60 * 60; // Dash: 1 day
+        consensus.nPowTargetSpacing = 2.5 * 60; // Dash: 2.5 minutes
         consensus.fPowAllowMinDifficultyBlocks = true;
         consensus.fPowNoRetargeting = false;
         consensus.nPowKGWHeight = 4001; // nPowKGWHeight >= nPowDGWHeight means "no KGW"
@@ -608,23 +613,23 @@ public:
 
         vFixedSeeds.clear();
         vSeeds.clear();
-        //vSeeds.push_back(CDNSSeedData("vivoevo.org.",  "devnet-seed.vivoevo.org."));
+        //vSeeds.push_back(CDNSSeedData("dashevo.org.",  "devnet-seed.dashevo.org."));
 
-        // Testnet Vivo addresses start with 'y'
+        // Testnet Dash addresses start with 'y'
         base58Prefixes[PUBKEY_ADDRESS] = std::vector<unsigned char>(1,140);
-        // Testnet Vivo script addresses start with '8' or '9'
+        // Testnet Dash script addresses start with '8' or '9'
         base58Prefixes[SCRIPT_ADDRESS] = std::vector<unsigned char>(1,19);
         // Testnet private keys start with '9' or 'c' (Bitcoin defaults)
         base58Prefixes[SECRET_KEY] =     std::vector<unsigned char>(1,239);
-        // Testnet Vivo BIP32 pubkeys start with 'tpub' (Bitcoin defaults)
+        // Testnet Dash BIP32 pubkeys start with 'tpub' (Bitcoin defaults)
         base58Prefixes[EXT_PUBLIC_KEY] = {0x04, 0x35, 0x87, 0xCF};
-        // Testnet Vivo BIP32 prvkeys start with 'tprv' (Bitcoin defaults)
+        // Testnet Dash BIP32 prvkeys start with 'tprv' (Bitcoin defaults)
         base58Prefixes[EXT_SECRET_KEY] = {0x04, 0x35, 0x83, 0x94};
 
-        // DIP-18 Vivo Platform address HRP (bech32m)
-        bech32_platform_hrp = "tvivo";
+        // DIP-18 Dash Platform address HRP (bech32m)
+        bech32_platform_hrp = "tdash";
 
-        // Testnet Vivo BIP44 coin type is '1' (All coin's testnet default)
+        // Testnet Dash BIP44 coin type is '1' (All coin's testnet default)
         nExtCoinType = 1;
 
         // long living quorum params
@@ -781,7 +786,7 @@ public:
         consensus.BIP147Height = 0;  // Always active unless overridden
         consensus.CSVHeight = 1;     // Always active unless overridden
         consensus.DIP0001Height = 1; // Always active unless overridden
-        consensus.DIP0003Height = 432; // Always active for VivoTestFramework in functional tests (see dip3params)
+        consensus.DIP0003Height = 432; // Always active for DashTestFramework in functional tests (see dip3params)
                                        // For unit tests and for BitcoinTestFramework is disabled due to missing quorum commitment for blocks created by helpers such as create_blocks
         consensus.DIP0003EnforcementHeight = 500;
         consensus.DIP0003EnforcementHash = uint256();
@@ -791,13 +796,13 @@ public:
         consensus.DIP0024Height = 1; // Always have dip0024 quorums unless overridden
         consensus.DIP0024QuorumsHeight = 1; // Always have dip0024 quorums unless overridden
         consensus.V19Height = 1; // Always active unless overridden
-        consensus.V20Height = consensus.DIP0003Height; // Active not earlier than dip0003. Functional tests (VivoTestFramework) uses height 100 (same as coinbase maturity)
+        consensus.V20Height = consensus.DIP0003Height; // Active not earlier than dip0003. Functional tests (DashTestFramework) uses height 100 (same as coinbase maturity)
         consensus.MN_RRHeight = consensus.V20Height; // MN_RR does not really have effect before v20 activation
         consensus.WithdrawalsHeight = 600;
         consensus.MinBIP9WarningHeight = 0;
         consensus.powLimit = uint256S("7fffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff"); // ~uint256(0) >> 1
-        consensus.nPowTargetTimespan = 24 * 60 * 60; // Vivo: 1 day
-        consensus.nPowTargetSpacing = 2.5 * 60; // Vivo: 2.5 minutes
+        consensus.nPowTargetTimespan = 24 * 60 * 60; // Dash: 1 day
+        consensus.nPowTargetSpacing = 2.5 * 60; // Dash: 2.5 minutes
         consensus.fPowAllowMinDifficultyBlocks = true;
         consensus.fPowNoRetargeting = true;
         consensus.nPowKGWHeight = 15200; // same as mainnet
@@ -887,21 +892,21 @@ public:
             0
         };
 
-        // Regtest Vivo addresses start with 'y'
+        // Regtest Dash addresses start with 'y'
         base58Prefixes[PUBKEY_ADDRESS] = std::vector<unsigned char>(1,140);
-        // Regtest Vivo script addresses start with '8' or '9'
+        // Regtest Dash script addresses start with '8' or '9'
         base58Prefixes[SCRIPT_ADDRESS] = std::vector<unsigned char>(1,19);
         // Regtest private keys start with '9' or 'c' (Bitcoin defaults)
         base58Prefixes[SECRET_KEY] =     std::vector<unsigned char>(1,239);
-        // Regtest Vivo BIP32 pubkeys start with 'tpub' (Bitcoin defaults)
+        // Regtest Dash BIP32 pubkeys start with 'tpub' (Bitcoin defaults)
         base58Prefixes[EXT_PUBLIC_KEY] = {0x04, 0x35, 0x87, 0xCF};
-        // Regtest Vivo BIP32 prvkeys start with 'tprv' (Bitcoin defaults)
+        // Regtest Dash BIP32 prvkeys start with 'tprv' (Bitcoin defaults)
         base58Prefixes[EXT_SECRET_KEY] = {0x04, 0x35, 0x83, 0x94};
 
-        // DIP-18 Vivo Platform address HRP (bech32m)
-        bech32_platform_hrp = "tvivo";
+        // DIP-18 Dash Platform address HRP (bech32m)
+        bech32_platform_hrp = "tdash";
 
-        // Regtest Vivo BIP44 coin type is '1' (All coin's testnet default)
+        // Regtest Dash BIP44 coin type is '1' (All coin's testnet default)
         nExtCoinType = 1;
 
         // long living quorum params

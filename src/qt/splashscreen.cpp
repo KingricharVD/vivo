@@ -1,5 +1,5 @@
 // Copyright (c) 2011-2021 The Bitcoin Core developers
-// Copyright (c) 2014-2025 The Vivo Core developers
+// Copyright (c) 2014-2025 The Dash Core developers
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
@@ -96,10 +96,10 @@ SplashScreen::SplashScreen(const NetworkStyle* networkStyle)
     // no window decorations
     setWindowFlags(Qt::FramelessWindowHint);
 
-    // Modern splash dimensions — wider and shorter for a contemporary feel
-    int width = 440;
-    int height = 360;
-    int logoSize = 140;
+    // Modern splash dimensions — sized for a 512x512 network artwork panel
+    int width = 696;
+    int height = 720;
+    int logoSize = 512;
     int cornerRadius = 16;
 
     float fontFactor            = 1.0;
@@ -115,16 +115,7 @@ SplashScreen::SplashScreen(const NetworkStyle* networkStyle)
 
     QPixmap pixmapLogo = networkStyle->getSplashImage();
 
-    // Adjust logo color based on the current theme
-    QImage imgLogo = pixmapLogo.toImage().convertToFormat(QImage::Format_ARGB32);
-    QColor logoColor = GUIUtil::getThemedQColor(GUIUtil::ThemedColor::BLUE);
-    for (int x = 0; x < imgLogo.width(); ++x) {
-        for (int y = 0; y < imgLogo.height(); ++y) {
-            const QRgb rgb = imgLogo.pixel(x, y);
-            imgLogo.setPixel(x, y, qRgba(logoColor.red(), logoColor.green(), logoColor.blue(), qAlpha(rgb)));
-        }
-    }
-    pixmapLogo.convertFromImage(imgLogo);
+    // Preserve the selected network splash PNG original RGB colors and transparency.
     pixmapLogo.setDevicePixelRatio(scale);
 
     int canvasWidth = width + SPLASH_PADDING * 2;

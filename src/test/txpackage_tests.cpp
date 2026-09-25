@@ -23,7 +23,7 @@ struct TestChain100NoDIP0001Setup : public TestChain100Setup {
 
 BOOST_AUTO_TEST_SUITE(txpackage_tests)
 // A fee amount that is above 1sat/vB but below 5sat/vB for most transactions created within these
-// unit tests. Vivo transactions are larger than Bitcoin's (no SegWit discount), so this needs to
+// unit tests. Dash transactions are larger than Bitcoin's (no SegWit discount), so this needs to
 // be higher than Bitcoin's 200 sat to ensure it exceeds the minimum relay feerate for ~160-byte
 // P2PKH txns.
 static const CAmount low_fee_amt{500};
@@ -432,7 +432,7 @@ BOOST_FIXTURE_TEST_CASE(package_cpfp_tests, TestChain100Setup)
     // Just because we allow low-fee parents doesn't mean we allow low-feerate packages.
     // The mempool minimum feerate is 5sat/vB, but this package just pays 1700 satoshis total.
     // The child fees would be able to pay for itself, but isn't enough for the entire package.
-    // Note: Vivo transactions are larger than Bitcoin's (no SegWit discount, ~225 bytes for P2PKH),
+    // Note: Dash transactions are larger than Bitcoin's (no SegWit discount, ~225 bytes for P2PKH),
     // so fees are higher than Bitcoin's test values to ensure they exceed minimum feerate.
     Package package_still_too_low;
     const CAmount parent_fee{500};

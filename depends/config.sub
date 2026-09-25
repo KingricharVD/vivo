@@ -171,7 +171,7 @@ case $1 in
 		;;
 	*-*)
 		case $field1-$field2 in
-			# Shorthands that happen to contain a single vivo
+			# Shorthands that happen to contain a single dash
 			convex-c[12] | convex-c3[248])
 				basic_machine=$field2-convex
 				basic_os=

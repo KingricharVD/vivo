@@ -66,11 +66,11 @@
         <translation>اختر </translation>
     </message>
     <message>
-        <source>These are your Vivo addresses for sending payments. Always check the amount and the receiving address before sending coins.</source>
+        <source>These are your Dash addresses for sending payments. Always check the amount and the receiving address before sending coins.</source>
         <translation>هذه هي عناوين داش التابعة لك من أجل إرسال الدفعات. تحقق دائما من المبلغ و عنوان المرسل المستقبل قبل إرسال العملات </translation>
     </message>
     <message>
-        <source>These are your Vivo addresses for receiving payments. Use the 'Create new receiving address' button in the receive tab to create new addresses.</source>
+        <source>These are your Dash addresses for receiving payments. Use the 'Create new receiving address' button in the receive tab to create new addresses.</source>
         <translation>هذه هي عناوين داش الخاصة بك لتلقي المدفوعات. استخدم الزر "إنشاء عنوان استلام جديد" في علامة تبويب الاستلام لإنشاء عناوين جديدة.</translation>
     </message>
     <message>
@@ -365,7 +365,7 @@
         <translation>إرسال</translation>
     </message>
     <message>
-        <source>Send coins to a Vivo address</source>
+        <source>Send coins to a Dash address</source>
         <translation>إرسال عملات الى عنوان داش</translation>
     </message>
     <message>
@@ -373,7 +373,7 @@
         <translation>استقبل</translation>
     </message>
     <message>
-        <source>Request payments (generates QR codes and vivo: URIs)</source>
+        <source>Request payments (generates QR codes and dash: URIs)</source>
         <translation>أطلب دفعات (يولد كودات الرمز المربع وبيت كوين: العناوين المعطاة)</translation>
     </message>
     <message>
@@ -489,7 +489,7 @@
         <translation>حوالي %1</translation>
     </message>
     <message>
-        <source>Send %1 funds to a Vivo address</source>
+        <source>Send %1 funds to a Dash address</source>
         <translation>إرسال %1 عملات الى عنوان داش</translation>
     </message>
     <message>
@@ -525,11 +525,11 @@
         <translation>غلق المحفظة</translation>
     </message>
     <message>
-        <source>Sign messages with your Vivo addresses to prove you own them</source>
+        <source>Sign messages with your Dash addresses to prove you own them</source>
         <translation>وقَع الرسائل بواسطة اداش الخاص بك لإثبات امتلاكك لهم</translation>
     </message>
     <message>
-        <source>Verify messages to ensure they were signed with specified Vivo addresses</source>
+        <source>Verify messages to ensure they were signed with specified Dash addresses</source>
         <translation>تحقق من الرسائل للتأكد من أنَها وُقعت برسائل داش محدَدة</translation>
     </message>
     <message>
@@ -593,7 +593,7 @@
         <translation>خيارات سطر الأوامر</translation>
     </message>
     <message>
-        <source>Show the %1 help message to get a list with possible Vivo command-line options</source>
+        <source>Show the %1 help message to get a list with possible Dash command-line options</source>
         <translation>عرض رسالة مساعدة %1 للحصول على قائمة مع خيارات سطر أوامر داش المحتملة</translation>
     </message>
     <message>
@@ -655,8 +655,8 @@
         <translation>فتح &amp;ملف تكوين المحفظة</translation>
     </message>
     <message>
-        <source>Open a vivo: URI</source>
-        <translation>فتح vivo: URI</translation>
+        <source>Open a dash: URI</source>
+        <translation>فتح dash: URI</translation>
     </message>
     <message>
         <source>Create a new wallet</source>
@@ -1298,7 +1298,7 @@
         <translation>تعديل عنوان الارسال</translation>
     </message>
     <message>
-        <source>The entered address "%1" is not a valid Vivo address.</source>
+        <source>The entered address "%1" is not a valid Dash address.</source>
         <translation>العنوان الذي تم إدخاله "%1" ليس عنوانًا صالحًا لداش.</translation>
     </message>
     <message>
@@ -1547,7 +1547,7 @@ Do you wish to continue?</source>
         <translation>%1 معلومات</translation>
     </message>
     <message>
-        <source>&lt;h3&gt;%1 Basics&lt;/h3&gt; %1 gives you true financial privacy by obscuring the origins of your funds. All the Vivo in your wallet is comprised of different "inputs" which you can think of as separate, discrete coins.&lt;br&gt; %1 uses an innovative process to mix your inputs with the inputs of two or more other people, without having your coins ever leave your wallet. You retain control of your money at all times.&lt;hr&gt; &lt;b&gt;The %1 process works like this:&lt;/b&gt;&lt;ol type="1"&gt; &lt;li&gt;%1 begins by breaking your transaction inputs down into standard denominations. These denominations are 0.001 DASH, 0.01 DASH, 0.1 DASH, 1 DASH and 10 DASH -- sort of like the paper money you use every day.&lt;/li&gt; &lt;li&gt;Your wallet then sends requests to specially configured software nodes on the network, called "masternodes." These masternodes are informed then that you are interested in mixing a certain denomination. No identifiable information is sent to the masternodes, so they never know "who" you are.&lt;/li&gt; &lt;li&gt;When two or more other people send similar messages, indicating that they wish to mix the same denomination, a mixing session begins. The masternode mixes up the inputs and instructs all three users' wallets to pay the now-transformed input back to themselves. Your wallet pays that denomination directly to itself, but in a different address (called a change address).&lt;/li&gt; &lt;li&gt;In order to fully obscure your funds, your wallet must repeat this process a number of times with each denomination. Each time the process is completed, it's called a "round." Each round of %1 makes it exponentially more difficult to determine where your funds originated.&lt;/li&gt; &lt;li&gt;This mixing process happens in the background without any intervention on your part. When you wish to make a transaction, your funds will already be mixed. No additional waiting is required.&lt;/li&gt; &lt;/ol&gt; &lt;hr&gt;&lt;b&gt;IMPORTANT:&lt;/b&gt; Your wallet only contains 1000 of these "change addresses." Every time a mixing event happens, up to 9 of your addresses are used up. This means those 1000 addresses last for about 100 mixing events. When 900 of them are used, your wallet must create more addresses. It can only do this, however, if you have automatic backups enabled.&lt;br&gt; Consequently, users who have backups disabled will also have %1 disabled. &lt;hr&gt;For more information, see the &lt;a style="%2" href="%3"&gt;%1 documentation&lt;/a&gt;.</source>
+        <source>&lt;h3&gt;%1 Basics&lt;/h3&gt; %1 gives you true financial privacy by obscuring the origins of your funds. All the Vivo in your wallet is comprised of different "inputs" which you can think of as separate, discrete coins.&lt;br&gt; %1 uses an innovative process to mix your inputs with the inputs of two or more other people, without having your coins ever leave your wallet. You retain control of your money at all times.&lt;hr&gt; &lt;b&gt;The %1 process works like this:&lt;/b&gt;&lt;ol type="1"&gt; &lt;li&gt;%1 begins by breaking your transaction inputs down into standard denominations. These denominations are 0.001 VIVO, 0.01 VIVO, 0.1 VIVO, 1 VIVO and 10 VIVO -- sort of like the paper money you use every day.&lt;/li&gt; &lt;li&gt;Your wallet then sends requests to specially configured software nodes on the network, called "masternodes." These masternodes are informed then that you are interested in mixing a certain denomination. No identifiable information is sent to the masternodes, so they never know "who" you are.&lt;/li&gt; &lt;li&gt;When two or more other people send similar messages, indicating that they wish to mix the same denomination, a mixing session begins. The masternode mixes up the inputs and instructs all three users' wallets to pay the now-transformed input back to themselves. Your wallet pays that denomination directly to itself, but in a different address (called a change address).&lt;/li&gt; &lt;li&gt;In order to fully obscure your funds, your wallet must repeat this process a number of times with each denomination. Each time the process is completed, it's called a "round." Each round of %1 makes it exponentially more difficult to determine where your funds originated.&lt;/li&gt; &lt;li&gt;This mixing process happens in the background without any intervention on your part. When you wish to make a transaction, your funds will already be mixed. No additional waiting is required.&lt;/li&gt; &lt;/ol&gt; &lt;hr&gt;&lt;b&gt;IMPORTANT:&lt;/b&gt; Your wallet only contains 1000 of these "change addresses." Every time a mixing event happens, up to 9 of your addresses are used up. This means those 1000 addresses last for about 100 mixing events. When 900 of them are used, your wallet must create more addresses. It can only do this, however, if you have automatic backups enabled.&lt;br&gt; Consequently, users who have backups disabled will also have %1 disabled. &lt;hr&gt;For more information, see the &lt;a style="%2" href="%3"&gt;%1 documentation&lt;/a&gt;.</source>
         <translation>%1 يمنحك   &lt;h3&gt;%1 أساسيات&lt;/h3&gt; خصوصية مالية حقيقية من خلال حجب أصول أموالك. تتكون كل الداش في محفظتك من "مدخلات" مختلفة يمكنك التفكير فيها على أنها عملات معدنية منفصلة ومنفصلة.&lt;br&gt;  %1 يستخدم عملية مبتكرة لخلط مدخلاتك مع مدخلات شخصين آخرين أو أكثر ، دون أن تترك عملاتك محفظتك. أنت تحتفظ بالسيطرة على أموالك في جميع الأوقات.&lt;hr&gt;&lt;b&gt; تعمل  %1 عملية على النحو التالي:&lt;/b&gt;&lt;ol type="1"&gt;&lt;li&gt; يبدأ بتقسيم إدخالات معاملتك إلى فئات قياسية. هذه الفئات هي 0.001 داش و 0.01 داش و 0.1 داش و 1 داش و 10 داش - نوع من النقود الورقية التي تستخدمها كل يوم.&lt;/li&gt;&lt;li&gt; ثم ترسل محفظتك طلبات إلى عقد البرامج التي تم تكوينها خصيصًا على الشبكة ، والتي تسمى "العقد الرئيسية". يتم إبلاغ هذه الرموز الرئيسية بعد ذلك أنك مهتم بخلط فئة معينة. لا يتم إرسال أي معلومات يمكن التعرف عليها إلى رموز ماسترنود ، لذلك فهم لا يعرفون أبدًا "من أنت".&lt;/li&gt;&lt;li&gt; عندما يرسل شخصان آخران أو أكثر رسائل متشابهة ، للإشارة إلى رغبتهم في مزج نفس الفئة ، تبدأ جلسة خلط. يخلط الرمز الرئيسي بين المدخلات ويوجه جميع محافظ المستخدمين الثلاثة لدفع المدخلات التي تم تحويلها الآن لأنفسهم. تدفع محفظتك تلك الفئة مباشرة لنفسها ، ولكن في عنوان مختلف (يسمى تغيير العنوان). &lt;/li&gt;&lt;li&gt;من أجل إخفاء أموالك بالكامل ، يجب أن تكرر محفظتك هذه العملية عدة مرات مع كل فئة. في كل مرة يتم فيها الانتهاء من العملية ، يطلق عليها "جولة". كل جولة  %1 تجعل تحديد مصدر أموالك أكثر صعوبة.&lt;/li&gt;&lt;li&gt; تحدث عملية الخلط هذه في الخلفية دون أي تدخل من جانبك. عندما ترغب في إجراء معاملة ، ستكون أموالك مختلطة بالفعل. لا حاجة إلى انتظار إضافي.&lt;/li&gt;&lt;/ol&gt;&lt;hr&gt;&lt;b&gt; هام: &lt;/b&gt;تحتوي محفظتك فقط على 1000 من "عناوين التغيير" هذه. في كل مرة يحدث فيها اختلاط ، يتم استخدام ما يصل إلى 9 عناوين. هذا يعني أن تلك العناوين الـ 1000 تدوم لحوالي 100 حدث خلط. عندما يتم استخدام 900 منهم ، يجب أن تنشئ محفظتك المزيد من العناوين. لا يمكنه القيام بذلك إلا إذا تم تمكين النسخ الاحتياطية التلقائية. &lt;br&gt;وبالتالي ، فإن المستخدمين الذين تم تعطيل النسخ الاحتياطية لديهم  %1 سيتم أيضًا تعطيل.&lt;hr&gt; لمزيد من المعلومات ، &lt;a style="%2" href="%3"&gt; %1 راجع وثائق&lt;/a&gt;.</translation>
     </message>
 </context>
@@ -1623,7 +1623,7 @@ Do you wish to continue?</source>
         <translation><numerusform>(كافٍ لاستعادة النسخ الاحتياطية القديمة بيوم واحد)</numerusform><numerusform>(كافٍ لاستعادة النسخ الاحتياطية القديمة بيوم واحد)</numerusform><numerusform>(كافٍ لاستعادة النسخ الاحتياطية القديمة بيومين)</numerusform><numerusform>(كافٍ لاستعادة النسخ الاحتياطية القديمة بـ %n أيام)</numerusform><numerusform>(كافٍ لاستعادة النسخ الاحتياطية القديمة بـ %n يوم)</numerusform><numerusform>(كافٍ لاستعادة النسخ الاحتياطية القديمة بـ %n يوم)</numerusform></translation>
     </message>
     <message>
-        <source>%1 will download and store a copy of the Vivo block chain.</source>
+        <source>%1 will download and store a copy of the Dash block chain.</source>
         <translation>سيقوم %1 بتنزيل نسخة من سلسلة كتل بتكوين وتخزينها.</translation>
     </message>
     <message>
@@ -2140,7 +2140,7 @@ Do you wish to continue?</source>
         <translation>المعاملات ذات المخرجات المساوية أو الأقل من هذا المبلغ ستُعتبر غباراً عند استلامها من مصادر خارجية.</translation>
     </message>
     <message>
-        <source>duffs</source>
+        <source>VLVOs</source>
         <translation>دافز</translation>
     </message>
     <message>
@@ -2232,7 +2232,7 @@ Do you wish to continue?</source>
         <translation>الحد الأقصى</translation>
     </message>
     <message>
-        <source>Automatically open the Vivo Core client port on the router. This only works when your router supports UPnP and it is enabled.</source>
+        <source>Automatically open the Dash Core client port on the router. This only works when your router supports UPnP and it is enabled.</source>
         <translation>فتح منفذ عميل داش كور تلقائيًا على جهاز التوجيه. هذا يعمل فقط عندما يدعم جهاز التوجيه الخاص بك UPnP وتمكينه.</translation>
     </message>
     <message>
@@ -2314,8 +2314,8 @@ https://explore.transifex.com/vivo/vivo/</translation>
         <translation>ميناء الخريطة باستخدام UPnP</translation>
     </message>
     <message>
-        <source>Automatically open the Vivo Core client port on the router. This only works when your router supports NAT-PMP and it is enabled. The external port could be random.</source>
-        <translation>فتح منفذ عميل Vivo Core تلقائيًا على جهاز التوجيه. هذا يعمل فقط عندما يدعم جهاز التوجيه الخاص بك NAT-PMP وتمكينه. قد يكون المنفذ الخارجي عشوائيًا.</translation>
+        <source>Automatically open the Dash Core client port on the router. This only works when your router supports NAT-PMP and it is enabled. The external port could be random.</source>
+        <translation>فتح منفذ عميل Dash Core تلقائيًا على جهاز التوجيه. هذا يعمل فقط عندما يدعم جهاز التوجيه الخاص بك NAT-PMP وتمكينه. قد يكون المنفذ الخارجي عشوائيًا.</translation>
     </message>
     <message>
         <source>Proxy &amp;IP:</source>
@@ -2367,7 +2367,7 @@ https://explore.transifex.com/vivo/vivo/</translation>
     </message>
     <message>
         <source>Connect to the Vivo network through a separate SOCKS5 proxy for Tor onion services.</source>
-        <translation>الاتصال بشبكة Vivo من خلال وكيل SOCKS5 منفصل لخدمات Tor onion.</translation>
+        <translation>الاتصال بشبكة Dash من خلال وكيل SOCKS5 منفصل لخدمات Tor onion.</translation>
     </message>
     <message>
         <source>Use separate SOCKS&amp;5 proxy to reach peers via Tor onion services:</source>
@@ -2832,7 +2832,7 @@ https://explore.transifex.com/vivo/vivo/</translation>
         <translation>خطأ في طلب الدفع</translation>
     </message>
     <message>
-        <source>Cannot start vivo: click-to-pay handler</source>
+        <source>Cannot start dash: click-to-pay handler</source>
         <translation>لا يمكن بدء داش: معالج الدفع مقابل الدفع</translation>
     </message>
     <message>
@@ -2840,8 +2840,8 @@ https://explore.transifex.com/vivo/vivo/</translation>
         <translation>التعامل مع العنوان</translation>
     </message>
     <message>
-        <source>'vivo://' is not a valid URI. Use 'vivo:' instead.</source>
-        <translation>'vivo: //' ليس URI صالحًا. استخدم "شرطة:" بدلاً من ذلك.</translation>
+        <source>'dash://' is not a valid URI. Use 'dash:' instead.</source>
+        <translation>'dash: //' ليس URI صالحًا. استخدم "شرطة:" بدلاً من ذلك.</translation>
     </message>
     <message>
         <source>Cannot process payment request as BIP70 is no longer supported.
@@ -2850,7 +2850,7 @@ Due to discontinued support, you should request the merchant to provide you with
 بسبب التوقف عن الدعم، يجب عليك أن تطلب من التاجر أن يزودك بـ URI متوافق مع BIP21 أو استخدام محفظة تستمر في دعم BIP70.</translation>
     </message>
     <message>
-        <source>URI cannot be parsed! This can be caused by an invalid Vivo address or malformed URI parameters.</source>
+        <source>URI cannot be parsed! This can be caused by an invalid Dash address or malformed URI parameters.</source>
         <translation>لا يمكن تحليل العنوان! يمكن أن يكون ذلك بسبب عنوان داش غير صالح أو معلمات العنوان غير صحيحة.</translation>
     </message>
     <message>
@@ -3235,7 +3235,7 @@ You will now be redirected to monitor and broadcast your new proposal, you can r
         <translation>مبلغ</translation>
     </message>
     <message>
-        <source>Enter a Vivo address (e.g. %1)</source>
+        <source>Enter a Dash address (e.g. %1)</source>
         <translation>أدخل عنوان داش (على سبيل المثال %1)</translation>
     </message>
     <message>
@@ -3785,8 +3785,8 @@ You will now be redirected to monitor and broadcast your new proposal, you can r
         <translation>العناوين المحلية</translation>
     </message>
     <message>
-        <source>Network addresses that your Vivo node is currently using to communicate with other nodes.</source>
-        <translation>عناوين الشبكة التي تستخدمها عقدة Vivo الخاصة بك حالياً للتواصل مع العقد الأخرى.</translation>
+        <source>Network addresses that your Dash node is currently using to communicate with other nodes.</source>
+        <translation>عناوين الشبكة التي تستخدمها عقدة Dash الخاصة بك حالياً للتواصل مع العقد الأخرى.</translation>
     </message>
     <message>
         <source>Number of regular Masternodes</source>
@@ -4499,8 +4499,8 @@ For more information on using this console, type %6.
         <translation>رسوم المعاملة:</translation>
     </message>
     <message>
-        <source>When there is less transaction volume than space in the blocks, miners as well as relaying nodes may enforce a minimum fee. Paying only this minimum fee is just fine, but be aware that this can result in a never confirming transaction once there is more demand for vivo transactions than the network can process.</source>
-        <translation>عندما يكون حجم المعاملات أقل من المساحة في الكتل، قد يفرض المعدنون وكذلك العقد المرحلة حداً أدنى من الرسوم. دفع هذا الحد الأدنى من الرسوم فقط أمر جيد، ولكن كن على دراية بأن هذا قد يؤدي إلى معاملة لن يتم تأكيدها أبداً بمجرد أن يكون هناك طلب أكبر على معاملات Vivo مما يمكن للشبكة معالجته.</translation>
+        <source>When there is less transaction volume than space in the blocks, miners as well as relaying nodes may enforce a minimum fee. Paying only this minimum fee is just fine, but be aware that this can result in a never confirming transaction once there is more demand for dash transactions than the network can process.</source>
+        <translation>عندما يكون حجم المعاملات أقل من المساحة في الكتل، قد يفرض المعدنون وكذلك العقد المرحلة حداً أدنى من الرسوم. دفع هذا الحد الأدنى من الرسوم فقط أمر جيد، ولكن كن على دراية بأن هذا قد يؤدي إلى معاملة لن يتم تأكيدها أبداً بمجرد أن يكون هناك طلب أكبر على معاملات Dash مما يمكن للشبكة معالجته.</translation>
     </message>
     <message>
         <source>A too low fee might result in a never confirming transaction (read the tooltip)</source>
@@ -4515,7 +4515,7 @@ For more information on using this console, type %6.
         <translation>هدف وقت التأكيد:</translation>
     </message>
     <message>
-        <source>If the custom fee is set to 1000 duffs and the transaction is only 250 bytes, then "per kilobyte" only pays 250 duffs in fee,&lt;br /&gt;while "at least" pays 1000 duffs. For transactions bigger than a kilobyte both pay by kilobyte.</source>
+        <source>If the custom fee is set to 1000 VLVOs and the transaction is only 250 bytes, then "per kilobyte" only pays 250 VLVOs in fee,&lt;br /&gt;while "at least" pays 1000 VLVOs. For transactions bigger than a kilobyte both pay by kilobyte.</source>
         <translation>إذا تم تعيين الرسوم الجمركية على 1000 دافع وكانت المعاملة 250 بايتًا فقط ، فإن "كل كيلوبايت" يدفع 250 جنيهًا فقط رسومًا ،&lt;br /&gt; بينما "على الأقل" يدفع 1000 دفين. لمعاملات أكبر من كيلوبايت تدفع كل من كيلوبايت.</translation>
     </message>
     <message>
@@ -4804,7 +4804,7 @@ For more information on using this console, type %6.
         <translation><numerusform>يقدر أن يبدأ التأكيد ضمن %n من الكتل.</numerusform><numerusform>يقدر أن يبدأ التأكيد ضمن %n من الكتل.</numerusform><numerusform>يقدر أن يبدأ التأكيد ضمن %n من الكتل.</numerusform><numerusform>يقدر أن يبدأ التأكيد ضمن %n من الكتل.</numerusform><numerusform>يقدر أن يبدأ التأكيد ضمن %n من الكتل.</numerusform><numerusform>يقدر أن يبدأ التأكيد ضمن %n من الكتل.</numerusform></translation>
     </message>
     <message>
-        <source>Warning: Invalid Vivo address</source>
+        <source>Warning: Invalid Dash address</source>
         <translation>تحذير: عنوان داش غير صالح</translation>
     </message>
     <message>
@@ -4831,7 +4831,7 @@ For more information on using this console, type %6.
         <translation>ادفع &amp;الى :</translation>
     </message>
     <message>
-        <source>The Vivo address to send the payment to</source>
+        <source>The Dash address to send the payment to</source>
         <translation>عنوان داش لإرسال الدفعة إلى</translation>
     </message>
     <message>
@@ -4871,7 +4871,7 @@ For more information on using this console, type %6.
         <translation>المبلغ المراد إرساله في الوحدة المختارة</translation>
     </message>
     <message>
-        <source>The fee will be deducted from the amount being sent. The recipient will receive a lower amount of Vivo than you enter in the amount field. If multiple recipients are selected, the fee is split equally.</source>
+        <source>The fee will be deducted from the amount being sent. The recipient will receive a lower amount of Dash than you enter in the amount field. If multiple recipients are selected, the fee is split equally.</source>
         <translation>سيتم خصم الرسوم من المبلغ الذي يتم إرساله. سوف يتلقى المستلم كمية أقل من الشرطة من إدخالها في حقل المبلغ. في حالة تحديد عدة مستلمين ، يتم تقسيم الرسوم بالتساوي.</translation>
     </message>
     <message>
@@ -4887,7 +4887,7 @@ For more information on using this console, type %6.
         <translation>الرسائل</translation>
     </message>
     <message>
-        <source>A message that was attached to the vivo: URI which will be stored with the transaction for your reference. Note: This message will not be sent over the Vivo network.</source>
+        <source>A message that was attached to the dash: URI which will be stored with the transaction for your reference. Note: This message will not be sent over the Vivo network.</source>
         <translation>رسالة تم إرفاقها بخط العطف: عنوان الذي سيتم تخزينه مع المعاملة كمرجع لك. ملاحظة: لن يتم إرسال هذه الرسالة عبر شبكة داش.</translation>
     </message>
 </context>
@@ -4924,11 +4924,11 @@ For more information on using this console, type %6.
         <translation>&amp;توقيع الرسالة</translation>
     </message>
     <message>
-        <source>You can sign messages/agreements with your addresses to prove you can receive Vivo sent to them. Be careful not to sign anything vague or random, as phishing attacks may try to trick you into signing your identity over to them. Only sign fully-detailed statements you agree to.</source>
+        <source>You can sign messages/agreements with your addresses to prove you can receive Dash sent to them. Be careful not to sign anything vague or random, as phishing attacks may try to trick you into signing your identity over to them. Only sign fully-detailed statements you agree to.</source>
         <translation>يمكنك توقيع الرسائل / الاتفاقيات مع العناوين الخاصة بك لإثبات أنك يمكن أن تتلقى داش المرسلة إليهم. احرص على عدم التوقيع على أي شيء غامض أو عشوائي ، حيث إن هجمات التصيد الاحتيالي قد تحاول خداعك لتوقيع هويتك عليها. توقيع فقط عبارات تفصيلية كاملة توافق على.</translation>
     </message>
     <message>
-        <source>The Vivo address to sign the message with</source>
+        <source>The Dash address to sign the message with</source>
         <translation>عنوان داش للتوقيع على الرسالة</translation>
     </message>
     <message>
@@ -4960,7 +4960,7 @@ For more information on using this console, type %6.
         <translation>نسخ التوقيع الحالي إلى حافظة النظام</translation>
     </message>
     <message>
-        <source>Sign the message to prove you own this Vivo address</source>
+        <source>Sign the message to prove you own this Dash address</source>
         <translation>وقع على الرسالة لإثبات أنك تملك عنوان داش هذا</translation>
     </message>
     <message>
@@ -4984,7 +4984,7 @@ For more information on using this console, type %6.
         <translation>أدخل عنوان المتلقي ، رسالة (تأكد من نسخ فواصل الأسطر والمسافات وعلامات التبويب وما إلى ذلك تمامًا) والتوقيع أدناه للتحقق من الرسالة. يجب الحرص على عدم قراءة المزيد في التوقيع أكثر مما هو موجود في الرسالة الموقّعة نفسها ، لتجنب التعرض للخداع من خلال هجوم رجل في الوسط. لاحظ أن هذا يثبت فقط أن الطرف المتلقي يتلقى العنوان ، فلا يمكنه إثبات إرسال أي معاملة!</translation>
     </message>
     <message>
-        <source>The Vivo address the message was signed with</source>
+        <source>The Dash address the message was signed with</source>
         <translation>عنوان داش الذي تم توقيع الرسالة به</translation>
     </message>
     <message>
@@ -4996,7 +4996,7 @@ For more information on using this console, type %6.
         <translation>التوقيع المعطى عند توقيع الرسالة</translation>
     </message>
     <message>
-        <source>Verify the message to ensure it was signed with the specified Vivo address</source>
+        <source>Verify the message to ensure it was signed with the specified Dash address</source>
         <translation>تحقق من الرسالة للتأكد من توقيعها باستخدام عنوان داش المحدد</translation>
     </message>
     <message>
@@ -5777,7 +5777,7 @@ Go to File &gt; Open Wallet to load a wallet.
     </message>
 </context>
 <context>
-    <name>vivo-core</name>
+    <name>dash-core</name>
     <message>
         <source>This error could occur if this wallet was not shutdown cleanly and was last loaded using a build with a newer version of Berkeley DB. If so, please use the software that last loaded this wallet</source>
         <translation>يمكن أن يحدث هذا الخطأ إذا لم يتم إغلاق هذه المحفظة بشكل سليم وتم تحميلها مؤخرًا باستخدام إصدار أحدث من Berkeley DB. إذا كان الأمر كذلك ، فالرجاء استخدام البرنامج الذي تم تحميل هذه المحفظة آخر مرة</translation>
@@ -6031,8 +6031,8 @@ Go to File &gt; Open Wallet to load a wallet.
         <translation>خطأ في تحميل %s: يتم تحميل محفظة الموقع الخارجي بدون دعم الموقع الخارجي المترجم</translation>
     </message>
     <message>
-        <source>Error: Dumpfile version is not supported. This version of vivo-wallet only supports version 1 dumpfiles. Got dumpfile with version %s</source>
-        <translation>خطأ: إصدار ملف التفريغ غير مدعوم. هذا الإصدار من vivo-wallet يدعم فقط ملفات التفريغ الإصدار 1. تم الحصول على ملف تفريغ بالإصدار %s</translation>
+        <source>Error: Dumpfile version is not supported. This version of dash-wallet only supports version 1 dumpfiles. Got dumpfile with version %s</source>
+        <translation>خطأ: إصدار ملف التفريغ غير مدعوم. هذا الإصدار من dash-wallet يدعم فقط ملفات التفريغ الإصدار 1. تم الحصول على ملف تفريغ بالإصدار %s</translation>
     </message>
     <message>
         <source>Failed to create backup, file already exists! This could happen if you restarted wallet in less than 60 seconds. You can continue if you are ok with this.</source>
@@ -6743,8 +6743,8 @@ Go to File &gt; Open Wallet to load a wallet.
         <translation>تم إنشاء قائمة الانتظار الأخيرة مؤخرًا.</translation>
     </message>
     <message>
-        <source>%s corrupt. Try using the wallet tool vivo-wallet to salvage or restoring a backup.</source>
-        <translation>%s تالف. حاول استخدام vivo-wallet لأداة المحفظة لإنقاذ أو استعادة نسخة احتياطية.</translation>
+        <source>%s corrupt. Try using the wallet tool dash-wallet to salvage or restoring a backup.</source>
+        <translation>%s تالف. حاول استخدام dash-wallet لأداة المحفظة لإنقاذ أو استعادة نسخة احتياطية.</translation>
     </message>
     <message>
         <source>%s is set very high! Fees this large could be paid on a single transaction.</source>

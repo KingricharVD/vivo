@@ -1,4 +1,4 @@
-// Copyright (c) 2026 The Vivo Core developers
+// Copyright (c) 2026 The Dash Core developers
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
@@ -1759,7 +1759,7 @@ void RegisterMasternodeWizard::populateResult(const QString& pro_tx_hash)
                     "inactive until then.");
     }
     if (isEvo()) {
-        steps << tr("Provision the Vivo Platform services (Tendervivo and Drive) with the Platform node key matching "
+        steps << tr("Provision the Vivo Platform services (Tenderdash and Drive) with the Platform node key matching "
                     "the node ID you registered.");
         steps << tr("The EvoNode becomes active once the registration is confirmed and the first update is signed by "
                     "the operator.");

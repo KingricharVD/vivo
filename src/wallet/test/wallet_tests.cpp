@@ -1005,7 +1005,7 @@ BOOST_FIXTURE_TEST_CASE(ZapSelectTx, TestChain100Setup)
     TestUnloadWallet(context, std::move(wallet));
 }
 
-/* --------------------------- Vivo-specific tests start here --------------------------- */
+/* --------------------------- Dash-specific tests start here --------------------------- */
 namespace {
 constexpr CAmount fallbackFee = 1000;
 } // anonymous namespace
@@ -1301,7 +1301,7 @@ BOOST_FIXTURE_TEST_CASE(CreateTransactionTest, CreateTransactionTestSetup)
         }
     };
 
-    // First run the tests with only one input containing 100k duffs
+    // First run the tests with only one input containing 100k VLVOs
     {
         coinControl = CCoinControl();
         coinControl.m_allow_other_inputs = false;

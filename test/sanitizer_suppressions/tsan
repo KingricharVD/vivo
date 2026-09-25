@@ -20,7 +20,7 @@ race:bitcoin-qt
 deadlock:Chainstate::ConnectTip
 deadlock:wallet_tests::CreateWallet
 
-# deadlock false positive (see: https://github.com/vivopay/vivo/pull/4563)
+# deadlock false positive (see: https://github.com/dashpay/dash/pull/4563)
 deadlock:Chainstate::ConnectTip
 
 # Intentional deadlock in tests
@@ -39,7 +39,7 @@ deadlock:libdb
 race:libzmq
 
 # Data race in mimalloc metadata allocator during concurrent BLS worker thread execution
-# https://github.com/vivopay/vivo/issues/7558
+# https://github.com/dashpay/dash/issues/7558
 race:_mi_meta_zalloc
 race:_mi_heap_init
 

@@ -1,5 +1,5 @@
 # Copyright (c) 2013-2016 The Bitcoin Core developers
-# Copyright (c) 2014-2018 The Vivo Core developers
+# Copyright (c) 2014-2018 The Dash Core developers
 # Distributed under the MIT software license, see the accompanying
 # file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
@@ -11,7 +11,7 @@ endif
 
 EXTRA_LIBRARIES += qt/libbitcoinqt.a
 
-# vivo qt core #
+# dash qt core #
 include Makefile.qt_locale.include
 
 QT_FORMS_UI = \
@@ -457,7 +457,7 @@ QT_FORMS_H=$(join $(dir $(QT_FORMS_UI)),$(addprefix ui_, $(notdir $(QT_FORMS_UI:
 $(QT_MOC): $(QT_FORMS_H)
 $(qt_libbitcoinqt_a_OBJECTS) $(qt_vivo_qt_OBJECTS) $(vivo_gui_OBJECTS): | $(QT_MOC)
 
-# vivo-qt binary and vivo-gui binaries #
+# dash-qt binary and dash-gui binaries #
 bitcoin_qt_cppflags = $(AM_CPPFLAGS) $(BITCOIN_INCLUDES) $(BITCOIN_QT_INCLUDES) \
   $(QT_INCLUDES) $(QR_CFLAGS)
 bitcoin_qt_cxxflags = $(AM_CXXFLAGS) $(QT_PIE_FLAGS)

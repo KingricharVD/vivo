@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 # Copyright (c) 2014-2020 The Bitcoin Core developers
-# Copyright (c) 2023-2025 The Vivo Core developers
+# Copyright (c) 2023-2025 The Dash Core developers
 # Distributed under the MIT software license, see the accompanying
 # file COPYING or http://www.opensource.org/licenses/mit-license.php.
 """Test the -alertnotify, -blocknotify, -chainlocknotify, -instantsendnotify and -walletnotify options."""
@@ -9,7 +9,7 @@ import platform
 
 from test_framework.address import ADDRESS_BCRT1_UNSPENDABLE
 
-from test_framework.test_framework import VivoTestFramework
+from test_framework.test_framework import DashTestFramework
 from test_framework.util import (
     assert_equal,
 )
@@ -25,12 +25,12 @@ def notify_outputname(walletname, txid):
     return txid if platform.system() == 'Windows' else f'{walletname}_{txid}'
 
 
-class NotificationsTest(VivoTestFramework):
+class NotificationsTest(DashTestFramework):
     def add_options(self, parser):
         self.add_wallet_options(parser)
 
     def set_test_params(self):
-        self.set_vivo_test_params(6, 4)
+        self.set_dash_test_params(6, 4)
 
     def setup_network(self):
         self.wallet = ''.join(chr(i) for i in range(FILE_CHAR_START, FILE_CHAR_END) if chr(i) not in FILE_CHARS_DISALLOWED)

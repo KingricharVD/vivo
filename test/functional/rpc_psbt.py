@@ -53,7 +53,7 @@ class PSBTTest(BitcoinTestFramework):
         self.skip_if_no_wallet()
 
     def run_test(self):
-        # Create and fund a raw tx for sending 10 DASH
+        # Create and fund a raw tx for sending 10 VIVO
         psbtx1 = self.nodes[0].walletcreatefundedpsbt([], {self.nodes[2].getnewaddress():10})['psbt']
 
         # If inputs are specified, do not automatically add more:
@@ -263,7 +263,7 @@ class PSBTTest(BitcoinTestFramework):
                                 self.nodes[0].converttopsbt, hexstring=signedtx['hex'])  # permitsigdata=False by default
         assert_raises_rpc_error(-22, "Inputs must not have scriptSigs",
                                 self.nodes[0].converttopsbt, hexstring=signedtx['hex'], permitsigdata=False)
-        # Note: iswitness parameter is not supported by Vivo's converttopsbt (no SegWit witness support)
+        # Note: iswitness parameter is not supported by Dash's converttopsbt (no SegWit witness support)
         # Unless we allow it to convert and strip signatures
         self.nodes[0].converttopsbt(hexstring=signedtx['hex'], permitsigdata=True)
 

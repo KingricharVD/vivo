@@ -74,9 +74,9 @@ def bctest(testDir, testObj, buildenv):
     """
     # Get the exec names and arguments
     execprog = os.path.join(buildenv["BUILDDIR"], "src", testObj["exec"] + buildenv["EXEEXT"])
-    if testObj["exec"] == "./vivo-util":
+    if testObj["exec"] == "./dash-util":
         execprog = os.getenv("DASHUTIL", default=execprog)
-    elif testObj["exec"] == "./vivo-tx":
+    elif testObj["exec"] == "./dash-tx":
         execprog = os.getenv("DASHTX", default=execprog)
 
     execargs = testObj['args']
@@ -160,7 +160,7 @@ def bctest(testDir, testObj, buildenv):
         want_error = testObj["error_txt"]
         # Compare error text
         # TODO: ideally, we'd compare the strings exactly and also assert
-        # That stderr is empty if no errors are expected. However, vivo-tx
+        # That stderr is empty if no errors are expected. However, dash-tx
         # emits DISPLAY errors when running as a windows application on
         # linux through wine. Just assert that the expected error text appears
         # somewhere in stderr.

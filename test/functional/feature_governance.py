@@ -1,14 +1,14 @@
 #!/usr/bin/env python3
-# Copyright (c) 2018-2025 The Vivo Core developers
+# Copyright (c) 2018-2025 The Dash Core developers
 # Distributed under the MIT software license, see the accompanying
 # file COPYING or http://www.opensource.org/licenses/mit-license.php.
-"""Tests around vivo governance."""
+"""Tests around dash governance."""
 
 import json
 
 from test_framework.messages import uint256_to_string
 from test_framework.test_framework import (
-    VivoTestFramework,
+    DashTestFramework,
     MasternodeInfo,
 )
 from test_framework.governance import have_trigger_for_height, prepare_object
@@ -16,12 +16,12 @@ from test_framework.util import assert_equal, satoshi_round
 
 GOVERNANCE_UPDATE_MIN = 60 * 60 # src/governance/object.h
 
-class VivoGovernanceTest (VivoTestFramework):
+class DashGovernanceTest (DashTestFramework):
     def add_options(self, parser):
         self.add_wallet_options(parser)
 
     def set_test_params(self):
-        self.set_vivo_test_params(6, 5, [[
+        self.set_dash_test_params(6, 5, [[
             "-budgetparams=10:10:10",
         ]] * 6)
         self.delay_v20_and_mn_rr(height=160)
@@ -392,4 +392,4 @@ class VivoGovernanceTest (VivoTestFramework):
 
 
 if __name__ == '__main__':
-    VivoGovernanceTest().main()
+    DashGovernanceTest().main()

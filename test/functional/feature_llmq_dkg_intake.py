@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-# Copyright (c) 2026 The Vivo Core developers
+# Copyright (c) 2026 The Dash Core developers
 # Distributed under the MIT software license, see the accompanying
 # file COPYING or http://www.opensource.org/licenses/mit-license.php.
 """
@@ -36,7 +36,7 @@ from test_framework.messages import (
     uint256_from_str,
 )
 from test_framework.p2p import P2PInterface
-from test_framework.test_framework import VivoTestFramework
+from test_framework.test_framework import DashTestFramework
 from test_framework.util import wait_until_helper
 
 LLMQ_TEST = 100
@@ -112,7 +112,7 @@ def send_requested_qcontrib(peer, payload):
     peer.sync_with_ping()
 
 
-class DkgIntakeTest(VivoTestFramework):
+class DkgIntakeTest(DashTestFramework):
     def add_options(self, parser):
         self.add_wallet_options(parser)
 
@@ -128,7 +128,7 @@ class DkgIntakeTest(VivoTestFramework):
             "-deprecatedrpc=banscore",
         ]
         extra_args = [common_args + ["-watchquorums=1"]] + [common_args] * 3
-        self.set_vivo_test_params(4, 3, extra_args=extra_args)
+        self.set_dash_test_params(4, 3, extra_args=extra_args)
 
     def quorum_hash_prefix(self):
         # llmqType (1 byte) + quorumHash (32 bytes, little-endian) -- the on-wire prefix

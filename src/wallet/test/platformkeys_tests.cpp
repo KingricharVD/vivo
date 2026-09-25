@@ -1,4 +1,4 @@
-// Copyright (c) 2026 The Vivo Core developers
+// Copyright (c) 2026 The Dash Core developers
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
@@ -33,7 +33,7 @@ using namespace wallet::platformkeys;
 
 BOOST_FIXTURE_TEST_SUITE(platformkeys_tests, BasicTestingSetup)
 
-//! Seed shared by all DIP-14 test vectors (vivopay/dips dip-0014.md), from
+//! Seed shared by all DIP-14 test vectors (dashpay/dips dip-0014.md), from
 //! mnemonic "birth kingdom trash renew flavor utility donkey gasp regular
 //! alert pave layer".
 static SecureVector Dip14Seed()
@@ -164,9 +164,9 @@ BOOST_AUTO_TEST_CASE(dip14_public_derivation_matches)
 }
 
 //! Cross-implementation vector: the same friendship path derived by
-//! rust-vivocore's key-wallet crate (`key_wallet::bip32` with
+//! rust-dashcore's key-wallet crate (`key_wallet::bip32` with
 //! `ChildNumber::Normal256` — the derivation backend behind
-//! vivowallet-ios/android via rs-platform-wallet) from this seed and these
+//! dashwallet-ios/android via rs-platform-wallet) from this seed and these
 //! identity ids yields exactly these key bytes. The identity ids are
 //! asymmetric byte sequences, so a byte-order reversal anywhere between the
 //! raw Platform identifier bytes and the DIP-14 256-bit index would change
@@ -174,7 +174,7 @@ BOOST_AUTO_TEST_CASE(dip14_public_derivation_matches)
 //! the path exactly as Platform serves them (big-endian number, the same
 //! bytes base58-encoded in identity ids) — callers must not round-trip them
 //! through uint256S() of a natural-order hex string, which reverses.
-//! Vector generated with key-wallet at rust-vivocore 36b49cb7f9c0:
+//! Vector generated with key-wallet at rust-dashcore 36b49cb7f9c0:
 //!   seed = Dip14Seed(), path m/9'/1'/15'/0'/(id_a)/(id_b).
 BOOST_AUTO_TEST_CASE(friendship_derivation_matches_key_wallet)
 {
@@ -195,7 +195,7 @@ BOOST_AUTO_TEST_CASE(friendship_derivation_matches_key_wallet)
 }
 
 //! ECDH secrets must be symmetric and match the libsecp256k1 KDF
-//! (SHA256 of compressed shared point), as used by VivoPay contact requests.
+//! (SHA256 of compressed shared point), as used by DashPay contact requests.
 BOOST_AUTO_TEST_CASE(ecdh_symmetry)
 {
     CKey a, b;
@@ -490,7 +490,7 @@ BOOST_FIXTURE_TEST_CASE(invalid_mnemonic_does_not_change_platform_keys, Friendsh
     BOOST_CHECK(result.value == expected.key.GetPubKey());
 }
 
-//! VivoPay is descriptor-wallet-only: a legacy wallet must be refused even
+//! DashPay is descriptor-wallet-only: a legacy wallet must be refused even
 //! with a perfectly recoverable HD chain seed, so no Platform keys can be
 //! created that a later wallet migration would orphan.
 BOOST_FIXTURE_TEST_CASE(legacy_wallet_has_no_platform_keys, FriendshipWalletSetup)
@@ -517,7 +517,7 @@ BOOST_FIXTURE_TEST_CASE(legacy_wallet_has_no_platform_keys, FriendshipWalletSetu
 
 //! Two independent wallet instances restored from the same recovery phrase:
 //! the second is what a seed-only restore produces (fresh wallet database, no
-//! platform records). Everything VivoPay derives from the seed must come out
+//! platform records). Everything DashPay derives from the seed must come out
 //! identical on both.
 struct SeededWalletPair : public Dip14WalletSetup {
     SeededWalletPair() { std::tie(m_wallet_b, m_iface_b) = MakeSeededWallet(SecureString{DIP14_MNEMONIC}); }

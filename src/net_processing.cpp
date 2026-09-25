@@ -196,7 +196,7 @@ static constexpr auto INBOUND_INVENTORY_BROADCAST_INTERVAL{5s};
 static constexpr auto OUTBOUND_INVENTORY_BROADCAST_INTERVAL{2s};
 /** Maximum rate of inventory items to send per second.
  *  Limits the impact of low-fee transaction floods.
- *  We have 4 times smaller block times in Vivo, so we need to push 4 times more invs per 1MB. */
+ *  We have 4 times smaller block times in Dash, so we need to push 4 times more invs per 1MB. */
 static constexpr unsigned int INVENTORY_BROADCAST_PER_SECOND = 7;
 /** Maximum number of inventory items to send per transmission. */
 static constexpr unsigned int INVENTORY_BROADCAST_MAX_PER_1MB_BLOCK = 4 * INVENTORY_BROADCAST_PER_SECOND * count_seconds(INBOUND_INVENTORY_BROADCAST_INTERVAL);
@@ -335,7 +335,7 @@ struct Peer {
 
     /**
      * (Bitcoin) Initializes a TxRelay struct for this peer. Can be called at most once for a peer.
-     * (Vivo)    Enables the flag that allows GetTxRelay() to return m_tx_relay */
+     * (Dash)    Enables the flag that allows GetTxRelay() to return m_tx_relay */
     TxRelay* SetTxRelay() EXCLUSIVE_LOCKS_REQUIRED(!m_tx_relay_mutex)
     {
         LOCK(m_tx_relay_mutex);
@@ -444,7 +444,7 @@ private:
 
     /** Transaction relay data.
      * (Bitcoin) Transaction relay data. May be a nullptr.
-     * (Vivo)    Always initialized but selectively available through GetTxRelay()
+     * (Dash)    Always initialized but selectively available through GetTxRelay()
      *           (non-transaction relay should use GetInvRelay(), which will provide
      *           unconditional access) */
     std::unique_ptr<TxRelay> m_tx_relay GUARDED_BY(m_tx_relay_mutex){std::make_unique<TxRelay>()};
@@ -1104,7 +1104,7 @@ private:
     /** Storage for orphan information */
     TxOrphanage m_orphanage;
 
-    /** Tracks announced inventories (transactions and all Vivo-specific object types), and which
+    /** Tracks announced inventories (transactions and all Dash-specific object types), and which
      *  peer to request them from next. All policy (preferredness, delays, per-type expiry) is
      *  decided by the callers; see AddObjectAnnouncement and the getdata section of SendMessages.
      *  Acquire cs_main before m_object_request_mutex when both are needed. */
@@ -1607,7 +1607,7 @@ bool IsGetDataOnlyObject(int invType)
     //
     // Not every inv-driven type belongs here. QSIGREC (proactive relay to peers that sent
     // QSENDRECSIGS), MSG_DSQ (SENDDSQUEUE), ISDLOCK (pushed alongside MERKLEBLOCK for BIP37 clients),
-    // SPORK (bulk push in reply to GETSPORKS) and PLATFORMBAN (injected by a Vivo Platform node)
+    // SPORK (bulk push in reply to GETSPORKS) and PLATFORMBAN (injected by a Dash Platform node)
     // all have a legitimate unsolicited-push path.
     switch (invType) {
         case MSG_CLSIG:
@@ -1640,8 +1640,8 @@ void PeerManagerImpl::AddObjectAnnouncement(const CNode& node, const CInv& inv, 
     // - "reqtime": current time plus delays for:
     //   - NONPREF_PEER_TX_DELAY for MSG_TX announcements from non-preferred connections. Other
     //     object types -- including MSG_DSTX (used for the orphan-parent fetch, which wants the
-    //     CoinJoin metadata) and the Vivo-specific consensus types -- are never delayed, and
-    //     neither is anything in masternode mode. This matches the pre-txrequest Vivo behavior.
+    //     CoinJoin metadata) and the Dash-specific consensus types -- are never delayed, and
+    //     neither is anything in masternode mode. This matches the pre-txrequest Dash behavior.
     //   - OVERLOADED_PEER_OBJECT_DELAY for announcements from peers which have at least
     //     MAX_PEER_OBJECT_REQUEST_IN_FLIGHT requests in flight.
     const bool preferred = state->fPreferredDownload;
@@ -2370,7 +2370,7 @@ bool PeerManagerImpl::AlreadyHave(const CInv& inv)
         }
 
     /*
-        Vivo Related Inventory Messages
+        Dash Related Inventory Messages
 
         --
 
@@ -3798,8 +3798,8 @@ MessageProcessingResult PeerManagerImpl::ProcessPlatformBanMessage(NodeId node, 
     LogPrintf("PLATFORMBAN -- hash: %s protx_hash: %s height: %d peer=%d\n", hash.ToString(), ban_msg.m_protx_hash.ToString(), ban_msg.m_requested_height, node);
 
     // NOTE: deliberately no solicitation gate here, unlike the other GETDATA-only object types.
-    // PLATFORMBAN has no local ingress (no RPC, no internal producer): the originating Vivo
-    // Platform node injects the ban by pushing the message straight to a Vivo Core peer, so the
+    // PLATFORMBAN has no local ingress (no RPC, no internal producer): the originating Dash
+    // Platform node injects the ban by pushing the message straight to a Dash Core peer, so the
     // first hop is always unsolicited by design. See p2p_platform_ban.py.
     MessageProcessingResult ret{};
     ret.m_to_erase = CInv{MSG_PLATFORM_BAN, hash};
@@ -5296,7 +5296,7 @@ void PeerManagerImpl::ProcessMessage(
         LogPrint(BCLog::NET, "received block %s peer=%d\n", pblock->GetHash().ToString(), pfrom.GetId());
 
         // Check for possible mutation as a defence-in-depth mitigation against
-        // attacks that leverage mutated blocks. Vivo has no witness commitment,
+        // attacks that leverage mutated blocks. Dash has no witness commitment,
         // so this reduces to the merkle-root / 64-byte-transaction malleation
         // checks and can be performed unconditionally.
         if (IsBlockMutated(/*block=*/*pblock)) {
@@ -6234,7 +6234,7 @@ bool PeerManagerImpl::SendMessages(CNode* pto)
 {
     // VIVO_R5G1B_R1_POST_FORK_EXISTING_PEER_DISCONNECT
     // A peer connected before V2 must not remain on protocol <70250
-    // after the V2 activation block becomes active.
+    // beginning with height nVivoV2Height + 1 (mainnet 2176697).
     {
         LOCK(cs_main);
         const int vivo_min_peer_protocol = GetVivoMinimumPeerProtocolVersion(
@@ -6798,7 +6798,7 @@ bool PeerManagerImpl::SendMessages(CNode* pto)
     // Message: getdata (non-blocks)
     //
 
-    // DASH unlike Bitcoin, this loop requests all Vivo-specific object types too. The request
+    // DASH unlike Bitcoin, this loop requests all Dash-specific object types too. The request
     // expiry doubles as the fallback-to-another-peer trigger, so time-sensitive object types
     // use a shorter per-type interval (see GetObjectInterval).
     std::vector<std::pair<NodeId, CInv>> expired;

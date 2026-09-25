@@ -1,4 +1,4 @@
-module github.com/vivopay/bls-signatures/go-bindings
+module github.com/dashpay/bls-signatures/go-bindings
 
 go 1.15
 

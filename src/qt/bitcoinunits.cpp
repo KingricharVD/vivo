@@ -1,5 +1,5 @@
 // Copyright (c) 2011-2021 The Bitcoin Core developers
-// Copyright (c) 2014-2025 The Vivo Core developers
+// Copyright (c) 2014-2025 The Dash Core developers
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
@@ -27,7 +27,7 @@ QList<BitcoinUnit> BitcoinUnits::availableUnits()
     unitlist.append(Unit::DASH);
     unitlist.append(Unit::mDASH);
     unitlist.append(Unit::uDASH);
-    unitlist.append(Unit::duffs);
+    unitlist.append(Unit::VLVOs);
     return unitlist;
 }
 
@@ -38,7 +38,7 @@ QString BitcoinUnits::name(Unit unit)
     case Unit::DASH:  return is_mainnet ? QString("VIVO") : QString("tVIVO");
     case Unit::mDASH: return is_mainnet ? QString("mVIVO") : QString("mtVIVO");
     case Unit::uDASH: return is_mainnet ? QString::fromUtf8("μVIVO") : QString::fromUtf8("μtVIVO");
-    case Unit::duffs: return is_mainnet ? QString("duffs") : QString("tduffs");
+    case Unit::VLVOs: return is_mainnet ? QString("VLVOs") : QString("tduffs");
     } // no default case, so the compiler can warn about missing cases
     assert(false);
 }
@@ -50,7 +50,7 @@ QString BitcoinUnits::description(Unit unit)
     case Unit::DASH:  return QString("%1Vivo");
     case Unit::mDASH: return QString("Milli-%1Vivo (1 / 1" THIN_SP_UTF8 "000)").arg(maybe_prefix);
     case Unit::uDASH: return QString("Micro-%1Vivo (1 / 1" THIN_SP_UTF8 "000" THIN_SP_UTF8 "000)").arg(maybe_prefix);
-    case Unit::duffs: return QString("Ten Nano-%1Vivo (1 / 100" THIN_SP_UTF8 "000" THIN_SP_UTF8 "000)").arg(maybe_prefix);
+    case Unit::VLVOs: return QString("Ten Nano-%1Vivo (1 / 100" THIN_SP_UTF8 "000" THIN_SP_UTF8 "000)").arg(maybe_prefix);
     } // no default case, so the compiler can warn about missing cases
     assert(false);
 }
@@ -61,7 +61,7 @@ qint64 BitcoinUnits::factor(Unit unit)
     case Unit::DASH:  return 100'000'000;
     case Unit::mDASH: return 100'000;
     case Unit::uDASH: return 100;
-    case Unit::duffs: return 1;
+    case Unit::VLVOs: return 1;
     } // no default case, so the compiler can warn about missing cases
     assert(false);
 }
@@ -72,7 +72,7 @@ int BitcoinUnits::decimals(Unit unit)
     case Unit::DASH:  return 8;
     case Unit::mDASH: return 5;
     case Unit::uDASH: return 2;
-    case Unit::duffs: return 0;
+    case Unit::VLVOs: return 0;
     } // no default case, so the compiler can warn about missing cases
     assert(false);
 }
@@ -255,7 +255,7 @@ qint8 ToQint8(BitcoinUnit unit)
     case BitcoinUnit::DASH: return 0;
     case BitcoinUnit::mDASH: return 1;
     case BitcoinUnit::uDASH: return 2;
-    case BitcoinUnit::duffs: return 3;
+    case BitcoinUnit::VLVOs: return 3;
     } // no default case, so the compiler can warn about missing cases
     assert(false);
 }
@@ -266,7 +266,7 @@ BitcoinUnit FromQint8(qint8 num)
     case 0: return BitcoinUnit::DASH;
     case 1: return BitcoinUnit::mDASH;
     case 2: return BitcoinUnit::uDASH;
-    case 3: return BitcoinUnit::duffs;
+    case 3: return BitcoinUnit::VLVOs;
     }
     assert(false);
 }

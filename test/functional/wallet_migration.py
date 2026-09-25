@@ -96,7 +96,7 @@ class WalletMigrationTest(BitcoinTestFramework):
         # * BIP44 descriptors in the form of "44h/1h/0h/0/*" and "44h/1h/0h/1/*" (2 descriptors)
         # * Inactive DIP0009 CoinJoin: pkh(xpub/9h/1h/4h/0h/0/*) (1 descriptor)
         # * Inactive Migration descriptors for the legacy HD keys (2 combo descriptors)
-        # Vivo uses the same BIP44 paths for both legacy and descriptor wallets, but
+        # Dash uses the same BIP44 paths for both legacy and descriptor wallets, but
         # combo descriptor can not be active
         # So, should have a total of 5 descriptors on it.
         assert_equal(len(basic0.listdescriptors()["descriptors"]), 5)
@@ -162,7 +162,7 @@ class WalletMigrationTest(BitcoinTestFramework):
         self.assert_list_txs_equal(basic1.listtransactions(), txs)
 
         self.log.info("Test migration of a wallet with balance received on seed-derived addresses")
-        # Unlike Bitcoin Core, Vivo's sethdseed does NOT register the raw seed
+        # Unlike Bitcoin Core, Dash's sethdseed does NOT register the raw seed
         # privkey in mapKeys, so the seed pubkey's own P2PKH is never IsMine.
         # We must therefore receive on BIP44 children of the seed (the same
         # addresses sethdseed's NewKeyPool derives into the legacy wallet) and

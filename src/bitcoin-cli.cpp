@@ -1,6 +1,6 @@
 // Copyright (c) 2009-2010 Satoshi Nakamoto
 // Copyright (c) 2009-2021 The Bitcoin Core developers
-// Copyright (c) 2014-2025 The Vivo Core developers
+// Copyright (c) 2014-2025 The Dash Core developers
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
@@ -399,7 +399,7 @@ private:
         }
         return UNKNOWN_NETWORK;
     }
-    uint8_t m_details_level{0}; //!< Optional user-supplied arg to set vivoboard details level
+    uint8_t m_details_level{0}; //!< Optional user-supplied arg to set dashboard details level
     bool DetailsRequested() const { return m_details_level > 0 && m_details_level < 5; }
     bool IsAddressSelected() const { return m_details_level == 2 || m_details_level == 4; }
     bool IsVersionSelected() const { return m_details_level == 3 || m_details_level == 4; }
@@ -633,22 +633,22 @@ public:
 
     const std::string m_help_doc{
         "-netinfo level|\"help\" \n\n"
-        "Returns a network peer connections vivoboard with information from the remote server.\n"
+        "Returns a network peer connections dashboard with information from the remote server.\n"
         "This human-readable interface will change regularly and is not intended to be a stable API.\n"
         "Under the hood, -netinfo fetches the data by calling getpeerinfo and getnetworkinfo.\n"
         + strprintf("An optional integer argument from 0 to %d can be passed for different peers listings; %d to 255 are parsed as %d.\n", MAX_DETAIL_LEVEL, MAX_DETAIL_LEVEL, MAX_DETAIL_LEVEL) +
         "Pass \"help\" to see this detailed help documentation.\n"
         "If more than one argument is passed, only the first one is read and parsed.\n"
-        "Suggestion: use with the Linux watch(1) command for a live vivoboard; see example below.\n\n"
+        "Suggestion: use with the Linux watch(1) command for a live dashboard; see example below.\n\n"
         "Arguments:\n"
-        + strprintf("1. level (integer 0-%d, optional)  Specify the info level of the peers vivoboard (default 0):\n", MAX_DETAIL_LEVEL) +
+        + strprintf("1. level (integer 0-%d, optional)  Specify the info level of the peers dashboard (default 0):\n", MAX_DETAIL_LEVEL) +
         "                                  0 - Peer counts for each reachable network as well as for block relay peers\n"
         "                                      and manual peers, and the list of local addresses and ports\n"
         "                                  1 - Like 0 but preceded by a peers listing (without address and version columns)\n"
         "                                  2 - Like 1 but with an address column\n"
         "                                  3 - Like 1 but with a version column\n"
         "                                  4 - Like 1 but with both address and version columns\n"
-        "2. help (string \"help\", optional) Print this help documentation instead of the vivoboard.\n\n"
+        "2. help (string \"help\", optional) Print this help documentation instead of the dashboard.\n\n"
         "Result:\n\n"
         + strprintf("* The peers listing in levels 1-%d displays all of the peers sorted by direction and minimum ping time:\n\n", MAX_DETAIL_LEVEL) +
         "  Column   Description\n"
@@ -691,9 +691,9 @@ public:
         "> vivo-cli -netinfo\n\n"
         "The same, preceded by a peers listing without address and version columns\n"
         "> vivo-cli -netinfo 1\n\n"
-        "Full vivoboard\n"
+        "Full dashboard\n"
         + strprintf("> vivo-cli -netinfo %d\n\n", MAX_DETAIL_LEVEL) +
-        "Full live vivoboard, adjust --interval or --no-title as needed (Linux)\n"
+        "Full live dashboard, adjust --interval or --no-title as needed (Linux)\n"
         + strprintf("> watch --interval 1 --no-title vivo-cli -netinfo %d\n\n", MAX_DETAIL_LEVEL) +
         "See this help\n"
         "> vivo-cli -netinfo help\n"};

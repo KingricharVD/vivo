@@ -115,7 +115,7 @@ public:
      */
     int64_t GetInputWeight(const COutPoint& outpoint) const;
 
-    // Vivo-specific helpers
+    // Dash-specific helpers
     void UseCoinJoin(bool fUseCoinJoin)
     {
         nCoinType = fUseCoinJoin ? CoinType::ONLY_FULLY_MIXED : CoinType::ALL_COINS;

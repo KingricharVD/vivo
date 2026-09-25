@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 
-# Copyright (c) 2022-2025 The Vivo Core developers
+# Copyright (c) 2022-2025 The Dash Core developers
 # Distributed under the MIT software license, see the accompanying
 # file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
@@ -36,7 +36,7 @@ from test_framework.script_util import (
     key_to_p2pk_script,
     key_to_p2pkh_script,
 )
-from test_framework.test_framework import VivoTestFramework
+from test_framework.test_framework import DashTestFramework
 from test_framework.util import (
     assert_equal,
     assert_greater_than,
@@ -53,12 +53,12 @@ tiny_amount = int(Decimal("0.0007") * COIN)
 blocks_in_one_day = 100
 HEIGHT_DIFF_EXPIRING = 48
 
-class AssetLocksTest(VivoTestFramework):
+class AssetLocksTest(DashTestFramework):
     def add_options(self, parser):
         self.add_wallet_options(parser)
 
     def set_test_params(self):
-        self.set_vivo_test_params(2, 0, [[
+        self.set_dash_test_params(2, 0, [[
                 "-whitelist=127.0.0.1",
                 "-llmqtestinstantsenddip0024=llmq_test_instantsend",
                 "-acceptnonstdtxn=1",
@@ -273,7 +273,7 @@ class AssetLocksTest(VivoTestFramework):
 
     # This functional test intentionally setup only 2 MN and only 2 Evo nodes
     # to ensure that corner case of quorum with minimum amount of nodes as possible
-    # does not cause any issues in Vivo Core
+    # does not cause any issues in Dash Core
     def mine_quorum_2_nodes(self):
         self.mine_quorum(llmq_type_name='llmq_test_platform', expected_members=2, expected_connections=1, expected_contributions=2, expected_commitments=2, llmq_type=106)
 
@@ -822,9 +822,9 @@ class AssetLocksTest(VivoTestFramework):
 
         self.log.info("Spending RPCs refuse to pay a Platform address before the fork")
         assert_raises_rpc_error(-8, "only valid after v24 activation", node_wallet.sendtoaddress,
-                                encode_platform_p2pkh('tvivo', hash160(pubkey)), 1)
+                                encode_platform_p2pkh('tdash', hash160(pubkey)), 1)
         assert_raises_rpc_error(-8, "only valid after v24 activation", node_wallet.sendmany, "",
-                                {encode_platform_p2pkh('tvivo', hash160(pubkey)): 1})
+                                {encode_platform_p2pkh('tdash', hash160(pubkey)): 1})
 
     def test_asset_locks_v2(self, node_wallet, node, pubkey):
         self.log.info("Testing asset lock v2 after v24 activation...")
@@ -842,7 +842,7 @@ class AssetLocksTest(VivoTestFramework):
         self.send_tx(lock_tx_v2)
 
         # v2 via sendtoaddress (two different platform addresses)
-        platform_addr_from_key = encode_platform_p2pkh('tvivo', hash160(pubkey))
+        platform_addr_from_key = encode_platform_p2pkh('tdash', hash160(pubkey))
         txid1 = node_wallet.sendtoaddress(platform_addr_from_key, 1.0)
 
         self.log.info("Test subtractfeefromamount for platform sendtoaddress")
@@ -873,7 +873,7 @@ class AssetLocksTest(VivoTestFramework):
         # verify v2 raw tx JSON
         rpc_v2 = node.getrawtransaction(lock_tx_v2.rehash(), 1)
         assert_equal(rpc_v2['assetLockTx']['version'], 2)
-        assert rpc_v2['assetLockTx']['creditOutputs'][0]['address'].startswith('tvivo1')
+        assert rpc_v2['assetLockTx']['creditOutputs'][0]['address'].startswith('tdash1')
 
         # verify v2 sendtoaddress tx JSON
         raw1 = node.getrawtransaction(txid1, 1)
@@ -929,7 +929,7 @@ class AssetLocksTest(VivoTestFramework):
         self.log.info("The wallet refuses to build a v2 asset lock the local mempool would reject")
         self.restart_node(0, self.extra_args[0] + ["-acceptnonstdtxn=0"])
         assert_raises_rpc_error(-6, "assetlocktx-version-2", node_wallet.sendtoaddress,
-                                encode_platform_p2pkh('tvivo', hash160(pubkey)), 1)
+                                encode_platform_p2pkh('tdash', hash160(pubkey)), 1)
         self.restart_node(0, self.extra_args[0])
 
         self.restart_node(1, self.extra_args[1])

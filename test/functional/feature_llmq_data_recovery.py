@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-# Copyright (c) 2021-2025 The Vivo Core developers
+# Copyright (c) 2021-2025 The Dash Core developers
 # Distributed under the MIT software license, see the accompanying
 # file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
@@ -7,7 +7,7 @@ import time
 from typing import List, Optional
 from test_framework.p2p import logger
 from test_framework.test_framework import (
-    VivoTestFramework,
+    DashTestFramework,
     MasternodeInfo,
 )
 
@@ -25,14 +25,14 @@ llmq_test_v17 = 102
 llmq_type_strings = {llmq_test: 'llmq_test', llmq_test_v17: 'llmq_test_v17'}
 
 
-class QuorumDataRecoveryTest(VivoTestFramework):
+class QuorumDataRecoveryTest(DashTestFramework):
     def add_options(self, parser):
         self.add_wallet_options(parser)
 
     def set_test_params(self):
         extra_args = [["-vbparams=testdummy:0:999999999999:0:10:8:6:5:-1"] for _ in range(7)]
-        self.set_vivo_test_params(7, 6, extra_args=extra_args)
-        self.set_vivo_llmq_test_params(4, 3)
+        self.set_dash_test_params(7, 6, extra_args=extra_args)
+        self.set_dash_llmq_test_params(4, 3)
 
     def restart_mns(self, mns=None, exclude=None, reindex=False, qvvec_sync=None, qdata_recovery_enabled=True):
         if qvvec_sync is None:

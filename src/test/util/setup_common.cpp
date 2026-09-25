@@ -155,10 +155,10 @@ struct NetworkSetup
 };
 static NetworkSetup g_networksetup_instance;
 
-BasicTestingSetup::BasicTestingSetup(const std::string& chainName, const std::vector<const char*>& extra_args, bool vivo_dbs_in_memory)
+BasicTestingSetup::BasicTestingSetup(const std::string& chainName, const std::vector<const char*>& extra_args, bool dash_dbs_in_memory)
     : m_path_root{fs::temp_directory_path() / "test_common_" PACKAGE_NAME / g_insecure_rand_ctx_temp_path.rand256().ToString()},
       m_args{},
-      m_vivo_dbs_in_memory{vivo_dbs_in_memory}
+      m_dash_dbs_in_memory{dash_dbs_in_memory}
 {
     m_node.args = &gArgs;
     std::vector<const char*> arguments = Cat(
@@ -232,9 +232,9 @@ BasicTestingSetup::BasicTestingSetup(const std::string& chainName, const std::ve
     m_node.netfulfilledman = std::make_unique<CNetFulfilledRequestManager>();
     m_node.sporkman = std::make_unique<CSporkManager>();
     m_node.chainlocks = std::make_unique<chainlock::Chainlocks>(*m_node.sporkman);
-    m_node.evodb = std::make_unique<CEvoDB>(util::DbWrapperParams{.path = m_node.args->GetDataDirNet(), .memory = m_vivo_dbs_in_memory, .wipe = true});
+    m_node.evodb = std::make_unique<CEvoDB>(util::DbWrapperParams{.path = m_node.args->GetDataDirNet(), .memory = m_dash_dbs_in_memory, .wipe = true});
     m_node.dmnman = std::make_unique<CDeterministicMNManager>(*m_node.evodb, *m_node.mn_metaman);
-    m_node.isman = std::make_unique<llmq::CInstantSendManager>(*m_node.sporkman, util::DbWrapperParams{.path = m_node.args->GetDataDirNet(), .memory = m_vivo_dbs_in_memory, .wipe = true});
+    m_node.isman = std::make_unique<llmq::CInstantSendManager>(*m_node.sporkman, util::DbWrapperParams{.path = m_node.args->GetDataDirNet(), .memory = m_dash_dbs_in_memory, .wipe = true});
 
     static bool noui_connected = false;
     if (!noui_connected) {
@@ -267,8 +267,8 @@ BasicTestingSetup::~BasicTestingSetup()
     m_node.args = nullptr;
 }
 
-ChainTestingSetup::ChainTestingSetup(const std::string& chainName, const std::vector<const char*>& extra_args, bool vivo_dbs_in_memory)
-    : BasicTestingSetup(chainName, extra_args, vivo_dbs_in_memory)
+ChainTestingSetup::ChainTestingSetup(const std::string& chainName, const std::vector<const char*>& extra_args, bool dash_dbs_in_memory)
+    : BasicTestingSetup(chainName, extra_args, dash_dbs_in_memory)
 {
     const CChainParams& chainparams = Params();
 
@@ -321,7 +321,7 @@ node::ChainstateLoadOptions ChainTestingSetup::ChainstateLoadOptionsForTest()
     options.data_dir = Assert(m_node.args)->GetDataDirNet();
     options.block_tree_db_in_memory = m_block_tree_db_in_memory;
     options.coins_db_in_memory = m_coins_db_in_memory;
-    options.vivo_dbs_in_memory = m_vivo_dbs_in_memory;
+    options.dash_dbs_in_memory = m_dash_dbs_in_memory;
     options.reindex = node::fReindex;
     options.reindex_chainstate = m_args.GetBoolArg("-reindex-chainstate", false);
     options.prune = node::fPruneMode;
@@ -336,7 +336,7 @@ void ChainTestingSetup::LoadVerifyActivateChainstate()
 {
     auto& chainman{*Assert(m_node.chainman)};
 
-    // peerman and cj_walletman reference llmq_ctx, the mempool and the Vivo
+    // peerman and cj_walletman reference llmq_ctx, the mempool and the Dash
     // managers recreated by the reload below. No test uses them across a
     // reload: destroy them (clearing connman's raw m_msgproc pointer first)
     // so future use after a reload fails on a null pointer instead of
@@ -355,7 +355,7 @@ void ChainTestingSetup::LoadVerifyActivateChainstate()
     node::ChainstateLoadOptions options{ChainstateLoadOptionsForTest()};
 
     if (options.reindex || options.reindex_chainstate) {
-        // A reindex wipes the Vivo databases at open, which AppInitMain does by
+        // A reindex wipes the Dash databases at open, which AppInitMain does by
         // recreating them together with the mempool bound to them. Mirror that
         // here, including the chainlock handler that references the mempool.
         m_node.clhandler.reset();
@@ -363,9 +363,9 @@ void ChainTestingSetup::LoadVerifyActivateChainstate()
         m_node.isman.reset();
         m_node.dmnman.reset();
         m_node.evodb.reset();
-        m_node.evodb = std::make_unique<CEvoDB>(util::DbWrapperParams{.path = m_node.args->GetDataDirNet(), .memory = m_vivo_dbs_in_memory, .wipe = true});
+        m_node.evodb = std::make_unique<CEvoDB>(util::DbWrapperParams{.path = m_node.args->GetDataDirNet(), .memory = m_dash_dbs_in_memory, .wipe = true});
         m_node.dmnman = std::make_unique<CDeterministicMNManager>(*m_node.evodb, *m_node.mn_metaman);
-        m_node.isman = std::make_unique<llmq::CInstantSendManager>(*m_node.sporkman, util::DbWrapperParams{.path = m_node.args->GetDataDirNet(), .memory = m_vivo_dbs_in_memory, .wipe = true});
+        m_node.isman = std::make_unique<llmq::CInstantSendManager>(*m_node.sporkman, util::DbWrapperParams{.path = m_node.args->GetDataDirNet(), .memory = m_dash_dbs_in_memory, .wipe = true});
         m_node.mempool = std::make_unique<CTxMemPool>(MemPoolOptionsForTest(m_node));
         m_node.clhandler = std::make_unique<chainlock::ChainlockHandler>(*m_node.chainlocks, chainman, *m_node.mempool, *m_node.mn_sync);
         options = ChainstateLoadOptionsForTest();
@@ -391,8 +391,8 @@ TestingSetup::TestingSetup(
     const std::vector<const char*>& extra_args,
     const bool coins_db_in_memory,
     const bool block_tree_db_in_memory,
-    const bool vivo_dbs_in_memory)
-    : ChainTestingSetup(chainName, extra_args, vivo_dbs_in_memory)
+    const bool dash_dbs_in_memory)
+    : ChainTestingSetup(chainName, extra_args, dash_dbs_in_memory)
 {
     m_coins_db_in_memory = coins_db_in_memory;
     m_block_tree_db_in_memory = block_tree_db_in_memory;
@@ -466,8 +466,8 @@ TestChain100Setup::TestChain100Setup(
         const std::vector<const char*>& extra_args,
         const bool coins_db_in_memory,
         const bool block_tree_db_in_memory,
-        const bool vivo_dbs_in_memory)
-    : TestChainSetup{100, chain_name, extra_args, coins_db_in_memory, block_tree_db_in_memory, vivo_dbs_in_memory}
+        const bool dash_dbs_in_memory)
+    : TestChainSetup{100, chain_name, extra_args, coins_db_in_memory, block_tree_db_in_memory, dash_dbs_in_memory}
 {
 }
 
@@ -477,8 +477,8 @@ TestChainSetup::TestChainSetup(
         const std::vector<const char*>& extra_args,
         const bool coins_db_in_memory,
         const bool block_tree_db_in_memory,
-        const bool vivo_dbs_in_memory)
-    : TestingSetup{chain_name, extra_args, coins_db_in_memory, block_tree_db_in_memory, vivo_dbs_in_memory}
+        const bool dash_dbs_in_memory)
+    : TestingSetup{chain_name, extra_args, coins_db_in_memory, block_tree_db_in_memory, dash_dbs_in_memory}
 {
     SetMockTime(1598887952);
     constexpr std::array<unsigned char, 32> vchKey = {

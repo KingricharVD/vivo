@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
-# Copyright (c) 2026 The Vivo Core developers
+# Copyright (c) 2026 The Dash Core developers
 # Distributed under the MIT software license, see the accompanying
 # file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
-"""Support C-style cast linting in Vivo-specific C++ code."""
+"""Support C-style cast linting in Dash-specific C++ code."""
 
 import argparse
 import json
@@ -21,7 +21,7 @@ MACRO_EXPANSION_RE = re.compile(r"^(.*?):\d+:\d+: note: expanded from macro .*")
 OLD_STYLE_CAST_DIAGNOSTICS = {"clang-diagnostic-old-style-cast", "google-readability-casting"}
 
 
-def get_vivo_files(source_root: Path) -> list[str]:
+def get_dash_files(source_root: Path) -> list[str]:
     manifest = source_root / "test/util/data/non-backported.txt"
     patterns = [line.strip() for line in manifest.read_text(encoding="utf8").splitlines() if line.strip()]
     result = subprocess.run(
@@ -35,9 +35,9 @@ def get_vivo_files(source_root: Path) -> list[str]:
     return [line for line in result.stdout.splitlines() if line]
 
 
-def is_vivo_file(path: str, vivo_files: set[str]) -> bool:
+def is_dash_file(path: str, dash_files: set[str]) -> bool:
     normalized = path.replace("\\", "/")
-    return any(normalized == vivo_file or normalized.endswith(f"/{vivo_file}") for vivo_file in vivo_files)
+    return any(normalized == dash_file or normalized.endswith(f"/{dash_file}") for dash_file in dash_files)
 
 
 def prepare_compile_database(source_root: Path, input_path: Path, output_dir: Path) -> None:
@@ -53,7 +53,7 @@ def prepare_compile_database(source_root: Path, input_path: Path, output_dir: Pa
 
 
 def filter_diagnostics(source_root: Path, input_stream: TextIO, output_stream: TextIO) -> bool:
-    vivo_files = set(get_vivo_files(source_root))
+    dash_files = set(get_dash_files(source_root))
     group: list[str] = []
     found_violation = False
 
@@ -69,11 +69,11 @@ def filter_diagnostics(source_root: Path, input_stream: TextIO, output_stream: T
             if (expansion_match := MACRO_EXPANSION_RE.match(line))
         ]
         target_file = macro_expansions[-1].group(1) if macro_expansions else (diagnostic_match.group(1) if diagnostic_match else "")
-        is_vivo_diagnostic = is_vivo_file(target_file, vivo_files) if target_file else False
+        is_dash_diagnostic = is_dash_file(target_file, dash_files) if target_file else False
 
-        if not is_cast_diagnostic or is_vivo_diagnostic:
+        if not is_cast_diagnostic or is_dash_diagnostic:
             output_stream.writelines(group)
-        found_violation |= is_cast_diagnostic and is_vivo_diagnostic
+        found_violation |= is_cast_diagnostic and is_dash_diagnostic
         group.clear()
 
     for line in input_stream:
@@ -92,7 +92,7 @@ def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     subparsers = parser.add_subparsers(dest="command", required=True)
 
-    prepare = subparsers.add_parser("prepare", help="create a Vivo-aware compilation database")
+    prepare = subparsers.add_parser("prepare", help="create a Dash-aware compilation database")
     prepare.add_argument("--input", type=Path, required=True)
     prepare.add_argument("--output-dir", type=Path, required=True)
     prepare.add_argument("--source-root", type=Path, required=True)

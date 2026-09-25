@@ -25,7 +25,7 @@ public:
     /** Add wallets that should be opened to list of chain clients. */
     virtual void Construct(node::NodeContext& node) const = 0;
 
-    // Vivo Specific WalletInitInterface
+    // Dash Specific WalletInitInterface
     virtual void AutoLockMasternodeCollaterals(interfaces::WalletLoader& wallet_loader) const = 0;
     virtual void InitCoinJoinSettings(CCoinJoinClientManager& mgr) const = 0;
     virtual void InitAutoBackup() const = 0;

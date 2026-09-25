@@ -425,7 +425,7 @@
            <item>
             <widget class="QLabel" name="dustProtectionThresholdUnitLabel">
              <property name="text">
-              <string>duffs</string>
+              <string>VLVOs</string>
              </property>
              <property name="textFormat">
               <enum>Qt::PlainText</enum>
