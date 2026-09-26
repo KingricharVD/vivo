@@ -1042,6 +1042,64 @@ static util::Result<CreatedTransactionResult> CreateTransactionInternal(
         }
     }
 
+    // VIVO_R13B_CHANGE_FUNDS_FEE_SHORTFALL
+    //
+    // Coin selection estimates fees before the final signed transaction size
+    // is known. In rare cases the final size estimate can require a slightly
+    // larger fee than the amount currently funded. If a normal change output
+    // exists, fund that shortfall from change instead of failing the send.
+    //
+    // Do not do this for subtract-fee-from-output transactions: those are
+    // intentionally reconciled against recipient outputs below.
+    if (!coin_selection_params.m_subtract_fee_outputs &&
+        nChangePosInOut != -1 &&
+        fee_needed > current_fee) {
+        const CAmount fee_shortfall = fee_needed - current_fee;
+        auto& change = txNew.vout.at(nChangePosInOut);
+
+        if (change.nValue > fee_shortfall) {
+            CTxOut adjusted_change = change;
+            adjusted_change.nValue -= fee_shortfall;
+
+            if (!IsDust(adjusted_change, wallet.chain().relayDustFee())) {
+                change.nValue = adjusted_change.nValue;
+            } else {
+                txNew.vout.erase(txNew.vout.begin() + nChangePosInOut);
+                nChangePosInOut = -1;
+
+                nBytes = CalculateMaximumSignedTxSize(
+                    CTransaction(txNew),
+                    &wallet,
+                    &coin_control);
+                if (nBytes == -1) {
+                    return util::Error{
+                        _("Missing solving data for estimating transaction size")};
+                }
+                nBytes += extra_payload_bytes;
+                fee_needed =
+                    coin_selection_params.m_effective_feerate.GetFee(nBytes);
+            }
+        } else {
+            txNew.vout.erase(txNew.vout.begin() + nChangePosInOut);
+            nChangePosInOut = -1;
+
+            nBytes = CalculateMaximumSignedTxSize(
+                CTransaction(txNew),
+                &wallet,
+                &coin_control);
+            if (nBytes == -1) {
+                return util::Error{
+                    _("Missing solving data for estimating transaction size")};
+            }
+            nBytes += extra_payload_bytes;
+            fee_needed =
+                coin_selection_params.m_effective_feerate.GetFee(nBytes);
+        }
+
+        current_fee =
+            result->GetSelectedValue() - CalculateOutputValue(txNew);
+    }
+
     // Reduce output values for subtractFeeFromAmount
     if (coin_selection_params.m_subtract_fee_outputs) {
         CAmount to_reduce = fee_needed - current_fee;

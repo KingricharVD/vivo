@@ -56,10 +56,12 @@ std::string FormatVersion(int nVersion)
     // VIVO_R5G1C_FOUR_PART_VERSION
     // Keep the modern three-field numeric encoding for ordering,
     // but display Vivo releases as major.minor.patch.revision.
-    return strprintf("%d.%d.%d.0",
+    const int revision = nVersion == CLIENT_VERSION ? CLIENT_VERSION_REVISION : 0;
+    return strprintf("%d.%d.%d.%d",
         nVersion / 10000,
         (nVersion / 100) % 100,
-        nVersion % 100);
+        nVersion % 100,
+        revision);
 }
 
 std::string FormatFullVersion()
