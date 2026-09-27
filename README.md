@@ -60,6 +60,37 @@ The `./configure`, `make`, and `cmake` steps, as well as build dependencies, are
 - **FreeBSD**: [./doc/build-freebsd.md](/doc/build-freebsd.md)
 - **NetBSD**: [./doc/build-netbsd.md](/doc/build-netbsd.md)
 
+- **Short** version to build
+
+- # Ubuntu / Debian x86_64
+
+sudo apt update
+sudo apt install -y \
+    build-essential autoconf automake autotools-dev libtool \
+    pkg-config bsdmainutils bison cmake curl patch python3 xz-utils
+
+tar -xzf vivo-24.0.0.1-source.tar.gz
+cd vivo-24.0.0.1-source
+
+# Build project dependencies, including compatible wallet libraries
+make -C depends -j"$(nproc)"
+
+# Generate configure
+NOCONFIGURE=1 ./autogen.sh
+
+# Build VIVO
+mkdir build-linux
+cd build-linux
+
+CONFIG_SITE="$PWD/../depends/x86_64-pc-linux-gnu/share/config.site" \
+../configure --disable-tests
+
+make -j"$(nproc)"
+
+# Verify
+./src/vivod --version
+./src/qt/vivo-qt --version
+
 Testing
 -------
 
