@@ -1,5 +1,5 @@
 // Copyright (c) 2012-2020 The Bitcoin Core developers
-// Copyright (c) 2014-2025 The Dash Core developers
+// Copyright (c) 2014-2025 The Vivo Core developers
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
@@ -57,8 +57,8 @@ static const int DSQ_INV_VERSION = 70234;
 //! Maximum header count for HEADRES2 message was increased from 2000 to 8000 in this version
 static const int INCREASE_MAX_HEADERS2_VERSION = 70235;
 
-//! BIP324 v2 transport with Dash short IDs (128-167) introduced
-static const int BIP324_DASH_BASELINE_VERSION = 70235;
+//! BIP324 v2 transport with Vivo short IDs (128-167) introduced
+static const int BIP324_VIVO_BASELINE_VERSION = 70235;
 
 //! Behavior of QRINFO is changed in this protocol version
 static const int EFFICIENT_QRINFO_VERSION = 70236;

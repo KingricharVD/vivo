@@ -308,7 +308,7 @@ void OptionsDialog::setModel(OptionsModel *_model)
     connect(ui->digits, qOverload<>(&QValueComboBox::valueChanged), [this]{ showRestartWarning(); });
     connect(ui->lang, qOverload<>(&QValueComboBox::valueChanged), [this]{ showRestartWarning(); });
     connect(ui->thirdPartyTxUrls, &QLineEdit::textChanged, [this]{ showRestartWarning(); });
-    /* Display, Dash-specific */
+    /* Display, Vivo-specific */
     connect(ui->coinJoinEnabled, &QCheckBox::clicked, [this](bool fChecked) {
         model->setOption(OptionsModel::CoinJoinEnabled, fChecked);
         updateCoinJoinVisibility();

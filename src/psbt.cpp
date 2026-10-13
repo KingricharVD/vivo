@@ -316,9 +316,9 @@ bool SignPSBTInput(const SigningProvider& provider, PartiallySignedTransaction& 
 
 void RemoveUnnecessaryTransactions(PartiallySignedTransaction& /* psbtx */, const int& /* sighash_type */)
 {
-    // Dash does not support segwit, so there are no witness_utxos to consider.
+    // Vivo does not support segwit, so there are no witness_utxos to consider.
     // In Bitcoin, this function drops non_witness_utxos when all inputs are
-    // segwit v1+, which cannot occur in Dash.
+    // segwit v1+, which cannot occur in Vivo.
 }
 
 bool FinalizePSBT(PartiallySignedTransaction& psbtx)

@@ -1,4 +1,4 @@
-// Copyright (c) 2026 The Dash Core developers
+// Copyright (c) 2026 The Vivo Core developers
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
@@ -104,12 +104,12 @@ QVBoxLayout* MakeBlock(QVBoxLayout* page_layout)
 }
 
 //! Formats collateral amounts, which are whole coins in every display unit, so
-//! a zero fraction is dropped entirely ("1 000.00000000 DASH" -> "1 000 DASH").
+//! a zero fraction is dropped entirely ("1 000.00000000 VIVO" -> "1 000 VIVO").
 QString FormatCollateralAmount(const WalletModel* wallet_model, CAmount amount)
 {
     const auto unit{wallet_model && wallet_model->getOptionsModel() ?
                         wallet_model->getOptionsModel()->getDisplayUnit() :
-                        BitcoinUnits::Unit::DASH};
+                        BitcoinUnits::Unit::VIVO};
     QString str{BitcoinUnits::format(unit, amount, /*plussign=*/false, BitcoinUnits::SeparatorStyle::ALWAYS)};
     const int decimals{BitcoinUnits::decimals(unit)};
     if (decimals > 0 && amount % BitcoinUnits::factor(unit) == 0) {
@@ -1759,7 +1759,7 @@ void RegisterMasternodeWizard::populateResult(const QString& pro_tx_hash)
                     "inactive until then.");
     }
     if (isEvo()) {
-        steps << tr("Provision the Vivo Platform services (Tenderdash and Drive) with the Platform node key matching "
+        steps << tr("Provision the Vivo Platform services (Tendervivo and Drive) with the Platform node key matching "
                     "the node ID you registered.");
         steps << tr("The EvoNode becomes active once the registration is confirmed and the first update is signed by "
                     "the operator.");

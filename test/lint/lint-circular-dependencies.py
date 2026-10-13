@@ -27,7 +27,7 @@ EXPECTED_BITCOIN_CIRCULAR_DEPENDENCIES = (
     "index/base -> node/context -> net_processing -> index/txindex -> index/base",
 )
 
-EXPECTED_DASH_CIRCULAR_DEPENDENCIES = (
+EXPECTED_VIVO_CIRCULAR_DEPENDENCIES = (
     "index/addressindex -> index/base -> node/context -> index/addressindex",
     "index/base -> node/context -> index/spentindex -> index/base",
     "index/base -> node/context -> index/timestampindex -> index/base",
@@ -57,7 +57,7 @@ EXPECTED_DASH_CIRCULAR_DEPENDENCIES = (
     "wallet/coinjoin -> wallet/receive -> wallet/coinjoin",
 )
 
-EXPECTED_CIRCULAR_DEPENDENCIES = EXPECTED_BITCOIN_CIRCULAR_DEPENDENCIES + EXPECTED_DASH_CIRCULAR_DEPENDENCIES
+EXPECTED_CIRCULAR_DEPENDENCIES = EXPECTED_BITCOIN_CIRCULAR_DEPENDENCIES + EXPECTED_VIVO_CIRCULAR_DEPENDENCIES
 
 CODE_DIR = "src"
 

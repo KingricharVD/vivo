@@ -11,8 +11,8 @@
 - Masternode architecture: DIP3 deterministic list / ProRegTx
 - VIVO v2 MN type: Regular only
 - Minimum collateral confirmations: 15
-- DASH treasury/superblocks disabled for this stage
-- Evo/Platform, BRR, ChainLocks and later DASH features not activated in this stage
+- VIVO treasury/superblocks disabled for this stage
+- Evo/Platform, BRR, ChainLocks and later VIVO features not activated in this stage
 
 
 ## V2 annual block subsidy schedule

@@ -1,6 +1,6 @@
 [Protocol]
 exec=vivo-qt '%u'
-protocol=dash
+protocol=vivo
 input=none
 output=none
 helper=true

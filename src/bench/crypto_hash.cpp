@@ -1,5 +1,5 @@
 // Copyright (c) 2016-2021 The Bitcoin Core developers
-// Copyright (c) 2018-2025 The Dash Core developers
+// Copyright (c) 2018-2025 The Vivo Core developers
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
@@ -284,7 +284,7 @@ BENCHMARK(MuHashMul, benchmark::PriorityLevel::HIGH);
 BENCHMARK(MuHashDiv, benchmark::PriorityLevel::HIGH);
 BENCHMARK(MuHashPrecompute, benchmark::PriorityLevel::HIGH);
 
-/* --------------------------- Dash-specific tests start here --------------------------- */
+/* --------------------------- Vivo-specific tests start here --------------------------- */
 
 static void DSHA256_1M(benchmark::Bench& bench)
 {

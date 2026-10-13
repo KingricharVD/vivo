@@ -97,7 +97,7 @@ struct NodeContext {
     std::unique_ptr<CScheduler> scheduler;
     std::function<void()> rpc_interruption_point = [] {};
     std::atomic<int> exit_status{EXIT_SUCCESS};
-    //! Dash managers
+    //! Vivo managers
     std::unique_ptr<CJWalletManager> cj_walletman;
     std::unique_ptr<CDSTXManager> dstxman;
     std::unique_ptr<CEvoDB> evodb;
@@ -111,12 +111,12 @@ struct NodeContext {
     std::unique_ptr<CSporkManager> sporkman;
     std::unique_ptr<chainlock::Chainlocks> chainlocks;
     std::unique_ptr<chainlock::ChainlockHandler> clhandler;
-    //! Dash contexts
+    //! Vivo contexts
     std::unique_ptr<CDSNotificationInterface> ds_notification_interface;
     std::unique_ptr<ActiveContext> active_ctx;
     std::unique_ptr<LLMQContext> llmq_ctx;
     std::unique_ptr<llmq::ObserverContext> observer_ctx;
-    //! Dash indexes
+    //! Vivo indexes
     std::unique_ptr<AddressIndex> address_index;
     std::unique_ptr<SpentIndex> spent_index;
     std::unique_ptr<TimestampIndex> timestamp_index;

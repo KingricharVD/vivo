@@ -1,4 +1,4 @@
-dashconsensus
+vivoconsensus
 ========================
 
 This library is deprecated and will be removed for v28.

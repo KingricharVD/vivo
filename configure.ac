@@ -51,9 +51,9 @@ fi
 
 AC_CANONICAL_HOST
 
-AH_TOP([#ifndef DASH_CONFIG_H])
-AH_TOP([#define DASH_CONFIG_H])
-AH_BOTTOM([#endif //DASH_CONFIG_H])
+AH_TOP([#ifndef VIVO_CONFIG_H])
+AH_TOP([#define VIVO_CONFIG_H])
+AH_BOTTOM([#endif //VIVO_CONFIG_H])
 
 dnl Automake init set-up and checks
 AM_INIT_AUTOMAKE([1.13 no-define subdir-objects foreign])
@@ -780,7 +780,7 @@ AC_ARG_WITH([libs],
 
 AC_ARG_WITH([experimental-kernel-lib],
   [AS_HELP_STRING([--with-experimental-kernel-lib],
-  [build experimental dashkernel library (default is to build if we're building libraries and the experimental build-chainstate executable)])],
+  [build experimental vivokernel library (default is to build if we're building libraries and the experimental build-chainstate executable)])],
   [build_experimental_kernel_lib=$withval],
   [build_experimental_kernel_lib=auto])
 
@@ -1590,7 +1590,7 @@ if test "$use_boost" = "yes"; then
   dnl Check for Boost headers
   AX_BOOST_BASE([1.73.0],[],[AC_MSG_ERROR([Boost is not available!])])
   if test "$want_boost" = "no"; then
-      AC_MSG_ERROR([[only libdashconsensus can be built without boost]])
+      AC_MSG_ERROR([[only libvivoconsensus can be built without boost]])
   fi
 
   dnl we don't use multi_index serialization
@@ -1771,7 +1771,7 @@ AC_MSG_RESULT($build_bitcoin_util)
 AC_MSG_CHECKING([whether to build experimental vivo-chainstate])
 if test "$build_bitcoin_chainstate" = "yes"; then
   if test "$build_experimental_kernel_lib" = "no"; then
-    AC_MSG_ERROR([experimental vivo-chainstate cannot be built without the experimental dashkernel library. Use --with-experimental-kernel-lib]);
+    AC_MSG_ERROR([experimental vivo-chainstate cannot be built without the experimental vivokernel library. Use --with-experimental-kernel-lib]);
   fi
 fi
 AM_CONDITIONAL([BUILD_BITCOIN_CHAINSTATE], [test $build_bitcoin_chainstate = "yes"])
@@ -1782,7 +1782,7 @@ AM_CONDITIONAL([BUILD_BITCOIN_LIBS], [test $build_bitcoin_libs = "yes"])
 
 if test "$build_bitcoin_libs" = "yes"; then
   AC_DEFINE([HAVE_CONSENSUS_LIB], [1], [Define this symbol if the consensus lib has been built])
-  AC_CONFIG_FILES([libdashconsensus.pc:libdashconsensus.pc.in])
+  AC_CONFIG_FILES([libvivoconsensus.pc:libvivoconsensus.pc.in])
 fi
 
 AM_CONDITIONAL([BUILD_BITCOIN_KERNEL_LIB], [test "$build_experimental_kernel_lib" != "no" && ( test "$build_experimental_kernel_lib" = "yes" || test "$build_bitcoin_chainstate" = "yes" )])
@@ -2082,9 +2082,9 @@ if test -n "$use_sanitizers"; then
   export SECP_CFLAGS="$SECP_CFLAGS $SANITIZER_CFLAGS"
 fi
 dnl The ECDH module is required by the wallet's Platform key provider
-dnl (DashPay contact request encryption, wallet/platformkeys.cpp).
+dnl (VivoPay contact request encryption, wallet/platformkeys.cpp).
 ac_configure_args="${ac_configure_args} --disable-shared --with-pic --enable-benchmark=no --enable-module-recovery --enable-module-ecdh --disable-openssl-tests"
-AC_CONFIG_SUBDIRS([src/dashbls src/secp256k1])
+AC_CONFIG_SUBDIRS([src/vivobls src/secp256k1])
 
 AC_OUTPUT
 

@@ -1,6 +1,6 @@
 // Copyright (c) 2009-2010 Satoshi Nakamoto
 // Copyright (c) 2009-2021 The Bitcoin Core developers
-// Copyright (c) 2014-2025 The Dash Core developers
+// Copyright (c) 2014-2025 The Vivo Core developers
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
@@ -518,7 +518,7 @@ public:
     // Map from governance object hash to governance object, they are added by gobject_prepare.
     std::map<uint256, Governance::Object> m_gobjects;
 
-    // Generic per-wallet key/value records used by Dash Platform integration
+    // Generic per-wallet key/value records used by Vivo Platform integration
     // (opaque to the wallet; persisted as DBKeys::PLATFORM_DATA).
     std::map<std::string, std::vector<unsigned char>> m_platform_data GUARDED_BY(cs_wallet);
 

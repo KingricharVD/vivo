@@ -1,4 +1,4 @@
-// Copyright (c) 2021-2026 The Dash Core developers
+// Copyright (c) 2021-2026 The Vivo Core developers
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
@@ -96,7 +96,7 @@ class ProposalModel : public QAbstractTableModel
     Q_OBJECT
 
 private:
-    BitcoinUnit m_display_unit{BitcoinUnit::DASH};
+    BitcoinUnit m_display_unit{BitcoinUnit::VIVO};
     int nAbsVoteReq{0};
     Proposals m_data;
     QIcon m_icon_failing;

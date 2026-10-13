@@ -1,5 +1,5 @@
 // Copyright (c) 2011-2021 The Bitcoin Core developers
-// Copyright (c) 2014-2025 The Dash Core developers
+// Copyright (c) 2014-2025 The Vivo Core developers
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
@@ -323,7 +323,7 @@ bool parseBitcoinURI(const QUrl &uri, SendCoinsRecipient *out)
         {
             if(!i->second.isEmpty())
             {
-                if (!BitcoinUnits::parse(BitcoinUnit::DASH, i->second, &rv.amount)) {
+                if (!BitcoinUnits::parse(BitcoinUnit::VIVO, i->second, &rv.amount)) {
                     return false;
                 }
             }
@@ -359,7 +359,7 @@ QString formatBitcoinURI(const SendCoinsRecipient &info)
 
     if (info.amount)
     {
-        ret += QString("?amount=%1").arg(BitcoinUnits::format(BitcoinUnit::DASH, info.amount, false, BitcoinUnits::SeparatorStyle::NEVER));
+        ret += QString("?amount=%1").arg(BitcoinUnits::format(BitcoinUnit::VIVO, info.amount, false, BitcoinUnits::SeparatorStyle::NEVER));
         paramCount++;
     }
 
@@ -758,7 +758,7 @@ fs::path static GetAutostartFilePath()
     std::string chain = gArgs.GetChainName();
     if (chain == CBaseChainParams::MAIN)
         return GetAutostartDir() / "vivocore.desktop";
-    return GetAutostartDir() / fs::u8path(strprintf("dashcore-%s.desktop", chain));
+    return GetAutostartDir() / fs::u8path(strprintf("vivocore-%s.desktop", chain));
 }
 
 bool GetStartOnSystemStartup()
@@ -958,7 +958,7 @@ void loadStyleSheet(bool fForceUpdate)
 
         std::vector<QString> vecFiles;
         // If light/dark theme is used load general styles first
-        if (dashThemeActive()) {
+        if (vivoThemeActive()) {
             vecFiles.push_back(pathToFile(generalTheme));
         }
         vecFiles.push_back(pathToFile(getActiveTheme()));
@@ -983,7 +983,7 @@ QString getActiveTheme()
     return theme;
 }
 
-bool dashThemeActive()
+bool vivoThemeActive()
 {
     QSettings settings;
     QString theme = settings.value("theme", defaultTheme).toString();
@@ -1002,7 +1002,7 @@ void disableMacFocusRect(const QWidget* w)
 #ifdef Q_OS_MACOS
     for (const auto& c : w->findChildren<QWidget*>()) {
         if (c->testAttribute(Qt::WA_MacShowFocusRect)) {
-            c->setAttribute(Qt::WA_MacShowFocusRect, !dashThemeActive());
+            c->setAttribute(Qt::WA_MacShowFocusRect, !vivoThemeActive());
             setRectsDisabled.emplace(c);
         }
     }
@@ -1016,7 +1016,7 @@ void updateMacFocusRects()
     auto it = setRectsDisabled.begin();
     while (it != setRectsDisabled.end()) {
         if (allWidgets.contains(*it)) {
-            (*it)->setAttribute(Qt::WA_MacShowFocusRect, !dashThemeActive());
+            (*it)->setAttribute(Qt::WA_MacShowFocusRect, !vivoThemeActive());
             ++it;
         } else {
             it = setRectsDisabled.erase(it);

@@ -17,7 +17,7 @@
 
 namespace init {
 namespace {
-const char* EXE_NAME = "dash-node";
+const char* EXE_NAME = "vivo-node";
 
 class BitcoinNodeInit : public interfaces::Init
 {

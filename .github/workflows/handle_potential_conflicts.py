@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-# Copyright (c) 2022-2026 The Dash Core developers
+# Copyright (c) 2022-2026 The Vivo Core developers
 # Distributed under the MIT software license, see the accompanying
 # file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
@@ -29,7 +29,7 @@ from urllib.parse import quote
 import requests
 
 
-COMMENT_MARKER = "dash-potential-conflicts:v1"
+COMMENT_MARKER = "vivo-potential-conflicts:v1"
 COMMENT_START = f"<!-- {COMMENT_MARKER}"
 COMMENT_END = "-->"
 TRUSTED_COMMENT_AUTHORS = {"github-actions[bot]"}
@@ -57,7 +57,7 @@ def github_headers() -> dict[str, str]:
 
 
 def repo_name() -> str:
-    return os.environ.get("GITHUB_REPOSITORY", "dashpay/dash")
+    return os.environ.get("GITHUB_REPOSITORY", "vivopay/vivo")
 
 
 def api_url(path: str) -> str:
@@ -410,7 +410,7 @@ def branches_can_merge(our_pr_label: str, conflict_pr_label: str) -> bool | None
         f"https://github.com/{repo_name()}/branches/pre_mergeable/"
         f"{quote(our_pr_label, safe='')}...{quote(conflict_pr_label, safe='')}"
     )
-    headers = {"User-Agent": "dash-potential-conflicts"}
+    headers = {"User-Agent": "vivo-potential-conflicts"}
 
     try:
         response = requests.get(merge_check_url, headers=headers, timeout=30)

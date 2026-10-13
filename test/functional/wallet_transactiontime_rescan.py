@@ -31,7 +31,7 @@ class TransactionTimeRescanTest(BitcoinTestFramework):
     def run_test(self):
         self.log.info('Prepare nodes and wallet')
 
-        minernode = self.nodes[0]    # node used to mine DASH and create transactions
+        minernode = self.nodes[0]    # node used to mine VIVO and create transactions
         usernode = self.nodes[1]     # user node with correct time
         restorenode = self.nodes[2]  # node used to restore user wallet and check time determination in ComputeSmartTime (wallet.cpp)
 
@@ -65,7 +65,7 @@ class TransactionTimeRescanTest(BitcoinTestFramework):
         # check blockcount
         assert_equal(minernode.getblockcount(), 200)
 
-        # generate some DASH to create transactions and check blockcount
+        # generate some VIVO to create transactions and check blockcount
         initial_mine = COINBASE_MATURITY + 1
         self.generatetoaddress(minernode, initial_mine, m1)
         assert_equal(minernode.getblockcount(), initial_mine + 200)
@@ -84,8 +84,8 @@ class TransactionTimeRescanTest(BitcoinTestFramework):
         # synchronize nodes and time
         self.sync_all()
         set_node_times(self.nodes, cur_time + ten_days + ten_days)
-        # send 5 DASH to our second watch-only address
-        self.log.info('Send 5 DASH to user')
+        # send 5 VIVO to our second watch-only address
+        self.log.info('Send 5 VIVO to user')
         miner_wallet.sendtoaddress(wo2, 5)
 
         # generate blocks and check blockcount

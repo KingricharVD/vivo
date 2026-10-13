@@ -7,22 +7,22 @@ export LC_ALL=C
 TOPDIR=${TOPDIR:-$(git rev-parse --show-toplevel)}
 BUILDDIR=${BUILDDIR:-$TOPDIR}
 BINDIR=${BINDIR:-$BUILDDIR/src}
-DASHD=${DASHD:-$BINDIR/vivod}
+VIVOD=${VIVOD:-$BINDIR/vivod}
 SHARE_EXAMPLES_DIR=${SHARE_EXAMPLES_DIR:-$TOPDIR/contrib/debian/examples/}
 EXAMPLE_CONF_FILE=${EXAMPLE_CONF_FILE:-$SHARE_EXAMPLES_DIR/vivo.conf}
 
-[ ! -x "$DASHD" ] && echo "$DASHD not found or not executable." && exit 1
+[ ! -x "$VIVOD" ] && echo "$VIVOD not found or not executable." && exit 1
 
 DIRTY=""
-VERSION_OUTPUT=$($DASHD --version)
+VERSION_OUTPUT=$($VIVOD --version)
 if [[ $VERSION_OUTPUT == *"dirty"* ]]; then
-  DIRTY="${DIRTY}${DASHD}\n"
+  DIRTY="${DIRTY}${VIVOD}\n"
 fi
 
 if [ -n "$DIRTY" ]
 then
-  echo -e "WARNING: $DASHD was built from a dirty tree.\n"
-  echo -e "To safely generate a vivo.conf file, please commit your changes to $DASHD, rebuild, then run this script again.\n"
+  echo -e "WARNING: $VIVOD was built from a dirty tree.\n"
+  echo -e "To safely generate a vivo.conf file, please commit your changes to $VIVOD, rebuild, then run this script again.\n"
 fi
 
 echo 'Generating example vivo.conf file in contrib/debian/examples/'
@@ -49,7 +49,7 @@ EOF
 # parse the output from vivod --help
 # adding newlines is a bit funky to ensure portability for BSD
 # see here for more details: https://stackoverflow.com/a/24575385
-${DASHD} --help \
+${VIVOD} --help \
     | sed '1,/Print this help message and exit/d' \
     | sed -E 's/^[[:space:]]{2}\-/#/' \
     | sed -E 's/^[[:space:]]{7}/# /' \

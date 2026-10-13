@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 # Copyright (c) 2014-2020 The Bitcoin Core developers
-# Copyright (c) 2014-2025 The Dash Core developers
+# Copyright (c) 2014-2025 The Vivo Core developers
 # Distributed under the MIT software license, see the accompanying
 # file COPYING or http://www.opensource.org/licenses/mit-license.php.
 """Helpful routines for regression testing."""
@@ -41,15 +41,15 @@ def assert_approx(v, vexp, vspan=0.00001):
         raise AssertionError("%s > [%s..%s]" % (str(v), str(vexp - vspan), str(vexp + vspan)))
 
 
-def assert_fee_amount(fee, tx_size, feerate_DASH_kvB):
+def assert_fee_amount(fee, tx_size, feerate_VIVO_kvB):
     """Assert the fee is in range."""
-    target_fee = get_fee(tx_size, feerate_DASH_kvB)
+    target_fee = get_fee(tx_size, feerate_VIVO_kvB)
     if fee < target_fee:
-        raise AssertionError("Fee of %s DASH too low! (Should be %s DASH)" % (str(fee), str(target_fee)))
+        raise AssertionError("Fee of %s VIVO too low! (Should be %s VIVO)" % (str(fee), str(target_fee)))
     # allow the wallet's estimation to be at most 2 bytes off
-    high_fee = get_fee(tx_size + 2, feerate_DASH_kvB)
+    high_fee = get_fee(tx_size + 2, feerate_VIVO_kvB)
     if fee > high_fee:
-        raise AssertionError("Fee of %s DASH too high! (Should be %s DASH)" % (str(fee), str(target_fee)))
+        raise AssertionError("Fee of %s VIVO too high! (Should be %s VIVO)" % (str(fee), str(target_fee)))
 
 
 def summarise_dict_differences(thing1, thing2):
@@ -247,11 +247,11 @@ def ceildiv(a, b):
     return -(-a // b)
 
 
-def get_fee(tx_size, feerate_dash_kvb):
-    """Calculate the fee in DASH given a feerate is DASH/kvB. Reflects CFeeRate::GetFee"""
-    feerate_sat_kvb = int(feerate_dash_kvb * Decimal(1e8)) # Fee in sat/kvb as an int to avoid float precision errors
+def get_fee(tx_size, feerate_vivo_kvb):
+    """Calculate the fee in VIVO given a feerate is VIVO/kvB. Reflects CFeeRate::GetFee"""
+    feerate_sat_kvb = int(feerate_vivo_kvb * Decimal(1e8)) # Fee in sat/kvb as an int to avoid float precision errors
     target_fee_sat = ceildiv(feerate_sat_kvb * tx_size, 1000) # Round calculated fee up to nearest sat
-    return satoshi_round(target_fee_sat / Decimal(1e8)) # Truncate DASH result to nearest sat
+    return satoshi_round(target_fee_sat / Decimal(1e8)) # Truncate VIVO result to nearest sat
 
 
 def satoshi_round(amount):

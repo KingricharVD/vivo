@@ -1,5 +1,5 @@
 // Copyright (c) 2011-2021 The Bitcoin Core developers
-// Copyright (c) 2014-2026 The Dash Core developers
+// Copyright (c) 2014-2026 The Vivo Core developers
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
@@ -47,7 +47,7 @@ private Q_SLOTS:
     void updateDisplayUnit(BitcoinUnit unit);
 
 private:
-    BitcoinUnit m_display_unit{BitcoinUnit::DASH};
+    BitcoinUnit m_display_unit{BitcoinUnit::VIVO};
     CAmount m_creditpool_diff{0};
     CAmount m_creditpool_limit{0};
     CAmount m_creditpool_locked{0};
