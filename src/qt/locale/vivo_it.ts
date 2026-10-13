@@ -3235,7 +3235,7 @@ Sarai ora reindirizzato per monitorare e trasmettere la tua nuova proposta. Puoi
         <translation>Importo</translation>
     </message>
     <message>
-        <source>Enter a Dash address (e.g. %1)</source>
+        <source>Enter a Vivo Address (e.g. %1)</source>
         <translation>Inserire un indirizzo Dash (es. %1)</translation>
     </message>
     <message>

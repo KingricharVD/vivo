@@ -3235,7 +3235,7 @@ Será agora redirecionado para monitorizar e difundir a sua nova proposta, pode 
         <translation>Valor</translation>
     </message>
     <message>
-        <source>Enter a Dash address (e.g. %1)</source>
+        <source>Enter a Vivo Address (e.g. %1)</source>
         <translation>Informe um endereço Dash (ex: %1)</translation>
     </message>
     <message>

@@ -3235,7 +3235,7 @@ Ahora será redirigido para monitorear y transmitir su nueva propuesta. Puede re
         <translation>Cantidad</translation>
     </message>
     <message>
-        <source>Enter a Dash address (e.g. %1)</source>
+        <source>Enter a Vivo Address (e.g. %1)</source>
         <translation>Introduzca una dirección Dash (ej. %1)</translation>
     </message>
     <message>

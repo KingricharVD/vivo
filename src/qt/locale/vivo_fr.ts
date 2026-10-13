@@ -3235,7 +3235,7 @@ Vous allez maintenant être redirigé pour surveiller et diffuser votre nouvelle
         <translation>Montant</translation>
     </message>
     <message>
-        <source>Enter a Dash address (e.g. %1)</source>
+        <source>Enter a Vivo Address (e.g. %1)</source>
         <translation>Entrez une adresse Dash (e.g. %1)</translation>
     </message>
     <message>

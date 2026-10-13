@@ -3235,7 +3235,7 @@ You will now be redirected to monitor and broadcast your new proposal, you can r
         <translation>金额</translation>
     </message>
     <message>
-        <source>Enter a Dash address (e.g. %1)</source>
+        <source>Enter a Vivo Address (e.g. %1)</source>
         <translation>输入一个Dash地址(例如 %1)</translation>
     </message>
     <message>

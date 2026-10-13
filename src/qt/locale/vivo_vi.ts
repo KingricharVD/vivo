@@ -3235,7 +3235,7 @@ Bạn sẽ được chuyển hướng để theo dõi và phát sóng đề xu�
         <translation>Số lượng</translation>
     </message>
     <message>
-        <source>Enter a Dash address (e.g. %1)</source>
+        <source>Enter a Vivo Address (e.g. %1)</source>
         <translation>Hãy nhập một địa chỉ Dash (VD: %1)</translation>
     </message>
     <message>

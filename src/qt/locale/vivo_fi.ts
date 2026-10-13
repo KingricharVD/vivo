@@ -3235,7 +3235,7 @@ Sinut ohjataan nyt seuraamaan ja lähettämään uutta ehdotustasi. Voit jatkaa 
         <translation>Määrä</translation>
     </message>
     <message>
-        <source>Enter a Dash address (e.g. %1)</source>
+        <source>Enter a Vivo Address (e.g. %1)</source>
         <translation>Anna Dash osoite (esim. %1)</translation>
     </message>
     <message>

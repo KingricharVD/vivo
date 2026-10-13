@@ -46,6 +46,7 @@
 #include <util/system.h>
 #include <util/translation.h>
 #include <validation.h>
+#include <vivo_dev_payment.h>
 #include <validationinterface.h>
 #include <warnings.h>
 
@@ -624,6 +625,27 @@ static RPCHelpMan getblocktemplate()
                 {
                     {RPCResult::Type::STR_HEX, "key", "values must be in the coinbase (keys may be ignored)"},
                 }},
+                // R11H_VIVO_DEV_PAYMENT_SCHEMA
+                {RPCResult::Type::BOOL,
+                    "vivo_dev_payment_required",
+                    "Whether the next block requires the one-time VIVO developer payment"},
+                {RPCResult::Type::ARR,
+                    "vivo_dev_payment",
+                    "Mandatory developer outputs for the next block; empty at other heights",
+                    {
+                        {RPCResult::Type::OBJ, "", "",
+                            {
+                                {RPCResult::Type::STR,
+                                    "payee",
+                                    "Required recipient address"},
+                                {RPCResult::Type::STR_HEX,
+                                    "script",
+                                    "Required scriptPubKey"},
+                                {RPCResult::Type::NUM,
+                                    "amount",
+                                    "Required amount in satoshis"},
+                            }},
+                    }},
                 {RPCResult::Type::NUM, "coinbasevalue", "maximum allowable input to coinbase transaction, including the generation award and transaction fees (in VLVOs)"},
                 {RPCResult::Type::STR, "longpollid", "an id to include with a request to longpoll on an update to this template"},
                 {RPCResult::Type::STR, "target", "The hash target"},
@@ -935,6 +957,88 @@ static RPCHelpMan getblocktemplate()
     result.pushKV("transactions", transactions);
     result.pushKV("coinbaseaux", aux);
     result.pushKV("coinbasevalue", (int64_t)pblock->vtx[0]->GetValueOut());
+
+    // R11H_VIVO_DEV_PAYMENT
+    // Publish the exact mandatory output.
+    // The coinbasevalue includes this additional
+    // issuance; miners must not claim it twice.
+    const bool vivoDevPaymentRequired =
+        vivo_dev_payment::IsPaymentHeight(
+            pindexPrev->nHeight + 1,
+            consensusParams
+        );
+
+    UniValue vivoDevPayments(UniValue::VARR);
+    int vivoDevPaymentCount = 0;
+
+    if (vivoDevPaymentRequired) {
+        const CScript expectedScript =
+            vivo_dev_payment::GetScript();
+
+        for (const CTxOut& txout :
+             pblock->vtx[0]->vout) {
+
+            if (txout.nValue !=
+                    vivo_dev_payment::AMOUNT ||
+                txout.scriptPubKey !=
+                    expectedScript) {
+                continue;
+            }
+
+            CTxDestination dest;
+
+            if (!ExtractDestination(
+                    txout.scriptPubKey,
+                    dest)) {
+                throw JSONRPCError(
+                    RPC_INTERNAL_ERROR,
+                    "VIVO developer payment address "
+                    "cannot be decoded"
+                );
+            }
+
+            UniValue payment(UniValue::VOBJ);
+
+            payment.pushKV(
+                "payee",
+                EncodeDestination(dest)
+            );
+
+            payment.pushKV(
+                "script",
+                HexStr(txout.scriptPubKey)
+            );
+
+            payment.pushKV(
+                "amount",
+                txout.nValue
+            );
+
+            vivoDevPayments.push_back(payment);
+            ++vivoDevPaymentCount;
+        }
+
+        if (vivoDevPaymentCount != 1) {
+            throw JSONRPCError(
+                RPC_INTERNAL_ERROR,
+                "VIVO activation template must "
+                "contain exactly one developer "
+                "payment"
+            );
+        }
+    }
+
+    result.pushKV(
+        "vivo_dev_payment_required",
+        vivoDevPaymentRequired
+    );
+
+    result.pushKV(
+        "vivo_dev_payment",
+        vivoDevPayments
+    );
+
+
     result.pushKV("longpollid", active_chain.Tip()->GetBlockHash().GetHex() + ToString(nTransactionsUpdatedLast));
     result.pushKV("target", hashTarget.GetHex());
     result.pushKV("mintime", (int64_t)pindexPrev->GetMedianTimePast()+1);

@@ -62,8 +62,11 @@ CAmount PlatformShare(const CAmount reward)
 
 CAmount GetMasternodePayment(int nHeight, CAmount blockValue, const Consensus::Params& consensus_params, MnRewardEra era)
 {
+    if (nHeight >= consensus_params.DIP0003EnforcementHeight) {
+        return blockValue * 3 / 5; // VIVO DMN/EVO era: 60% service-node pool
+    }
     if (nHeight >= consensus_params.nVivoV2Height) {
-        return blockValue * 2 / 5; // VIVO v2 40%
+        return blockValue * 2 / 5; // VIVO V2 migration era
     }
     CAmount ret = blockValue/5; // start at 20%
 
@@ -137,61 +140,83 @@ CAmount GetMasternodePayment(int nHeight, CAmount blockValue, const Consensus::P
 {
     voutMasternodePaymentsRet.clear();
 
-    const int nBlockHeight = pindexPrev  == nullptr ? 0 : pindexPrev->nHeight + 1;
+    const int nBlockHeight = pindexPrev == nullptr ? 0 : pindexPrev->nHeight + 1;
+    const bool vivo_dmn_enforced = nBlockHeight >= m_consensus_params.DIP0003EnforcementHeight;
 
-    // VIVO v2: 40% of subsidy to deterministic MN.
-    // Transaction fees remain with the miner.
     CAmount masternodeReward =
-        nBlockHeight >= m_consensus_params.nVivoV2Height
-            ? blockSubsidy * 2 / 5
-            : GetMasternodePayment(nBlockHeight, blockSubsidy + feeReward, m_consensus_params, era);
+        vivo_dmn_enforced
+            ? blockSubsidy * 3 / 5
+            : (nBlockHeight >= m_consensus_params.nVivoV2Height
+                   ? blockSubsidy * 2 / 5
+                   : GetMasternodePayment(nBlockHeight, blockSubsidy + feeReward,
+                                          m_consensus_params, era));
 
-    // Credit Pool doesn't exist before V20. If any part of reward will re-allocated to credit pool before v20
-    // activation these fund will be just permanently lost. Applicable for devnets, regtest, testnet
-    if (era == MnRewardEra::EvoReward) {
+    // Do not apply inherited Dash platform-credit-pool reallocation once the
+    // VIVO 40/60 deterministic reward era is enforced.
+    if (!vivo_dmn_enforced && era == MnRewardEra::EvoReward) {
         CAmount masternodeSubsidyReward = GetMasternodePayment(nBlockHeight, blockSubsidy, m_consensus_params, era);
         const CAmount platformReward = PlatformShare(masternodeSubsidyReward);
         masternodeReward -= platformReward;
-
         assert(MoneyRange(masternodeReward));
-
-        LogPrint(BCLog::MNPAYMENTS, "CMNPaymentsProcessor::%s -- MN reward %lld reallocated to credit pool\n", __func__, platformReward);
         voutMasternodePaymentsRet.emplace_back(platformReward, CScript() << OP_RETURN);
     }
+
     const auto mnList = m_dmnman.GetListForBlock(pindexPrev);
-    if (mnList.GetCounts().total() == 0) {
-        LogPrint(BCLog::MNPAYMENTS, "CMNPaymentsProcessor::%s -- no masternode registered to receive a payment\n", __func__);
+    if (mnList.GetCounts().total() == 0) return true;
+
+    const auto primary = mnList.GetMNPayee(pindexPrev);
+    if (!primary) return false;
+
+    const auto append_payee_outputs = [&](const CDeterministicMNCPtr& payee, CAmount reward) {
+        if (!payee || reward <= 0) return;
+
+        CAmount operatorReward{0};
+        if (payee->nOperatorReward != 0 && payee->pdmnState->scriptOperatorPayout != CScript()) {
+            operatorReward = (reward * payee->nOperatorReward) / 10000;
+            reward -= operatorReward;
+        }
+
+        const auto owner_payouts = GetOwnerPayouts(*payee->pdmnState);
+        CAmount paid_owner_reward{0};
+        for (size_t i = 0; i < owner_payouts.size(); ++i) {
+            const bool last = i + 1 == owner_payouts.size();
+            const CAmount payout_amount = last
+                ? reward - paid_owner_reward
+                : (reward * owner_payouts[i].reward) / MasternodePayoutShare::MAX_REWARD;
+            paid_owner_reward += payout_amount;
+            if (payout_amount > 0) {
+                voutMasternodePaymentsRet.emplace_back(payout_amount, owner_payouts[i].scriptPayout);
+            }
+        }
+        if (operatorReward > 0) {
+            voutMasternodePaymentsRet.emplace_back(operatorReward, payee->pdmnState->scriptOperatorPayout);
+        }
+    };
+
+    if (!vivo_dmn_enforced) {
+        append_payee_outputs(primary, masternodeReward);
         return true;
     }
-    const auto dmnPayee = mnList.GetMNPayee(pindexPrev);
-    if (!dmnPayee) {
-        return false;
+
+    // Enforced VIVO economics:
+    //   EVO primary      -> EVO 60%, miner 40% + fees.
+    //   Regular primary  -> Regular 30%, EVO supplemental 30%, miner 40% + fees.
+    //   No valid EVO     -> Regular receives full 60%; nothing is burned.
+    if (primary->nType == MnType::Evo) {
+        append_payee_outputs(primary, masternodeReward);
+        return true;
     }
 
-    CAmount operatorReward = 0;
-
-    if (dmnPayee->nOperatorReward != 0 && dmnPayee->pdmnState->scriptOperatorPayout != CScript()) {
-        // This calculation might eventually turn out to result in 0 even if an operator reward percentage is given.
-        // This will however only happen in a few years when the block rewards drops very low.
-        operatorReward = (masternodeReward * dmnPayee->nOperatorReward) / 10000;
-        masternodeReward -= operatorReward;
+    const auto evoSupplemental = mnList.GetVivoEvoSupplementalPayee(pindexPrev);
+    if (!evoSupplemental) {
+        append_payee_outputs(primary, masternodeReward);
+        return true;
     }
 
-    const auto owner_payouts = GetOwnerPayouts(*dmnPayee->pdmnState);
-    CAmount paid_owner_reward{0};
-    for (size_t i = 0; i < owner_payouts.size(); ++i) {
-        const bool last = i + 1 == owner_payouts.size();
-        const CAmount payout_amount = last ? masternodeReward - paid_owner_reward
-                                           : (masternodeReward * owner_payouts[i].reward) / MasternodePayoutShare::MAX_REWARD;
-        paid_owner_reward += payout_amount;
-        if (payout_amount > 0) {
-            voutMasternodePaymentsRet.emplace_back(payout_amount, owner_payouts[i].scriptPayout);
-        }
-    }
-    if (operatorReward > 0) {
-        voutMasternodePaymentsRet.emplace_back(operatorReward, dmnPayee->pdmnState->scriptOperatorPayout);
-    }
-
+    const CAmount regularReward = masternodeReward / 2;
+    const CAmount evoReward = masternodeReward - regularReward;
+    append_payee_outputs(primary, regularReward);
+    append_payee_outputs(evoSupplemental, evoReward);
     return true;
 }
 

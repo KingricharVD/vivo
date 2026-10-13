@@ -3235,7 +3235,7 @@ Veți fi redirecționat acum pentru a monitoriza și difuza noua propunere, pute
         <translation>Cantitate</translation>
     </message>
     <message>
-        <source>Enter a Dash address (e.g. %1)</source>
+        <source>Enter a Vivo Address (e.g. %1)</source>
         <translation>Introduceţi o adresă Dash (de exemplu %1)</translation>
     </message>
     <message>

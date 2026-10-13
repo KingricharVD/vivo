@@ -3235,7 +3235,7 @@ Teraz budete presmerovaní na sledovanie a odoslanie vášho nového návrhu. M�
         <translation>Suma</translation>
     </message>
     <message>
-        <source>Enter a Dash address (e.g. %1)</source>
+        <source>Enter a Vivo Address (e.g. %1)</source>
         <translation>Zadajte Dash adresu (e.g. %1)</translation>
     </message>
     <message>

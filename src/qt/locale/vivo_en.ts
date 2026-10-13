@@ -4100,8 +4100,8 @@ You will now be redirected to monitor and broadcast your new proposal, you can r
     </message>
     <message>
         <location filename="../guiutil.cpp" line="+257"/>
-        <source>Enter a Dash address (e.g. %1)</source>
-        <translation>Enter a Dash address (e.g. %1)</translation>
+        <source>Enter a Vivo Address (e.g. %1)</source>
+        <translation>Enter a Vivo Address (e.g. %1)</translation>
     </message>
     <message>
         <location line="+12"/>

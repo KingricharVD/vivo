@@ -3235,7 +3235,7 @@ You will now be redirected to monitor and broadcast your new proposal, you can r
         <translation>จำนวน</translation>
     </message>
     <message>
-        <source>Enter a Dash address (e.g. %1)</source>
+        <source>Enter a Vivo Address (e.g. %1)</source>
         <translation>ป้อนที่อยู่ Dash (เช่น %1)</translation>
     </message>
     <message>

@@ -36,7 +36,7 @@ constexpr auto Regular = mntype_struct{
 };
 constexpr auto Evo = mntype_struct{
     .voting_weight = 4,
-    .collat_amount = 4000 * COIN,
+    .collat_amount = 20000 * COIN, // VIVO EVO collateral
     .description = "Evo",
 };
 constexpr auto Invalid = mntype_struct{
@@ -47,8 +47,7 @@ constexpr auto Invalid = mntype_struct{
 
 [[nodiscard]] static constexpr bool IsCollateralAmount(CAmount amount)
 {
-    // VIVO v2 supports one deterministic masternode class.
-    return amount == Regular.collat_amount;
+    return amount == Regular.collat_amount || amount == Evo.collat_amount;
 }
 
 } // namespace dmn_types
@@ -64,8 +63,7 @@ constexpr auto Invalid = mntype_struct{
 
 [[nodiscard]] constexpr bool IsValidMnType(MnType type)
 {
-    // VIVO v2: Regular deterministic masternodes only.
-    return type == MnType::Regular;
+    return type == MnType::Regular || type == MnType::Evo;
 }
 
 #endif // BITCOIN_EVO_DMN_TYPES_H

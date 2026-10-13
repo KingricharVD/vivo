@@ -2949,6 +2949,14 @@ void CConnman::ThreadOpenConnections(const std::vector<std::string> connect, CDe
     // Minimum time before next feeler connection (in microseconds).
     auto next_feeler = GetExponentialRand(start, FEELER_INTERVAL);
     auto next_extra_block_relay = GetExponentialRand(start, EXTRA_BLOCK_RELAY_ONLY_PEER_INTERVAL);
+
+    // VIVO_PREFERRED_BLOCK_RELAY_RETRY_INTERVAL
+    //
+    // Do not allow an unavailable preferred relay to monopolize automatic
+    // outbound selection. Between attempts, normal VIVO peer selection runs.
+    static constexpr auto VIVO_PREFERRED_BLOCK_RELAY_RETRY_INTERVAL = 60s;
+    auto next_vivo_preferred_block_relay = start;
+
     auto next_extra_network_peer{GetExponentialRand(start, EXTRA_NETWORK_PEER_INTERVAL)};
     const bool dnsseed = gArgs.GetBoolArg("-dnsseed", DEFAULT_DNSSEED);
     bool add_fixed_seeds = gArgs.GetBoolArg("-fixedseeds", DEFAULT_FIXEDSEEDS);
@@ -3081,6 +3089,25 @@ void CConnman::ThreadOpenConnections(const std::vector<std::string> connect, CDe
         std::optional<Network> preferred_net;
         bool onion_only = false;
 
+        // VIVO_PREFERRED_MAINNET_BLOCK_RELAY_R4
+        //
+        // Prefer one of the existing block-relay-only slots for the maintained
+        // VIVO relay. Do not increase MAX_BLOCK_RELAY_ONLY_CONNECTIONS.
+        //
+        // NODE_NONE is deliberate. The hardcoded endpoint has not yet
+        // advertised its service flags to us, so do not manufacture them.
+        const CAddress vivo_preferred_block_relay{
+            LookupNumeric("163.245.218.219", 12845),
+            NODE_NONE
+        };
+
+        const bool vivo_preferred_block_relay_wanted =
+            Params().NetworkIDString() == CBaseChainParams::MAIN &&
+            now >= next_vivo_preferred_block_relay &&
+            nOutboundBlockRelay < m_max_outbound_block_relay &&
+            vivo_preferred_block_relay.IsValid() &&
+            !AlreadyConnectedToAddress(vivo_preferred_block_relay);
+
         // Determine what type of connection to open. Opening
         // BLOCK_RELAY connections to addresses from anchors.dat gets the highest
         // priority. Then we open OUTBOUND_FULL_RELAY priority until we
@@ -3092,7 +3119,9 @@ void CConnman::ThreadOpenConnections(const std::vector<std::string> connect, CDe
         // block-relay-only peer (to confirm our tip is current, see below) or the next_feeler
         // timer to decide if we should open a FEELER.
 
-        if (!m_anchors.empty() && (nOutboundBlockRelay < m_max_outbound_block_relay)) {
+        if (vivo_preferred_block_relay_wanted) {
+            conn_type = ConnectionType::BLOCK_RELAY;
+        } else if (!m_anchors.empty() && (nOutboundBlockRelay < m_max_outbound_block_relay)) {
             conn_type = ConnectionType::BLOCK_RELAY;
             anchor = true;
         } else if (nOutboundFullRelay < m_max_outbound_full_relay) {
@@ -3155,6 +3184,27 @@ void CConnman::ThreadOpenConnections(const std::vector<std::string> connect, CDe
         int nTries = 0;
         while (!interruptNet)
         {
+            if (vivo_preferred_block_relay_wanted) {
+                // Advance the deadline before dialing. If the connection fails,
+                // normal automatic peer selection gets the next opportunities.
+                next_vivo_preferred_block_relay =
+                    now + VIVO_PREFERRED_BLOCK_RELAY_RETRY_INTERVAL;
+
+                if (!IsLocal(vivo_preferred_block_relay) &&
+                    g_reachable_nets.Contains(vivo_preferred_block_relay)) {
+
+                    addrConnect = vivo_preferred_block_relay;
+
+                    LogPrint(
+                        BCLog::NET,
+                        "Trying VIVO preferred block-relay-only connection to %s\n",
+                        addrConnect.ToStringAddrPort()
+                    );
+                }
+
+                break;
+            }
+
             if (anchor && !m_anchors.empty()) {
                 const CAddress addr = m_anchors.back();
                 m_anchors.pop_back();

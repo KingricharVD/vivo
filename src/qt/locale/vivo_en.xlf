@@ -3698,7 +3698,7 @@ You will now be redirected to monitor and broadcast your new proposal, you can r
   <file original="../guiutil.cpp" datatype="cpp" source-language="en"><body>
     <group restype="x-trolltech-linguist-context" resname="QObject">
       <trans-unit id="_msg820">
-        <source xml:space="preserve">Enter a Dash address (e.g. %1)</source>
+        <source xml:space="preserve">Enter a Vivo Address (e.g. %1)</source>
         <context-group purpose="location"><context context-type="linenumber">257</context></context-group>
       </trans-unit>
       <trans-unit id="_msg821">

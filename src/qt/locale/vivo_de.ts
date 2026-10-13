@@ -3235,7 +3235,7 @@ Sie werden nun weitergeleitet, um Ihr neues Proposal zu überwachen und zu sende
         <translation>Betrag</translation>
     </message>
     <message>
-        <source>Enter a Dash address (e.g. %1)</source>
+        <source>Enter a Vivo Address (e.g. %1)</source>
         <translation>Dash-Adresse eingeben (z.B. %1)</translation>
     </message>
     <message>

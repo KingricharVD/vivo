@@ -167,8 +167,8 @@ public:
     CMainParams() {
         strNetworkID = CBaseChainParams::MAIN;
         consensus.nSubsidyHalvingInterval = 262800; // Note: actual number of blocks per calendar year with DGW v3 is ~200700 (for example 449750 - 249050)
-        consensus.nVivoDmnHeight = 2147483647; // deterministic MN registration
-        consensus.nVivoV2Height = 2176696; // scarce economics activation
+        consensus.nVivoDmnHeight = 2182235; // VIVO deterministic MN/ProTx registration opens 500 blocks after V2
+        consensus.nVivoV2Height = 2181735; // scarce economics activation
         consensus.nVivoV2ReductionInterval = 262800;
         consensus.nMasternodePaymentsStartBlock = 2147483647; // not true, but it's ok as long as it's less then nMasternodePaymentsIncreaseBlock
         consensus.nMasternodePaymentsIncreaseBlock = 158000; // actual historical value
@@ -192,8 +192,9 @@ public:
         consensus.BIP147Height = consensus.nVivoV2Height; // 00000000000000117befca4fab5622514772f608852e5edd8df9c55464b6fe37
         consensus.CSVHeight = consensus.nVivoV2Height; // 00000000000002e3d3a6224cfce80bae367fd3283d1e5a8ba50e5e60b2d2905d
         consensus.DIP0001Height = 2147483647; // 000000000000000cbc9cb551e8ee1ac7aa223585cbdfb755d3683bafd93679e4
-        consensus.DIP0003Height = 2147483647;
-        consensus.DIP0003EnforcementHeight = 2147483647;
+        // VIVO deterministic MN migration: registration +500 blocks, enforcement +1000.
+        consensus.DIP0003Height = 2182235;
+        consensus.DIP0003EnforcementHeight = 2182735;
         consensus.DIP0003EnforcementHash = uint256();
         consensus.DIP0008Height = 2147483647; // 00000000000000112e41e4b3afda8b233b8cc07c532d2eac5de097b68358c43e
         consensus.BRRHeight = 2147483647; // 000000000000000c5a124f3eccfbe6e17876dca79cec9e63dfa70d269113c926
@@ -220,7 +221,7 @@ public:
         consensus.vDeployments[Consensus::DEPLOYMENT_TESTDUMMY].min_activation_height = 0; // No activation delay
 
         consensus.vDeployments[Consensus::DEPLOYMENT_V24].bit = 12;
-        consensus.vDeployments[Consensus::DEPLOYMENT_V24].nStartTime = Consensus::BIP9Deployment::NEVER_ACTIVE; // TODO
+        consensus.vDeployments[Consensus::DEPLOYMENT_V24].nStartTime = 1792022400; // VIVO V24 mainnet eligibility
         consensus.vDeployments[Consensus::DEPLOYMENT_V24].nTimeout = Consensus::BIP9Deployment::NO_TIMEOUT; // TODO
         consensus.vDeployments[Consensus::DEPLOYMENT_V24].nWindowSize = 4032;
         consensus.vDeployments[Consensus::DEPLOYMENT_V24].nThresholdStart = 3226;     // 80% of 4032
@@ -256,15 +257,13 @@ public:
         // This is fine at runtime as we'll fall back to using them as an addrfetch if they don't support the
         // service bits we want, but we should get them updated to support all service bits wanted by any
         // release ASAP to avoid it where possible.
+        // VIVO mainnet bootstrap nodes.
+        // Keep this list limited to currently maintained VIVO peers.
         vSeeds.clear();
-        vSeeds.emplace_back("seeds.vivocoin.net");
-        vSeeds.emplace_back("seed.seeds.vivocoin.net");
-        vSeeds.emplace_back("seed.vivocoinseed.dynu.net");
-        vSeeds.emplace_back("vivoseed.hashcube.com");
-        vSeeds.emplace_back("vivoseed.mm.my");
-        // VIVO mainnet static bootstrap seed IPs
         vSeeds.emplace_back("162.35.102.80");
         vSeeds.emplace_back("163.245.218.219");
+        vSeeds.emplace_back("37.60.248.165");
+        vSeeds.emplace_back("62.171.138.11");
 
 
         // Vivo addresses start with 'X'
