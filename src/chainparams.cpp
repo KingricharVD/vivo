@@ -260,7 +260,7 @@ public:
         // VIVO mainnet bootstrap nodes.
         // Keep this list limited to currently maintained VIVO peers.
         vSeeds.clear();
-        vSeeds.emplace_back("162.35.102.80");
+        vSeeds.emplace_back("dnsseed.vivowebwallet.com");
         vSeeds.emplace_back("163.245.218.219");
         vSeeds.emplace_back("37.60.248.165");
         vSeeds.emplace_back("62.171.138.11");
