@@ -307,7 +307,7 @@ public:
         nPoolMaxParticipants = 20;
         nFulfilledRequestExpireTime = 60*60; // fulfilled requests expire in 1 hour
 
-        strSporkAddress = "VSWKN1fcV5iyERr8wQTsA1QnicLBqq3Svp";
+        strSporkAddress = "VVZjXSykeNrW753Hd5UUSBGpsB4NDe2p2j";
 
         nCreditPoolPeriodBlocks = 576;
 
@@ -329,7 +329,8 @@ public:
                 {378129, uint256S("0x000000002f22a53a0228c6b94c960ba923df660531911392841196f641970b5f")},
                 {420300, uint256S("0x0000000037e291974d11f3f0c5309632db5d1b5c70162014a11e3de7920a548b")},
                 {444770, uint256S("0x00000000a21f0077a24e0d814dcfca41144a49d671ad2f3adb9f5fe5f509efaa")},
-		{2169890, uint256S("0x00000012e30cd3fc22886e36570b48e7d7b426e27c9322255f6b5e9fff9bef15")},
+		        {2169890, uint256S("0x00000012e30cd3fc22886e36570b48e7d7b426e27c9322255f6b5e9fff9bef15")},
+                {2181177, uint256S("0x0000000792d1176a9c234d80d1fb146bf3ff5bcf4f94cd29c54de8a6e068972b")},
             }
         };
 
