@@ -1,14 +1,14 @@
 #!/usr/bin/env python3
-# Copyright (c) 2018-2024 The Vivo Core developers
+# Copyright (c) 2018-2024 The Dash Core developers
 # Distributed under the MIT software license, see the accompanying
 # file COPYING or http://www.opensource.org/licenses/mit-license.php.
-"""Tests around vivo governance objects."""
+"""Tests around dash governance objects."""
 
 import time
 
 from test_framework.governance import prepare_object
 from test_framework.messages import uint256_to_string
-from test_framework.test_framework import VivoTestFramework
+from test_framework.test_framework import DashTestFramework
 from test_framework.util import assert_equal, assert_greater_than, assert_raises_rpc_error
 
 
@@ -21,12 +21,12 @@ def validate_object(prepared, rpc_prepared):
     del rpc_prepared["data"]["hex"]
     assert_equal(prepared["data"], rpc_prepared["data"])
 
-class VivoGovernanceTest (VivoTestFramework):
+class DashGovernanceTest (DashTestFramework):
     def add_options(self, parser):
         self.add_wallet_options(parser)
 
     def set_test_params(self):
-        self.set_vivo_test_params(1, 0)
+        self.set_dash_test_params(1, 0)
 
     def prepare_object(self, object_type, parent_hash, creation_time, revision, name, amount):
         payment_address = self.nodes[0].getnewaddress()
@@ -87,4 +87,4 @@ class VivoGovernanceTest (VivoTestFramework):
 
 
 if __name__ == '__main__':
-    VivoGovernanceTest().main()
+    DashGovernanceTest().main()

@@ -1,6 +1,6 @@
 use std::ffi::c_void;
 
-use bls_vivo_sys::{
+use bls_dash_sys::{
     AugSchemeMPLAggregateVerify, AugSchemeMPLFree, AugSchemeMPLSign, AugSchemeMPLVerify,
     BasicSchemeMPLAggregateVerify, BasicSchemeMPLFree, CoreMPLAggregatePubKeys,
     CoreMPLAggregateSigs, CoreMPLSign, CoreMPLVerify, CoreMPLVerifySecure,

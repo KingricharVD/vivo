@@ -1,10 +1,10 @@
 #!/usr/bin/env python3
-# Copyright (c) 2020-2025 The Vivo Core developers
+# Copyright (c) 2020-2025 The Dash Core developers
 # Distributed under the MIT software license, see the accompanying
 # file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
 from test_framework.messages import tx_from_hex, hash256, ser_compact_size, ser_string
-from test_framework.test_framework import VivoTestFramework
+from test_framework.test_framework import DashTestFramework
 from test_framework.util import assert_equal, assert_raises_rpc_error, satoshi_round
 
 '''
@@ -14,13 +14,13 @@ Test verifyislock rpc
 
 '''
 
-class RPCVerifyISLockTest(VivoTestFramework):
+class RPCVerifyISLockTest(DashTestFramework):
     def add_options(self, parser):
         self.add_wallet_options(parser)
 
     def set_test_params(self):
         # -whitelist is needed to avoid the trickling logic on node0
-        self.set_vivo_test_params(6, 5, [["-whitelist=127.0.0.1"], [], [], [], [], []])
+        self.set_dash_test_params(6, 5, [["-whitelist=127.0.0.1"], [], [], [], [], []])
 
     def get_request_id(self, tx_hex):
         tx = tx_from_hex(tx_hex)

@@ -18,7 +18,7 @@ add_executable(blsjstmp ${CMAKE_CURRENT_SOURCE_DIR}/jsbindings.cpp
         )
 add_custom_target(install_npm_dependencies npm ci)
 add_dependencies(blsjstmp install_npm_dependencies)
-target_link_libraries(blsjstmp PRIVATE vivobls)
+target_link_libraries(blsjstmp PRIVATE dashbls)
 
 target_link_options(blsjstmp PRIVATE
     "SHELL:--bind"

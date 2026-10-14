@@ -1,4 +1,4 @@
-// Copyright (c) 2019-2025 The Vivo Core developers
+// Copyright (c) 2019-2025 The Dash Core developers
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
@@ -519,7 +519,7 @@ BOOST_AUTO_TEST_CASE(bls_verify_contribution_share_null_vvec_tests)
 // before the guard nothing ever invoked doneCallback and .get() threw
 // std::future_error(broken_promise). In production that throw escapes
 // VerifyPendingContributions on the DKG phase-handler thread, which only catches
-// AbortPhaseException, and std::terminate aborts vivod.
+// AbortPhaseException, and std::terminate aborts dashd.
 // Contract: return an empty result vector, on both the aggregated and the
 // one-by-one path.
 void FuncVerifyContributionSharesEmptyVvecs(const bool legacy_scheme)

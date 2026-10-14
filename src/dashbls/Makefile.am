@@ -1,5 +1,5 @@
 # Copyright (c) 2013-2016 The Bitcoin Core developers
-# Copyright (c) 2022 The Vivo Core developers
+# Copyright (c) 2022 The Dash Core developers
 # Distributed under the MIT software license, see the accompanying
 # file COPYING.MIT or http://www.opensource.org/licenses/mit-license.php.
 
@@ -28,12 +28,12 @@ CLEANFILES =
 
 include Makefile.bls.include
 
-CLEANFILES += $(LIBRELIC) $(LIBVIVOBLS) $(LIBMIMALLOC)
+CLEANFILES += $(LIBRELIC) $(LIBDASHBLS) $(LIBMIMALLOC)
 
 if USE_TESTS
-CLEANFILES += $(VIVOBLS_RUNTEST)
+CLEANFILES += $(DASHBLS_RUNTEST)
 endif
 
 if USE_BENCH
-CLEANFILES += $(VIVOBLS_RUNBENCH)
+CLEANFILES += $(DASHBLS_RUNBENCH)
 endif

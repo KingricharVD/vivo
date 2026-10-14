@@ -30,7 +30,7 @@ import unittest
 from test_framework.crypto.siphash import siphash256
 from test_framework.util import assert_equal
 
-import vivo_hash # type: ignore[import]
+import dash_hash # type: ignore[import]
 
 MAX_LOCATOR_SZ = 101
 MAX_BASE_BLOCK_HASHES = 4096
@@ -41,7 +41,7 @@ MAX_BLOOM_HASH_FUNCS = 50
 COIN = 100000000  # 1 btc in satoshis
 MAX_MONEY = 21000000 * COIN
 
-BIP125_SEQUENCE_NUMBER = 0xfffffffd  # Sequence number that is BIP 125 opt-in and BIP 68-opt-out -- not used in VIVO
+BIP125_SEQUENCE_NUMBER = 0xfffffffd  # Sequence number that is BIP 125 opt-in and BIP 68-opt-out -- not used in DASH
 SEQUENCE_FINAL = 0xffffffff  # Sequence number that disables nLockTime if set for every input of a tx
 
 MAX_PROTOCOL_MESSAGE_LENGTH = 3 * 1024 * 1024  # Maximum length of incoming protocol messages
@@ -92,8 +92,8 @@ def sha3(s):
 def hash256(s):
     return sha256(sha256(s))
 
-def vivohash(s):
-    return vivo_hash.getPoWHash(s)
+def dashhash(s):
+    return dash_hash.getPoWHash(s)
 
 def ser_compact_size(l):
     r = b""
@@ -249,7 +249,7 @@ def from_binary(cls, stream):
     return obj
 
 
-# Objects that map to vivod objects, which can be serialized/deserialized
+# Objects that map to dashd objects, which can be serialized/deserialized
 
 class CService:
     __slots__ = ("ip", "port")
@@ -662,8 +662,8 @@ class CBlockHeader:
             r += struct.pack("<I", self.nTime)
             r += struct.pack("<I", self.nBits)
             r += struct.pack("<I", self.nNonce)
-            self.sha256 = uint256_from_str(vivohash(r))
-            self.hash = vivohash(r)[::-1].hex()
+            self.sha256 = uint256_from_str(dashhash(r))
+            self.hash = dashhash(r)[::-1].hex()
 
     def rehash(self):
         self.sha256 = None
@@ -824,8 +824,8 @@ class CompressibleBlockHeader:
             r += struct.pack("<I", self.nTime)
             r += struct.pack("<I", self.nBits)
             r += struct.pack("<I", self.nNonce)
-            self.sha256 = uint256_from_str(vivohash(r))
-            self.hash = int(vivohash(r)[::-1].hex(), 16)
+            self.sha256 = uint256_from_str(dashhash(r))
+            self.hash = int(dashhash(r)[::-1].hex(), 16)
 
     def rehash(self):
         self.sha256 = None
@@ -2105,7 +2105,7 @@ class msg_headers:
         self.headers = headers if headers is not None else []
 
     def deserialize(self, f):
-        # comment in vivod indicates these should be deserialized as blocks
+        # comment in dashd indicates these should be deserialized as blocks
         blocks = deser_vector(f, CBlock)
         for x in blocks:
             self.headers.append(CBlockHeader(x))

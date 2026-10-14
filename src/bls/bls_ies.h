@@ -1,9 +1,9 @@
-// Copyright (c) 2018-2024 The Vivo Core developers
+// Copyright (c) 2018-2024 The Dash Core developers
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
-#ifndef VIVO_CRYPTO_BLS_IES_H
-#define VIVO_CRYPTO_BLS_IES_H
+#ifndef DASH_CRYPTO_BLS_IES_H
+#define DASH_CRYPTO_BLS_IES_H
 
 #include <bls/bls.h>
 #include <streams.h>
@@ -117,4 +117,4 @@ public:
     }
 };
 
-#endif // VIVO_CRYPTO_BLS_IES_H
+#endif // DASH_CRYPTO_BLS_IES_H

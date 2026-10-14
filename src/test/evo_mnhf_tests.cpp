@@ -1,4 +1,4 @@
-// Copyright (c) 2021-2025 The Vivo Core developers
+// Copyright (c) 2021-2025 The Dash Core developers
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
@@ -102,7 +102,7 @@ struct MnhfBitReuseSetup : public RegTestingSetup {
 };
 
 /**
- * DIP-0023 bit reuse: Vivo buries old deployments and drops them from
+ * DIP-0023 bit reuse: Dash buries old deployments and drops them from
  * vDeployments, so on reindex a historical MnEHF signal for a buried deployment
  * must stay valid even after its bit is reused by a newer deployment whose
  * window has not started yet.

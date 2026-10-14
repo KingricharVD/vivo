@@ -36,7 +36,7 @@ void RegisterEvoRPCCommands(CRPCTable &tableRPC);
 void RegisterQuorumsRPCCommands(CRPCTable &tableRPC);
 
 #ifdef ENABLE_WALLET
-// Vivo-specific wallet-only RPC commands
+// Dash-specific wallet-only RPC commands
 Span<const CRPCCommand> GetWalletCoinJoinRPCCommands();
 Span<const CRPCCommand> GetWalletEvoRPCCommands();
 Span<const CRPCCommand> GetWalletGovernanceRPCCommands();

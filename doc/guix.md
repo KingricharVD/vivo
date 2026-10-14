@@ -1,3 +1,3 @@
-# Bootstrappable Vivo Core Builds
+# Bootstrappable Dash Core Builds
 
 See [contrib/guix/README.md](../contrib/guix/README.md)

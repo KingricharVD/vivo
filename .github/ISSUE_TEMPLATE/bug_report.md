@@ -7,11 +7,11 @@ assignees: ''
 
 ---
 
-<!-- This issue tracker is only for technical issues related to Vivo Core.
+<!-- This issue tracker is only for technical issues related to Dash Core.
 
-General vivo questions and/or support requests are best directed to the Vivo Forum at https://www.vivo.org/forum/
+General dash questions and/or support requests are best directed to the Dash Forum at https://www.dash.org/forum/
 
-For reporting security issues, please read instructions at https://www.vivo.org/bug-bounty/
+For reporting security issues, please read instructions at https://www.dash.org/bug-bounty/
 
 If the node is "stuck" during sync or giving "block checksum mismatch" errors, please ensure your hardware is stable by running memtest and observe CPU temperature with a load-test tool such as linpack before creating an issue! -->
 
@@ -31,7 +31,7 @@ If the node is "stuck" during sync or giving "block checksum mismatch" errors, p
 
 **System information**
 
-<!-- What version of Vivo Core are you using, where did you get it (website, self-compiled, etc)? -->
+<!-- What version of Dash Core are you using, where did you get it (website, self-compiled, etc)? -->
 
 <!-- What type of machine are you observing the error on (OS/CPU and disk type)? -->
 

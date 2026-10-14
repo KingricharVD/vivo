@@ -1,7 +1,7 @@
 Updated RPCs
 ------------
 
-* Vivo RPCs will no longer permit submitting strings to boolean input fields in line with validation
+* Dash RPCs will no longer permit submitting strings to boolean input fields in line with validation
   enforced on upstream RPCs, where this is already the case. Requests must now use unquoted `true`
   or `false`.
 
@@ -13,4 +13,4 @@ Updated RPCs
     `quorum rotationinfo`, `quorum sign`.
 
   * This restriction can be relaxed by setting `-deprecatedrpc=permissive_bool` at runtime
-    but is liable to be removed in future versions of Vivo Core.
+    but is liable to be removed in future versions of Dash Core.

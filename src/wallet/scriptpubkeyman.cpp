@@ -325,7 +325,7 @@ std::vector<WalletDestination> LegacyScriptPubKeyMan::MarkUnusedAddresses(Wallet
             WalletLogPrintf("%s: Detected a used keypool key, mark all keypool key up to this key as used\n", __func__);
             for (const auto& keypool : MarkReserveKeysAsUsed(mi->second)) {
                 // derive all possible destinations as any of them could have been used
-                { // [vivoified] LEGACY_OUTPUT_TYPES is only one: LEGACY
+                { // [dashified] LEGACY_OUTPUT_TYPES is only one: LEGACY
                     // TODO: maybe unify with bitcoin and use here GetDestinationForKey even if we have no type
                     result.push_back({CTxDestination{PKHash{keypool.vchPubKey}}, keypool.fInternal});
                 }
@@ -1840,8 +1840,8 @@ std::unordered_set<CScript, SaltedSipHasher> LegacyScriptPubKeyMan::GetScriptPub
         spks.insert(GetScriptForRawPubKey(pub));
         spks.insert(GetScriptForDestination(PKHash(pub)));
     }
-    // Vivo: HD keys are stored in mapHdPubKeys, not in mapKeys/mapCryptedKeys
-    // Only P2PKH is used for HD keys in Vivo (BIP44)
+    // Dash: HD keys are stored in mapHdPubKeys, not in mapKeys/mapCryptedKeys
+    // Only P2PKH is used for HD keys in Dash (BIP44)
     for (const auto& key_pair : mapHdPubKeys) {
         const CPubKey& pub = key_pair.second.extPubKey.pubkey;
         spks.insert(GetScriptForDestination(PKHash(pub)));
@@ -1886,7 +1886,7 @@ std::optional<MigrationData> LegacyScriptPubKeyMan::MigrateToDescriptor()
 
     // Wrap every DB write produced by the per-chain TopUp() calls below in a
     // single SQLite transaction. Without this, each key/script insert auto-
-    // commits and fsyncs to disk, turning a large-chain migration (e.g. a Vivo
+    // commits and fsyncs to disk, turning a large-chain migration (e.g. a Dash
     // wallet with a long CoinJoin-driven external counter) into tens of
     // thousands of tiny commits. SQLiteBatch tracks transaction ownership per
     // batch, so inner WalletBatches created inside TopUp share this outer
@@ -1911,7 +1911,7 @@ std::optional<MigrationData> LegacyScriptPubKeyMan::MigrateToDescriptor()
 
     // Get key metadata and figure out which keys don't have a seed
     // Note that we do not ignore the seeds themselves because they are considered IsMine!
-    // In Vivo, HD keys are tracked via mapHdPubKeys, not via metadata fields
+    // In Dash, HD keys are tracked via mapHdPubKeys, not via metadata fields
     for (auto keyid_it = keyids.begin(); keyid_it != keyids.end();) {
         const CKeyID& keyid = *keyid_it;
         if (mapHdPubKeys.count(keyid) > 0) {
@@ -1957,7 +1957,7 @@ std::optional<MigrationData> LegacyScriptPubKeyMan::MigrateToDescriptor()
 
         // Erase every script form combo just produced from the tracking set.
         // Legacy GetScriptPubKeys only enumerates P2PK and P2PKH for loose
-        // keys (Vivo has no segwit, so LearnRelatedScripts never inserts the
+        // keys (Dash has no segwit, so LearnRelatedScripts never inserts the
         // P2SH-P2PKH form into mapScripts), so the third script combo emits
         // is not in `spks` — only erase what's there.
         for (const CScript& spk : desc_spks) {
@@ -1991,7 +1991,7 @@ std::optional<MigrationData> LegacyScriptPubKeyMan::MigrateToDescriptor()
             hdChainDecrypted = m_hd_chain;
         }
 
-        // Stock Vivo legacy wallets only ever use a single BIP44 account (index 0):
+        // Stock Dash legacy wallets only ever use a single BIP44 account (index 0):
         // GenerateNewKey is hardcoded to account 0 at every call site and the chain
         // is initialized with exactly one AddAccount(). A wallet created by a
         // modified build with multiple accounts cannot be migrated by this code path

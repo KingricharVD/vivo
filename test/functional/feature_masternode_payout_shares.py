@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-# Copyright (c) 2026 The Vivo Core developers
+# Copyright (c) 2026 The Dash Core developers
 # Distributed under the MIT software license, see the accompanying
 # file COPYING or http://www.opensource.org/licenses/mit-license.php.
 """Test v4 masternode owner payout shares."""
@@ -7,7 +7,7 @@
 from test_framework.blocktools import create_block, create_coinbase
 from test_framework.messages import CTxOut, tx_from_hex
 from test_framework.script import CScript
-from test_framework.test_framework import VivoTestFramework, MasternodeInfo, p2p_port
+from test_framework.test_framework import DashTestFramework, MasternodeInfo, p2p_port
 from test_framework.util import assert_equal, softfork_active
 
 V24_ACTIVATION_THRESHOLD = 100
@@ -17,12 +17,12 @@ def payout_address_rewards(payouts):
     return [{"address": p["address"], "reward": p["reward"]} for p in payouts]
 
 
-class MasternodePayoutSharesTest(VivoTestFramework):
+class MasternodePayoutSharesTest(DashTestFramework):
     def add_options(self, parser):
         self.add_wallet_options(parser)
 
     def set_test_params(self):
-        self.set_vivo_test_params(1, 0, extra_args=[[
+        self.set_dash_test_params(1, 0, extra_args=[[
             f"-vbparams=v24:{self.mocktime}:999999999999:{V24_ACTIVATION_THRESHOLD}:10:8:6:5:0",
         ]])
 

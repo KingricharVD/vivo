@@ -1,5 +1,5 @@
 /**
-Copyright (c) 2020 The Vivo Core developers
+Copyright (c) 2020 The Dash Core developers
 Distributed under the MIT/X11 software license, see the accompanying
 file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
@@ -956,7 +956,7 @@ QToolBar > QToolButton:disabled {
 
 QToolBar QLabel#lblToolbarLogo {
     padding: 12px;
-    image: url(':/images/vivo_logo_toolbar');
+    image: url(':/images/dash_logo_toolbar');
     height: 2.5em;
 }
 
@@ -1045,11 +1045,11 @@ AboutDialog
 
 QDialog#AboutDialog QLabel#label,
 QDialog#AboutDialog QLabel#copyrightLabel,
-QDialog#AboutDialog QLabel#label_2 { /* About Vivo Contents */
+QDialog#AboutDialog QLabel#label_2 { /* About Dash Contents */
     margin-left: 10px;
 }
 
-QDialog#AboutDialog QLabel#label_2 { /* Margin for About Vivo text */
+QDialog#AboutDialog QLabel#label_2 { /* Margin for About Dash text */
     margin-right: 10px;
 }
 

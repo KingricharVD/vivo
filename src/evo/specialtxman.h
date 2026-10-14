@@ -1,4 +1,4 @@
-// Copyright (c) 2018-2025 The Vivo Core developers
+// Copyright (c) 2018-2025 The Dash Core developers
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
@@ -138,7 +138,7 @@ bool CheckProUpRevTx(const CTransaction& tx, gsl::not_null<const CBlockIndex*> p
 
 /**
  * Asset lock transactions with more than 100 inputs (and so over ~20 kB) can not
- * be processed by Platform, so Vivo Core nodes should not relay them: they are
+ * be processed by Platform, so Dash Core nodes should not relay them: they are
  * marked non-standard, which keeps the network from propagating them over p2p.
  *
  * Asset lock v2 is enabled by the v24 fork, but Platform can not process it yet.

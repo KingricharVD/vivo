@@ -1,6 +1,6 @@
-# Vivo Core Agent Guide
+# Dash Core Agent Guide
 
-This file is for automated coding agents working in Vivo Core. Keep it
+This file is for automated coding agents working in Dash Core. Keep it
 practical: prefer local source, tests, and project history over guesses.
 
 `AGENTS.md` and `CLAUDE.md` intentionally contain the same guidance. When one
@@ -12,8 +12,8 @@ changes, update the other in the same commit.
   recent history for the touched files.
 - Keep changes narrow. Do not mix cleanup, formatting, refactors, and behavior
   changes unless the task explicitly asks for it.
-- Preserve Vivo-specific behavior when backporting or refactoring Bitcoin Core
-  code. Vivo consensus, masternodes, LLMQs, ChainLocks, InstantSend, Platform
+- Preserve Dash-specific behavior when backporting or refactoring Bitcoin Core
+  code. Dash consensus, masternodes, LLMQs, ChainLocks, InstantSend, Platform
   credit-pool logic, governance, and sporks often extend the upstream path.
 - Do not add symlinks. `contrib/devtools/github-merge.py` rejects symlinks in
   the tree during merge.
@@ -51,7 +51,7 @@ Short version, in order of preference:
 
 The production-crash guidance above does not apply to C++ regression and
 unit-test sources under `src/test/` and `src/wallet/test/`. They compile into test
-binaries, not user-facing `vivod` or `vivo-qt`; `assert`, `Assert`, `Assume`,
+binaries, not user-facing `dashd` or `dash-qt`; `assert`, `Assert`, `Assume`,
 and related fatal test checks are all acceptable. Do not flag the choice among
 them as a production-crash risk.
 
@@ -68,9 +68,9 @@ not checks at all: return an error, `AbortNode()`, or `InitError()`.
 - `src/index/`, `src/interfaces/`, `src/node/`, `src/rpc/`, `src/wallet/` -
   subsystem code inherited mostly from Bitcoin Core.
 - `src/llmq/`, `src/masternode/`, `src/evo/`, `src/governance/`,
-  `src/coinjoin/`, `src/instantsend/`, `src/spork*` - Vivo-specific systems.
+  `src/coinjoin/`, `src/instantsend/`, `src/spork*` - Dash-specific systems.
 - `src/test/`, `src/wallet/test/`, `src/qt/test/` - C++ unit tests.
-- `test/functional/` - Python functional tests for `vivod` and `vivo-qt`.
+- `test/functional/` - Python functional tests for `dashd` and `dash-qt`.
 - `test/lint/` - static checks.
 - `depends/` - dependency build system.
 - `ci/`, `.github/` - CI entry points and GitHub workflows.
@@ -79,10 +79,10 @@ not checks at all: return an error, `AbortNode()`, or `InitError()`.
 
 Vendored or subtree-style code should normally be left alone:
 
-- `src/{crc32c,vivobls,gsl,immer,leveldb,minisketch,secp256k1,univalue}`
+- `src/{crc32c,dashbls,gsl,immer,leveldb,minisketch,secp256k1,univalue}`
 - `src/crypto/{ctaes,x11}`
 
-`test/util/data/non-backported.txt` lists Vivo-specific files used by Vivo
+`test/util/data/non-backported.txt` lists Dash-specific files used by Dash
 style/lint checks such as clang-format-diff and cppcheck. Do not treat it as a
 list of skipped upstream backport hunks.
 
@@ -147,7 +147,7 @@ existing file. Fewer files reduce test setup overhead and compilation time.
 make check
 
 # One Boost test suite or case
-./src/test/test_vivo --run_test=getarg_tests
+./src/test/test_dash --run_test=getarg_tests
 
 # All functional tests
 test/functional/test_runner.py
@@ -168,23 +168,23 @@ test/lint/lint-circular-dependencies.py
 ```
 
 Functional-test prerequisites and usage details live in `test/README.md`.
-Several Vivo-specific tests need the `vivo_hash` Python package.
+Several Dash-specific tests need the `dash_hash` Python package.
 
 ## Backport Work
 
-Vivo Core regularly backports Bitcoin Core changes. Treat backports as
+Dash Core regularly backports Bitcoin Core changes. Treat backports as
 source-history work, not only conflict resolution.
 
 - Identify the exact upstream Bitcoin Core PR(s) and commit(s).
-- Keep upstream backport commits as close to 1:1 as practical. Put shared Vivo
+- Keep upstream backport commits as close to 1:1 as practical. Put shared Dash
   repair work on a staging/base branch instead of hiding it inside an unrelated
   upstream backport commit.
 - When reviewing Bitcoin Core backports, absent a clear bug, prefer staying
-  aligned with upstream. Do not request Vivo-only policy or style changes, such
-  as replacing an assertion primitive solely to match this guide. Vivo-specific
+  aligned with upstream. Do not request Dash-only policy or style changes, such
+  as replacing an assertion primitive solely to match this guide. Dash-specific
   correctness, security, or consensus issues are valid reasons to adapt
   upstream code.
-- Compare the upstream diff to the Vivo diff file by file.
+- Compare the upstream diff to the Dash diff file by file.
 - Check prerequisite PRs. If an upstream hunk depends on a helper, test, type,
   or file introduced by an earlier Bitcoin PR, either backport the prerequisite
   or document why the hunk is intentionally excluded.
@@ -194,14 +194,14 @@ source-history work, not only conflict resolution.
   tests in the commit or PR text.
 - Verify the PR title/body matches the actual commits still reachable from the
   branch. Stale "backports X" metadata has caused bad reviews.
-- Keep Vivo adaptations explicit. When upstream code touches a path that Vivo
-  has extended, inspect the Vivo-specific logic before accepting the upstream
+- Keep Dash adaptations explicit. When upstream code touches a path that Dash
+  has extended, inspect the Dash-specific logic before accepting the upstream
   shape.
-- Resolve conflicts against Vivo APIs, not only upstream structure. A backport
-  that textually resembles Bitcoin Core can still fail to compile or lose Vivo
-  behavior if Vivo-only overloads, helpers, or wallet paths are removed.
+- Resolve conflicts against Dash APIs, not only upstream structure. A backport
+  that textually resembles Bitcoin Core can still fail to compile or lose Dash
+  behavior if Dash-only overloads, helpers, or wallet paths are removed.
 
-## Vivo-Specific Review Hotspots
+## Dash-Specific Review Hotspots
 
 Be extra careful around:
 
@@ -242,17 +242,17 @@ For these areas, prefer small tests that prove the invariant being changed.
 ## Local Debugging
 
 ```bash
-# Run vivod with broad logging
-./src/vivod -debug=all -printtoconsole
+# Run dashd with broad logging
+./src/dashd -debug=all -printtoconsole
 
 # Run a functional test against a custom binary
-test/functional/test_runner.py --vivod=/path/to/vivod wallet_hd.py
+test/functional/test_runner.py --dashd=/path/to/dashd wallet_hd.py
 
 # Keep failed functional-test datadirs
 test/functional/test_runner.py --nocleanup --tracerpc -l DEBUG wallet_hd.py
 
 # Debug a unit-test binary
-gdb ./src/test/test_vivo
+gdb ./src/test/test_dash
 
 # Profile a functional test
 test/functional/test_runner.py --perf wallet_hd.py

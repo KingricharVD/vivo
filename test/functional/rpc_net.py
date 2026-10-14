@@ -20,7 +20,7 @@ from test_framework.p2p import (
 from itertools import product
 import platform
 
-from test_framework.test_framework import VivoTestFramework
+from test_framework.test_framework import DashTestFramework
 from test_framework.util import (
     assert_approx,
     assert_equal,
@@ -44,12 +44,12 @@ def assert_net_servicesnames(servicesflag, servicenames):
     assert servicesflag_generated == servicesflag
 
 
-class NetTest(VivoTestFramework):
+class NetTest(DashTestFramework):
     def add_options(self, parser):
         self.add_wallet_options(parser)
 
     def set_test_params(self):
-        self.set_vivo_test_params(3, 1)
+        self.set_dash_test_params(3, 1)
         self.supports_cli = False
 
     def run_test(self):

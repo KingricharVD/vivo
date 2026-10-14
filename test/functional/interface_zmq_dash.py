@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
-# Copyright (c) 2018-2025 The Vivo Core developers
+# Copyright (c) 2018-2025 The Dash Core developers
 # Distributed under the MIT software license, see the accompanying
 # file COPYING or http://www.opensource.org/licenses/mit-license.php.
-"""Test the vivo specific ZMQ notification interfaces."""
+"""Test the dash specific ZMQ notification interfaces."""
 
 import configparser
 from enum import Enum
@@ -13,7 +13,7 @@ import struct
 import time
 
 from test_framework.test_framework import (
-    VivoTestFramework,
+    DashTestFramework,
     MasternodeInfo,
 )
 from test_framework.p2p import P2PInterface
@@ -104,12 +104,12 @@ class TestP2PConn(P2PInterface):
                 self.send_message(self.txes[inv.hash])
 
 
-class VivoZMQTest (VivoTestFramework):
+class DashZMQTest (DashTestFramework):
     def add_options(self, parser):
         self.add_wallet_options(parser)
 
     def set_test_params(self):
-        self.set_vivo_test_params(5, 4)
+        self.set_dash_test_params(5, 4)
 
         # That's where the zmq publisher will listen for subscriber
         self.zmq_port_base = p2p_port(self.num_nodes + 1)
@@ -123,7 +123,7 @@ class VivoZMQTest (VivoTestFramework):
         #extra_args = [node0_extra_args, [], [], [], []]
         self.extra_args[0] = node0_extra_args
 
-        self.set_vivo_llmq_test_params(4, 4)
+        self.set_dash_llmq_test_params(4, 4)
 
     def skip_test_if_missing_module(self):
         self.skip_if_no_py3_zmq()
@@ -132,7 +132,7 @@ class VivoZMQTest (VivoTestFramework):
 
     def run_test(self):
         self.subscribers = {}
-        # Check that vivod has been built with ZMQ enabled.
+        # Check that dashd has been built with ZMQ enabled.
         config = configparser.ConfigParser()
         config.read_file(open(self.options.configfile))
         import zmq
@@ -153,7 +153,7 @@ class VivoZMQTest (VivoTestFramework):
             # Wait a moment to avoid subscribing to recovered sig in the test before the one from the chainlock
             # has been sent which leads to test failure.
             time.sleep(1)
-            # Test all vivo related ZMQ publisher
+            # Test all dash related ZMQ publisher
             self.test_recovered_signature_publishers()
             self.test_chainlock_publishers()
             self.test_governance_publishers()
@@ -377,7 +377,7 @@ class VivoZMQTest (VivoTestFramework):
             "end_epoch": proposal_time + 60,
             "payment_amount": 5,
             "payment_address": self.nodes[0].getnewaddress(),
-            "url": "https://vivo.org"
+            "url": "https://dash.org"
         }
         proposal_hex = ''.join(format(x, '02x') for x in json.dumps(proposal_data).encode())
         collateral = self.nodes[0].gobject("prepare", "0", proposal_rev, proposal_time, proposal_hex)
@@ -450,4 +450,4 @@ class VivoZMQTest (VivoTestFramework):
         ])
 
 if __name__ == '__main__':
-    VivoZMQTest().main()
+    DashZMQTest().main()

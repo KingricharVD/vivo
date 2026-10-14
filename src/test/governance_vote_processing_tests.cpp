@@ -1,4 +1,4 @@
-// Copyright (c) 2026 The Vivo Core developers
+// Copyright (c) 2026 The Dash Core developers
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
@@ -171,7 +171,7 @@ struct GovernanceVoteSetup : public TestChainSetup {
     CGovernanceObject MakeProposal(const uint256& collateral_hash) const
     {
         const std::string data{
-            strprintf("{\"type\":1,\"name\":\"test-proposal\",\"start_epoch\":%d,\"end_epoch\":%d,\"payment_amount\":1.0,\"payment_address\":\"%s\",\"url\":\"https://vivo.org\"}",
+            strprintf("{\"type\":1,\"name\":\"test-proposal\",\"start_epoch\":%d,\"end_epoch\":%d,\"payment_amount\":1.0,\"payment_address\":\"%s\",\"url\":\"https://dash.org\"}",
                       proposal_time, proposal_time + 100000, proposal_payment_address)};
         return CGovernanceObject{uint256{}, /*revision=*/1, proposal_time, collateral_hash, HexStr(data)};
     }

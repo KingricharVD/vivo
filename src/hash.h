@@ -1,6 +1,6 @@
 // Copyright (c) 2009-2010 Satoshi Nakamoto
 // Copyright (c) 2009-2020 The Bitcoin Core developers
-// Copyright (c) 2014-2024 The Vivo Core developers
+// Copyright (c) 2014-2024 The Dash Core developers
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
@@ -243,7 +243,7 @@ unsigned int MurmurHash3(unsigned int nHashSeed, Span<const unsigned char> vData
 void BIP32Hash(const ChainCode &chainCode, unsigned int nChild, unsigned char header, const unsigned char data[32], unsigned char output[64]);
 
 /** DIP-14 child key derivation HMAC: like BIP32Hash but with a 256-bit child
- * index, serialized big-endian (ser256). Used for Vivo Platform (VivoPay)
+ * index, serialized big-endian (ser256). Used for Dash Platform (DashPay)
  * derivation paths. */
 void DIP14Hash(const ChainCode& chainCode, const unsigned char nChild[32], unsigned char header, const unsigned char data[32], unsigned char output[64]);
 

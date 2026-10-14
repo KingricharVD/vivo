@@ -66,11 +66,11 @@
         <translation>選取(&amp;C)</translation>
     </message>
     <message>
-        <source>These are your Vivo addresses for sending payments. Always check the amount and the receiving address before sending coins.</source>
+        <source>These are your Dash addresses for sending payments. Always check the amount and the receiving address before sending coins.</source>
         <translation>這些是你要付款過去的達世幣位址。在付錢之前，務必要檢查金額和收款位址是否正確。</translation>
     </message>
     <message>
-        <source>These are your Vivo addresses for receiving payments. Use the 'Create new receiving address' button in the receive tab to create new addresses.</source>
+        <source>These are your Dash addresses for receiving payments. Use the 'Create new receiving address' button in the receive tab to create new addresses.</source>
         <translation>這些是給您用於接收付款的達世幣位址。 使用接收選項卡中的“創建新接收位址”按鈕來創建新位址。</translation>
     </message>
     <message>
@@ -225,7 +225,7 @@
         <translation>確認錢包加密</translation>
     </message>
     <message>
-        <source>Warning: If you encrypt your wallet and lose your passphrase, you will &lt;b&gt;LOSE ALL OF YOUR VIVO&lt;/b&gt;!</source>
+        <source>Warning: If you encrypt your wallet and lose your passphrase, you will &lt;b&gt;LOSE ALL OF YOUR DASH&lt;/b&gt;!</source>
         <translation>警告: 如果把錢包加密後又忘記密碼，你就會從此&lt;b&gt;失去其中所有的達世幣了&lt;/b&gt;！</translation>
     </message>
     <message>
@@ -365,7 +365,7 @@
         <translation>發送(&amp;S)</translation>
     </message>
     <message>
-        <source>Send coins to a Vivo address</source>
+        <source>Send coins to a Dash address</source>
         <translation>付錢給一個達世幣位址</translation>
     </message>
     <message>
@@ -373,7 +373,7 @@
         <translation>接收(&amp;R)</translation>
     </message>
     <message>
-        <source>Request payments (generates QR codes and vivo: URIs)</source>
+        <source>Request payments (generates QR codes and dash: URIs)</source>
         <translation>要求付款(產生 QR Code 和達世幣付款協議的 URI)</translation>
     </message>
     <message>
@@ -489,7 +489,7 @@
         <translation>關於%1(&amp;A)</translation>
     </message>
     <message>
-        <source>Send %1 funds to a Vivo address</source>
+        <source>Send %1 funds to a Dash address</source>
         <translation>發送 %1 的款項到一個達世幣位址</translation>
     </message>
     <message>
@@ -525,11 +525,11 @@
         <translation>鎖定錢包(&amp;L)</translation>
     </message>
     <message>
-        <source>Sign messages with your Vivo addresses to prove you own them</source>
+        <source>Sign messages with your Dash addresses to prove you own them</source>
         <translation>用達世幣位址簽署訊息來證明位址是你的</translation>
     </message>
     <message>
-        <source>Verify messages to ensure they were signed with specified Vivo addresses</source>
+        <source>Verify messages to ensure they were signed with specified Dash addresses</source>
         <translation>驗證訊息是用來確定訊息是用指定的達世幣位址簽署的</translation>
     </message>
     <message>
@@ -593,7 +593,7 @@
         <translation>命令列選項(&amp;C)</translation>
     </message>
     <message>
-        <source>Show the %1 help message to get a list with possible Vivo command-line options</source>
+        <source>Show the %1 help message to get a list with possible Dash command-line options</source>
         <translation>顯示 %1 的說明訊息，來取得可用命令列選項的列表</translation>
     </message>
     <message>
@@ -655,7 +655,7 @@
         <translation>開啟錢包設定檔(&amp;W)</translation>
     </message>
     <message>
-        <source>Open a vivo: URI</source>
+        <source>Open a dash: URI</source>
         <translation>打開達世幣: URI</translation>
     </message>
     <message>
@@ -1298,7 +1298,7 @@
         <translation>編輯付款位址</translation>
     </message>
     <message>
-        <source>The entered address "%1" is not a valid Vivo address.</source>
+        <source>The entered address "%1" is not a valid Dash address.</source>
         <translation>輸入的位址 %1 並不是有效的達世幣位址。</translation>
     </message>
     <message>
@@ -1623,8 +1623,8 @@ Do you wish to continue?</source>
         <translation><numerusform>(足以恢復 %n 天前的備份)</numerusform></translation>
     </message>
     <message>
-        <source>%1 will download and store a copy of the Vivo block chain.</source>
-        <translation>%1 會下載 Vivo 區塊鏈並且儲存一份副本。</translation>
+        <source>%1 will download and store a copy of the Dash block chain.</source>
+        <translation>%1 會下載 Dash 區塊鏈並且儲存一份副本。</translation>
     </message>
     <message>
         <source>The wallet will also be stored in this directory.</source>
@@ -2232,7 +2232,7 @@ Do you wish to continue?</source>
         <translation>最大</translation>
     </message>
     <message>
-        <source>Automatically open the Vivo Core client port on the router. This only works when your router supports UPnP and it is enabled.</source>
+        <source>Automatically open the Dash Core client port on the router. This only works when your router supports UPnP and it is enabled.</source>
         <translation>自動在路由器上開放達世幣核心客戶端的通訊埠。只有在你的路由器支援且開啓「通用即插即用」協定(UPnP)時才有作用。</translation>
     </message>
     <message>
@@ -2314,7 +2314,7 @@ https://explore.transifex.com/vivo/vivo/</translation>
         <translation>用 &amp;UPnP 設定通訊埠對應</translation>
     </message>
     <message>
-        <source>Automatically open the Vivo Core client port on the router. This only works when your router supports NAT-PMP and it is enabled. The external port could be random.</source>
+        <source>Automatically open the Dash Core client port on the router. This only works when your router supports NAT-PMP and it is enabled. The external port could be random.</source>
         <translation>自動開啟路由器上的達世幣核心用戶端連接埠。只有當您的路由器支援 NAT-PMP 並且已啟用時，此功能才有效。外部連接埠可以是隨機的。</translation>
     </message>
     <message>
@@ -2549,7 +2549,7 @@ https://explore.transifex.com/vivo/vivo/</translation>
         <translation>金額和循環次數:</translation>
     </message>
     <message>
-        <source>0 VIVO / 0 Rounds</source>
+        <source>0 DASH / 0 Rounds</source>
         <translation>0 達世幣 / 0 循環次數</translation>
     </message>
     <message>
@@ -2832,7 +2832,7 @@ https://explore.transifex.com/vivo/vivo/</translation>
         <translation>要求付款時發生錯誤</translation>
     </message>
     <message>
-        <source>Cannot start vivo: click-to-pay handler</source>
+        <source>Cannot start dash: click-to-pay handler</source>
         <translation>無法啟動達世幣 : 點擊支付處理程序</translation>
     </message>
     <message>
@@ -2840,8 +2840,8 @@ https://explore.transifex.com/vivo/vivo/</translation>
         <translation>URI 處理</translation>
     </message>
     <message>
-        <source>'vivo://' is not a valid URI. Use 'vivo:' instead.</source>
-        <translation>'vivo://' 不是有效的URI。請用'vivo:' 來代替。</translation>
+        <source>'dash://' is not a valid URI. Use 'dash:' instead.</source>
+        <translation>'dash://' 不是有效的URI。請用'dash:' 來代替。</translation>
     </message>
     <message>
         <source>Cannot process payment request as BIP70 is no longer supported.
@@ -2850,7 +2850,7 @@ Due to discontinued support, you should request the merchant to provide you with
 由於支援已停止，您應請求商家為您提供 BIP21 相容的 URI 或使用繼續支援 BIP70 的錢包。</translation>
     </message>
     <message>
-        <source>URI cannot be parsed! This can be caused by an invalid Vivo address or malformed URI parameters.</source>
+        <source>URI cannot be parsed! This can be caused by an invalid Dash address or malformed URI parameters.</source>
         <translation>沒辦法解析 URI 位址！可能是因為達世幣位址無效，或是 URI 參數格式錯誤。</translation>
     </message>
     <message>
@@ -3785,8 +3785,8 @@ You will now be redirected to monitor and broadcast your new proposal, you can r
         <translation>本機地址</translation>
     </message>
     <message>
-        <source>Network addresses that your Vivo node is currently using to communicate with other nodes.</source>
-        <translation>您的 Vivo 節點目前用於與其他節點通訊的網路地址。</translation>
+        <source>Network addresses that your Dash node is currently using to communicate with other nodes.</source>
+        <translation>您的 Dash 節點目前用於與其他節點通訊的網路地址。</translation>
     </message>
     <message>
         <source>Number of regular Masternodes</source>
@@ -4499,7 +4499,7 @@ For more information on using this console, type %6.
         <translation>交易手續費:</translation>
     </message>
     <message>
-        <source>When there is less transaction volume than space in the blocks, miners as well as relaying nodes may enforce a minimum fee. Paying only this minimum fee is just fine, but be aware that this can result in a never confirming transaction once there is more demand for vivo transactions than the network can process.</source>
+        <source>When there is less transaction volume than space in the blocks, miners as well as relaying nodes may enforce a minimum fee. Paying only this minimum fee is just fine, but be aware that this can result in a never confirming transaction once there is more demand for dash transactions than the network can process.</source>
         <translation>當交易量小於區塊中的空間時，礦工和中繼節點可能會強制執行最低費用。只支付最低費用就可以了，但請注意，一旦對達世幣交易的需求超過網路處理能力，這可能會導致交易永遠無法確認。</translation>
     </message>
     <message>
@@ -4804,7 +4804,7 @@ For more information on using this console, type %6.
         <translation><numerusform>預計可在 %n 個區塊內開始確認。</numerusform></translation>
     </message>
     <message>
-        <source>Warning: Invalid Vivo address</source>
+        <source>Warning: Invalid Dash address</source>
         <translation>警告: 無效的達世幣位址</translation>
     </message>
     <message>
@@ -4831,7 +4831,7 @@ For more information on using this console, type %6.
         <translation>付給:(&amp;T)</translation>
     </message>
     <message>
-        <source>The Vivo address to send the payment to</source>
+        <source>The Dash address to send the payment to</source>
         <translation>接收付款的達世幣位址</translation>
     </message>
     <message>
@@ -4871,7 +4871,7 @@ For more information on using this console, type %6.
         <translation>在所選單位中發送的金額</translation>
     </message>
     <message>
-        <source>The fee will be deducted from the amount being sent. The recipient will receive a lower amount of Vivo than you enter in the amount field. If multiple recipients are selected, the fee is split equally.</source>
+        <source>The fee will be deducted from the amount being sent. The recipient will receive a lower amount of Dash than you enter in the amount field. If multiple recipients are selected, the fee is split equally.</source>
         <translation>手續費將從發送金額中扣除。接收者將收到的達世幣金額將會比您在金額字段中輸入的金額為少。 如果選擇了多個收款人，該費用將會被平均攤分。</translation>
     </message>
     <message>
@@ -4887,7 +4887,7 @@ For more information on using this console, type %6.
         <translation>訊息:</translation>
     </message>
     <message>
-        <source>A message that was attached to the vivo: URI which will be stored with the transaction for your reference. Note: This message will not be sent over the Vivo network.</source>
+        <source>A message that was attached to the dash: URI which will be stored with the transaction for your reference. Note: This message will not be sent over the Vivo network.</source>
         <translation>附加在達世幣付款協議 URI 中的訊息，會和交易內容一起存起來，給你自己做參考。注意: 這個訊息不會送到達世幣網路上。</translation>
     </message>
 </context>
@@ -4924,11 +4924,11 @@ For more information on using this console, type %6.
         <translation>簽署訊息(&amp;S)</translation>
     </message>
     <message>
-        <source>You can sign messages/agreements with your addresses to prove you can receive Vivo sent to them. Be careful not to sign anything vague or random, as phishing attacks may try to trick you into signing your identity over to them. Only sign fully-detailed statements you agree to.</source>
+        <source>You can sign messages/agreements with your addresses to prove you can receive Dash sent to them. Be careful not to sign anything vague or random, as phishing attacks may try to trick you into signing your identity over to them. Only sign fully-detailed statements you agree to.</source>
         <translation>你可以用自己的位址簽署訊息/協議，來證明你對位址的所有權。但是請小心，不要簽署語意含糊不清的內容，因為釣魚式詐騙可能會用騙你簽署的手法來冒充是你。只有在語句中的細節你都同意時才簽署。</translation>
     </message>
     <message>
-        <source>The Vivo address to sign the message with</source>
+        <source>The Dash address to sign the message with</source>
         <translation>用來簽署訊息的達世幣位址</translation>
     </message>
     <message>
@@ -4960,7 +4960,7 @@ For more information on using this console, type %6.
         <translation>複製目前的簽章到系統剪貼簿</translation>
     </message>
     <message>
-        <source>Sign the message to prove you own this Vivo address</source>
+        <source>Sign the message to prove you own this Dash address</source>
         <translation>簽署這個訊息來證明這個達世幣位址是你的</translation>
     </message>
     <message>
@@ -4984,7 +4984,7 @@ For more information on using this console, type %6.
         <translation>請在下面輸入簽署的位址，訊息(請確定完整複製了所包含的換行，空格，跳位符號等等)，以及簽章，來驗證這個訊息。請小心，除了訊息內容以外，不要對簽章本身過度解讀，以避免被用「中間人攻擊法」詐騙。請注意，這僅僅是證明簽名方接收的地址，它不能證明任何交易的發送人！</translation>
     </message>
     <message>
-        <source>The Vivo address the message was signed with</source>
+        <source>The Dash address the message was signed with</source>
         <translation>簽署這個訊息的達世幣位址</translation>
     </message>
     <message>
@@ -4996,7 +4996,7 @@ For more information on using this console, type %6.
         <translation>簽署消息時給出的簽名</translation>
     </message>
     <message>
-        <source>Verify the message to ensure it was signed with the specified Vivo address</source>
+        <source>Verify the message to ensure it was signed with the specified Dash address</source>
         <translation>驗證這個訊息來確定是用指定的達世幣位址簽署的</translation>
     </message>
     <message>
@@ -5777,7 +5777,7 @@ Go to File &gt; Open Wallet to load a wallet.
     </message>
 </context>
 <context>
-    <name>vivo-core</name>
+    <name>dash-core</name>
     <message>
         <source>This error could occur if this wallet was not shutdown cleanly and was last loaded using a build with a newer version of Berkeley DB. If so, please use the software that last loaded this wallet</source>
         <translation>如果此錢包未完全關閉並且上次使用具有較新版本的 Berkeley DB 的構建加載，則可能會發生此錯誤。 如果是這樣，請使用上次加載此錢包的軟件</translation>
@@ -6031,8 +6031,8 @@ Go to File &gt; Open Wallet to load a wallet.
         <translation>載入 %s 時出錯：正在載入外部簽署者錢包，但未編譯外部簽署者支援</translation>
     </message>
     <message>
-        <source>Error: Dumpfile version is not supported. This version of vivo-wallet only supports version 1 dumpfiles. Got dumpfile with version %s</source>
-        <translation>錯誤：不支援轉儲檔案版本。此版本的 vivo-wallet 僅支援版本 1 的轉儲檔案。取得的轉儲檔案版本為 %s</translation>
+        <source>Error: Dumpfile version is not supported. This version of dash-wallet only supports version 1 dumpfiles. Got dumpfile with version %s</source>
+        <translation>錯誤：不支援轉儲檔案版本。此版本的 dash-wallet 僅支援版本 1 的轉儲檔案。取得的轉儲檔案版本為 %s</translation>
     </message>
     <message>
         <source>Failed to create backup, file already exists! This could happen if you restarted wallet in less than 60 seconds. You can continue if you are ok with this.</source>
@@ -6743,8 +6743,8 @@ Go to File &gt; Open Wallet to load a wallet.
         <translation>距離上一個隊列的時間過短。</translation>
     </message>
     <message>
-        <source>%s corrupt. Try using the wallet tool vivo-wallet to salvage or restoring a backup.</source>
-        <translation>%s 已損壞。 請嘗試使用錢包工具 vivo-wallet 來挽救或恢復備份。</translation>
+        <source>%s corrupt. Try using the wallet tool dash-wallet to salvage or restoring a backup.</source>
+        <translation>%s 已損壞。 請嘗試使用錢包工具 dash-wallet 來挽救或恢復備份。</translation>
     </message>
     <message>
         <source>%s is set very high! Fees this large could be paid on a single transaction.</source>

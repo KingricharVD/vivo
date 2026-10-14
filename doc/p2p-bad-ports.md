@@ -1,25 +1,25 @@
-When Vivo Core automatically opens outgoing P2P connections, it chooses
+When Dash Core automatically opens outgoing P2P connections, it chooses
 a peer (address and port) from its list of potential peers. This list is
 populated with unchecked data gossiped over the P2P network by other peers.
 
-A malicious actor may gossip an address:port where no Vivo node is listening,
+A malicious actor may gossip an address:port where no Dash node is listening,
 or one where a service is listening that is not related to the Vivo network.
-As a result, this service may occasionally get connection attempts from Vivo
+As a result, this service may occasionally get connection attempts from Dash
 nodes.
 
 "Bad" ports are ones used by services which are usually not open to the public
-and usually require authentication. A connection attempt (by Vivo Core,
-trying to connect because it thinks there is a Vivo node on that
+and usually require authentication. A connection attempt (by Dash Core,
+trying to connect because it thinks there is a Dash node on that
 address:port) to such service may be considered a malicious action by an
 ultra-paranoid administrator. An example for such a port is 22 (ssh).
 
 Additionally, ports below 1024 are classified as "system ports" by RFC 6335
 and on some platforms, require administrative privileges in order to use them.
-They are also considered "bad" ports as they require clients to either run Vivo
+They are also considered "bad" ports as they require clients to either run Dash
 Core with elevated privileges or configure their system to relax such requirements,
 which may not be possible or desirable in some deployments.
 
-Below is a list of "bad" ports which Vivo Core avoids when choosing a peer to
+Below is a list of "bad" ports which Dash Core avoids when choosing a peer to
 connect to. If a node is listening on such a port, it will likely receive fewer
 incoming connections.
 

@@ -101,38 +101,38 @@ BASE_SCRIPTS = [
     'feature_llmq_data_recovery.py',
     # vv Tests less than 5m vv
     'feature_fee_estimation.py',
-    'feature_block.py', # NOTE: needs vivo_hash to pass
+    'feature_block.py', # NOTE: needs dash_hash to pass
     # vv Tests less than 2m vv
     'mining_getblocktemplate_longpoll.py', # FIXME: "socket.error: [Errno 54] Connection reset by peer" on my Mac, same as https://github.com/bitcoin/bitcoin/issues/6651
     'feature_maxuploadtarget.py',
     'mempool_updatefromblock.py',
     'mempool_persist.py --descriptors',
     'p2p_quorum_data.py',
-    'feature_llmq_simplepose.py', # NOTE: needs vivo_hash to pass
+    'feature_llmq_simplepose.py', # NOTE: needs dash_hash to pass
     'p2p_instantsend.py',
     'feature_protx_version.py',
-    'feature_asset_locks.py', # NOTE: needs vivo_hash to pass
-    'feature_llmq_signing.py', # NOTE: needs vivo_hash to pass
-    'feature_llmq_is_retroactive.py', # NOTE: needs vivo_hash to pass
-    'feature_llmq_chainlocks.py', # NOTE: needs vivo_hash to pass
-    'feature_llmq_chainlocks_automatic.py', # NOTE: needs vivo_hash to pass
+    'feature_asset_locks.py', # NOTE: needs dash_hash to pass
+    'feature_llmq_signing.py', # NOTE: needs dash_hash to pass
+    'feature_llmq_is_retroactive.py', # NOTE: needs dash_hash to pass
+    'feature_llmq_chainlocks.py', # NOTE: needs dash_hash to pass
+    'feature_llmq_chainlocks_automatic.py', # NOTE: needs dash_hash to pass
     'feature_masternode_payout_shares.py',
-    'feature_llmq_signing.py --spork21', # NOTE: needs vivo_hash to pass
-    'feature_llmq_simplepose.py --disable-spork23', # NOTE: needs vivo_hash to pass
-    'feature_llmq_rotation.py', # NOTE: needs vivo_hash to pass
-    'feature_llmq_evo.py', # NOTE: needs vivo_hash to pass
-    'feature_llmq_dkgerrors.py', # NOTE: needs vivo_hash to pass
-    'feature_llmq_dkg_intake.py', # NOTE: needs vivo_hash to pass
-    'feature_llmq_singlenode.py', # NOTE: needs vivo_hash to pass
-    'feature_llmq_connections.py', # NOTE: needs vivo_hash to pass
-    'feature_llmq_is_cl_conflicts.py', # NOTE: needs vivo_hash to pass
-    'feature_dip4_coinbasemerkleroots.py', # NOTE: needs vivo_hash to pass
-    'feature_mnehf.py', # NOTE: needs vivo_hash to pass
-    'feature_masternode_params.py', # NOTE: needs vivo_hash to pass
+    'feature_llmq_signing.py --spork21', # NOTE: needs dash_hash to pass
+    'feature_llmq_simplepose.py --disable-spork23', # NOTE: needs dash_hash to pass
+    'feature_llmq_rotation.py', # NOTE: needs dash_hash to pass
+    'feature_llmq_evo.py', # NOTE: needs dash_hash to pass
+    'feature_llmq_dkgerrors.py', # NOTE: needs dash_hash to pass
+    'feature_llmq_dkg_intake.py', # NOTE: needs dash_hash to pass
+    'feature_llmq_singlenode.py', # NOTE: needs dash_hash to pass
+    'feature_llmq_connections.py', # NOTE: needs dash_hash to pass
+    'feature_llmq_is_cl_conflicts.py', # NOTE: needs dash_hash to pass
+    'feature_dip4_coinbasemerkleroots.py', # NOTE: needs dash_hash to pass
+    'feature_mnehf.py', # NOTE: needs dash_hash to pass
+    'feature_masternode_params.py', # NOTE: needs dash_hash to pass
     'feature_governance.py --descriptors',
     'feature_governance_cl.py --descriptors',
     'rpc_verifyislock.py',
-    'feature_dip3_deterministicmns.py --descriptors', # NOTE: needs vivo_hash to pass
+    'feature_dip3_deterministicmns.py --descriptors', # NOTE: needs dash_hash to pass
     'feature_notifications.py',
     # vv Tests less than 60s vv
     'rpc_psbt.py --legacy-wallet',
@@ -143,8 +143,8 @@ BASE_SCRIPTS = [
     'wallet_import_rescan.py --legacy-wallet',
     'wallet_backup.py --legacy-wallet',
     'wallet_backup.py --descriptors',
-    'wallet_vivo_rpcs.py --legacy-wallet',
-    'wallet_vivo_rpcs.py --descriptors',
+    'wallet_dash_rpcs.py --legacy-wallet',
+    'wallet_dash_rpcs.py --descriptors',
     'p2p_tx_download.py',
     'wallet_avoidreuse.py --legacy-wallet',
     'wallet_avoidreuse.py --descriptors',
@@ -166,9 +166,9 @@ BASE_SCRIPTS = [
     'rpc_bind.py --ipv6',
     'rpc_bind.py --nonloopback',
     'feature_csv_activation.py',
-    'p2p_platform_ban.py', # NOTE: needs vivo_hash to pass
-    'p2p_sendheaders.py', # NOTE: needs vivo_hash to pass
-    'p2p_sendheaders_compressed.py', # NOTE: needs vivo_hash to pass
+    'p2p_platform_ban.py', # NOTE: needs dash_hash to pass
+    'p2p_sendheaders.py', # NOTE: needs dash_hash to pass
+    'p2p_sendheaders_compressed.py', # NOTE: needs dash_hash to pass
     'wallet_listtransactions.py --legacy-wallet',
     'wallet_listtransactions.py --descriptors',
     # vv Tests less than 30s vv
@@ -196,7 +196,7 @@ BASE_SCRIPTS = [
     'wallet_keypool_topup.py --legacy-wallet',
     'wallet_keypool_topup.py --descriptors',
     'wallet_fast_rescan.py --descriptors',
-    'interface_zmq_vivo.py --legacy-wallet',
+    'interface_zmq_dash.py --legacy-wallet',
     'interface_zmq.py',
     'rpc_invalid_address_message.py',
     'interface_bitcoin_cli.py --legacy-wallet',
@@ -334,7 +334,7 @@ BASE_SCRIPTS = [
     'wallet_listdescriptors.py --descriptors',
     'p2p_leak.py',
     'p2p_compactblocks_blocksonly.py',
-    'p2p_mutated_blocks.py', # NOTE: needs vivo_hash to pass
+    'p2p_mutated_blocks.py', # NOTE: needs dash_hash to pass
     'p2p_connect_to_devnet.py',
     'feature_sporks.py',
     'rpc_getblockstats.py',
@@ -357,7 +357,7 @@ BASE_SCRIPTS = [
     'rpc_dumptxoutset.py',
     'feature_minchainwork.py',
     'rpc_estimatefee.py',
-    'p2p_unrequested_blocks.py', # NOTE: needs vivo_hash to pass
+    'p2p_unrequested_blocks.py', # NOTE: needs dash_hash to pass
     'feature_shutdown.py',
     'p2p_ibd_txrelay.py',
     'rpc_coinjoin.py',
@@ -467,7 +467,7 @@ def main():
         GREEN = ("", "")
         RED = ("", "")
 
-    # args to be passed on always start with two vivoes; tests are the remaining unknown args
+    # args to be passed on always start with two dashes; tests are the remaining unknown args
     tests = [arg for arg in unknown_args if arg[:2] != "--"]
     passon_args = [arg for arg in unknown_args if arg[:2] == "--"]
 
@@ -575,11 +575,11 @@ def main():
 def run_tests(*, test_list, src_dir, build_dir, tmpdir, jobs=1, attempts=1, enable_coverage=False, args=None, combined_logs_len=0, failfast=False, use_term_control, skipunit=False):
     args = args or []
 
-    # Warn if vivod is already running
+    # Warn if dashd is already running
     try:
         # pgrep exits with code zero when one or more matching processes found
-        if subprocess.run(["pgrep", "-x", "vivod"], stdout=subprocess.DEVNULL).returncode == 0:
-            print("%sWARNING!%s There is already a vivod process running on this system. Tests may fail unexpectedly due to resource contention!" % (BOLD[1], BOLD[0]))
+        if subprocess.run(["pgrep", "-x", "dashd"], stdout=subprocess.DEVNULL).returncode == 0:
+            print("%sWARNING!%s There is already a dashd process running on this system. Tests may fail unexpectedly due to resource contention!" % (BOLD[1], BOLD[0]))
     except OSError:
         # pgrep not supported
         pass
@@ -890,7 +890,7 @@ class RPCCoverage():
     Coverage calculation works by having each test script subprocess write
     coverage files into a particular directory. These files contain the RPC
     commands invoked during testing, as well as a complete listing of RPC
-    commands per `vivo-cli help` (`rpc_interface.txt`).
+    commands per `dash-cli help` (`rpc_interface.txt`).
 
     After all tests complete, the commands run are combined and diff'd against
     the complete list to calculate uncovered RPC commands.

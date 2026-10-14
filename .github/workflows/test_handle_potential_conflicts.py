@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-# Copyright (c) 2026 The Vivo Core developers
+# Copyright (c) 2026 The Dash Core developers
 # Distributed under the MIT software license, see the accompanying
 # file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
@@ -47,7 +47,7 @@ class TestPotentialConflictComments(unittest.TestCase):
         self.assertEqual(3, state["inbound"]["3"]["number"])
 
     def test_invalid_state_is_treated_as_empty(self):
-        body = """<!-- vivo-potential-conflicts:v1
+        body = """<!-- dash-potential-conflicts:v1
 not-json
 -->
 ## Potential PR merge conflicts
@@ -64,7 +64,7 @@ not-json
                 {
                     "number": 12,
                     "title": "fix: target",
-                    "url": "https://github.com/vivopay/vivo/pull/12",
+                    "url": "https://github.com/dashpay/dash/pull/12",
                     "files": ["src/net.cpp"],
                 }
             ],
@@ -72,7 +72,7 @@ not-json
                 "9": {
                     "number": 9,
                     "title": "refactor: source",
-                    "url": "https://github.com/vivopay/vivo/pull/9",
+                    "url": "https://github.com/dashpay/dash/pull/9",
                     "files": ["src/net.cpp"],
                 }
             },
@@ -80,11 +80,11 @@ not-json
 
         body = handle_potential_conflicts.render_comment_body(state)
 
-        self.assertEqual(1, body.count("vivo-potential-conflicts:v1"))
+        self.assertEqual(1, body.count("dash-potential-conflicts:v1"))
         self.assertIn("If this PR merges first", body)
         self.assertIn("If these PRs merge first", body)
-        self.assertIn("[#12: fix: target](https://github.com/vivopay/vivo/pull/12)", body)
-        self.assertIn("[#9: refactor: source](https://github.com/vivopay/vivo/pull/9)", body)
+        self.assertIn("[#12: fix: target](https://github.com/dashpay/dash/pull/12)", body)
+        self.assertIn("[#9: refactor: source](https://github.com/dashpay/dash/pull/9)", body)
 
     def test_rendered_comment_state_round_trips(self):
         state = {
@@ -92,7 +92,7 @@ not-json
                 {
                     "number": 12,
                     "title": f"title with {handle_potential_conflicts.COMMENT_START} --> marker-like text",
-                    "url": "https://github.com/vivopay/vivo/pull/12",
+                    "url": "https://github.com/dashpay/dash/pull/12",
                     "files": ["src/net.cpp"],
                 }
             ],
@@ -126,14 +126,14 @@ not-json
                 {
                     "number": 12,
                     "title": "fix [link] title",
-                    "url": "https://github.com/vivopay/vivo/pull/12",
+                    "url": "https://github.com/dashpay/dash/pull/12",
                     "files": ["src/`odd`.cpp"],
                 },
             ],
             "inbound": {},
         })
 
-        self.assertIn(r"[#12: fix \[link\] title](https://github.com/vivopay/vivo/pull/12)", body)
+        self.assertIn(r"[#12: fix \[link\] title](https://github.com/dashpay/dash/pull/12)", body)
         self.assertIn("<code>src/`odd`.cpp</code>", body)
 
     def test_normalize_state_filters_malformed_entries(self):
@@ -176,13 +176,13 @@ not-json
         our_pr_json = {
             "number": 10,
             "title": "fix: source",
-            "html_url": "https://github.com/vivopay/vivo/pull/10",
+            "html_url": "https://github.com/dashpay/dash/pull/10",
         }
         validated_conflicts = [
             {
                 "number": 12,
                 "title": "fix: new target",
-                "url": "https://github.com/vivopay/vivo/pull/12",
+                "url": "https://github.com/dashpay/dash/pull/12",
                 "files": ["src/net.cpp"],
             }
         ]
@@ -195,7 +195,7 @@ not-json
                         {
                             "number": 11,
                             "title": "fix: stale target",
-                            "url": "https://github.com/vivopay/vivo/pull/11",
+                            "url": "https://github.com/dashpay/dash/pull/11",
                             "files": ["src/old.cpp"],
                         }
                     ],
@@ -203,7 +203,7 @@ not-json
                         "8": {
                             "number": 8,
                             "title": "fix: incoming",
-                            "url": "https://github.com/vivopay/vivo/pull/8",
+                            "url": "https://github.com/dashpay/dash/pull/8",
                             "files": ["src/in.cpp"],
                         }
                     },
@@ -238,7 +238,7 @@ not-json
                         {
                             "number": 12,
                             "title": "fix: target",
-                            "url": "https://github.com/vivopay/vivo/pull/12",
+                            "url": "https://github.com/dashpay/dash/pull/12",
                             "files": ["src/net.cpp"],
                         }
                     ],
@@ -246,7 +246,7 @@ not-json
                         "8": {
                             "number": 8,
                             "title": "fix: source",
-                            "url": "https://github.com/vivopay/vivo/pull/8",
+                            "url": "https://github.com/dashpay/dash/pull/8",
                             "files": ["src/net.cpp"],
                         }
                     },
@@ -257,8 +257,8 @@ not-json
                 body="managed",
                 state={
                     "outbound": [
-                        {"number": 10, "title": "fix: closed target", "url": "https://github.com/vivopay/vivo/pull/10", "files": []},
-                        {"number": 11, "title": "fix: other target", "url": "https://github.com/vivopay/vivo/pull/11", "files": []},
+                        {"number": 10, "title": "fix: closed target", "url": "https://github.com/dashpay/dash/pull/10", "files": []},
+                        {"number": 11, "title": "fix: other target", "url": "https://github.com/dashpay/dash/pull/11", "files": []},
                     ],
                     "inbound": {},
                 },
@@ -306,7 +306,7 @@ not-json
                             {
                                 "number": 12,
                                 "title": "fix: target",
-                                "url": "https://github.com/vivopay/vivo/pull/12",
+                                "url": "https://github.com/dashpay/dash/pull/12",
                                 "files": [],
                             }
                         ],

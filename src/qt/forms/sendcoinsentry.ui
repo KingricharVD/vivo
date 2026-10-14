@@ -50,7 +50,7 @@
     <item>
       <widget class="QValidatedLineEdit" name="payTo">
       <property name="toolTip">
-        <string>The Vivo address to send the payment to</string>
+        <string>The Dash address to send the payment to</string>
       </property>
       </widget>
     </item>
@@ -158,7 +158,7 @@
     <item>
       <widget class="QCheckBox" name="checkboxSubtractFeeFromAmount">
       <property name="toolTip">
-        <string>The fee will be deducted from the amount being sent. The recipient will receive a lower amount of Vivo than you enter in the amount field. If multiple recipients are selected, the fee is split equally.</string>
+        <string>The fee will be deducted from the amount being sent. The recipient will receive a lower amount of Dash than you enter in the amount field. If multiple recipients are selected, the fee is split equally.</string>
       </property>
       <property name="text">
         <string>S&amp;ubtract fee from amount</string>

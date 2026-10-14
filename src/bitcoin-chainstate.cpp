@@ -279,7 +279,7 @@ epilogue:
         }
     }
     GetMainSignals().UnregisterBackgroundSignalScheduler();
-    // Tear down Vivo kernel objects before kernel::~Context().
+    // Tear down Dash kernel objects before kernel::~Context().
     chain_helper.reset();
     llmq_ctx.reset();
 }

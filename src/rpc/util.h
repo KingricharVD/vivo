@@ -53,7 +53,7 @@ static constexpr bool DEFAULT_RPC_DOC_CHECK{
 extern const std::string UNIX_EPOCH_TIME;
 
 /**
- * Example Vivo addresses for the RPCExamples help documentation. They are intentionally
+ * Example Dash addresses for the RPCExamples help documentation. They are intentionally
  * invalid to prevent accidental transactions by users.
  */
 extern const std::string EXAMPLE_ADDRESS[2];
@@ -120,7 +120,7 @@ bool ParseBoolV(const UniValue& v, const std::string &strName);
 CAmount AmountFromValue(const UniValue& value, int decimals = 8);
 /**
  * Parse a json number or string, denoting BTC/kvB, into a CFeeRate (sat/kvB).
- * Reject negative values or rates larger than 1VIVO/kB.
+ * Reject negative values or rates larger than 1DASH/kB.
  */
 CFeeRate ParseFeeRate(const UniValue& json);
 

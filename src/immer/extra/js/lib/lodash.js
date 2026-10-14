@@ -1,8 +1,8 @@
 /**
  * @license
- * lovivo <https://lovivo.com/>
+ * lodash <https://lodash.com/>
  * Copyright jQuery Foundation and other contributors <https://jquery.org/>
- * Released under MIT license <https://lovivo.com/license>
+ * Released under MIT license <https://lodash.com/license>
  * Based on Underscore.js 1.8.3 <http://underscorejs.org/LICENSE>
  * Copyright Jeremy Ashkenas, DocumentCloud and Investigative Reporters & Editors
  */
@@ -21,10 +21,10 @@
   var FUNC_ERROR_TEXT = 'Expected a function';
 
   /** Used to stand-in for `undefined` hash values. */
-  var HASH_UNDEFINED = '__lovivo_hash_undefined__';
+  var HASH_UNDEFINED = '__lodash_hash_undefined__';
 
   /** Used as the internal argument placeholder. */
-  var PLACEHOLDER = '__lovivo_placeholder__';
+  var PLACEHOLDER = '__lodash_placeholder__';
 
   /** Used to compose bitmasks for function metadata. */
   var BIND_FLAG = 1,
@@ -1242,29 +1242,29 @@
   /*--------------------------------------------------------------------------*/
 
   /**
-   * Create a new pristine `lovivo` function using the `context` object.
+   * Create a new pristine `lodash` function using the `context` object.
    *
    * @static
    * @memberOf _
    * @since 1.1.0
    * @category Util
    * @param {Object} [context=root] The context object.
-   * @returns {Function} Returns a new `lovivo` function.
+   * @returns {Function} Returns a new `lodash` function.
    * @example
    *
    * _.mixin({ 'foo': _.constant('foo') });
    *
-   * var lovivo = _.runInContext();
-   * lovivo.mixin({ 'bar': lovivo.constant('bar') });
+   * var lodash = _.runInContext();
+   * lodash.mixin({ 'bar': lodash.constant('bar') });
    *
    * _.isFunction(_.foo);
    * // => true
    * _.isFunction(_.bar);
    * // => false
    *
-   * lovivo.isFunction(lovivo.foo);
+   * lodash.isFunction(lodash.foo);
    * // => false
-   * lovivo.isFunction(lovivo.bar);
+   * lodash.isFunction(lodash.bar);
    * // => true
    *
    * // Use `context` to stub `Date#getTime` use in `_.now`.
@@ -1322,7 +1322,7 @@
     var objectToString = objectProto.toString;
 
     /** Used to restore the original `_` reference in `_.noConflict`. */
-    var oldVivo = root._;
+    var oldDash = root._;
 
     /** Used to detect if a method is native. */
     var reIsNative = RegExp('^' +
@@ -1346,7 +1346,7 @@
     var clearTimeout = function(id) { return context.clearTimeout.call(root, id); },
         setTimeout = function(func, wait) { return context.setTimeout.call(root, func, wait); };
 
-    /* Built-in method references for those with the same name as other `lovivo` methods. */
+    /* Built-in method references for those with the same name as other `lodash` methods. */
     var nativeCeil = Math.ceil,
         nativeFloor = Math.floor,
         nativeGetPrototype = Object.getPrototypeOf,
@@ -1403,7 +1403,7 @@
     /*------------------------------------------------------------------------*/
 
     /**
-     * Creates a `lovivo` object which wraps `value` to enable implicit method
+     * Creates a `lodash` object which wraps `value` to enable implicit method
      * chain sequences. Methods that operate on and return arrays, collections,
      * and functions can be chained together. Methods that retrieve a single value
      * or may return a primitive value will automatically end the chain sequence
@@ -1427,7 +1427,7 @@
      * Chaining is supported in custom builds as long as the `_#value` method is
      * directly or indirectly included in the build.
      *
-     * In addition to lovivo methods, wrappers have `Array` and `String` methods.
+     * In addition to lodash methods, wrappers have `Array` and `String` methods.
      *
      * The wrapper `Array` methods are:
      * `concat`, `join`, `pop`, `push`, `shift`, `sort`, `splice`, and `unshift`
@@ -1496,8 +1496,8 @@
      * @name _
      * @constructor
      * @category Seq
-     * @param {*} value The value to wrap in a `lovivo` instance.
-     * @returns {Object} Returns the new `lovivo` wrapper instance.
+     * @param {*} value The value to wrap in a `lodash` instance.
+     * @returns {Object} Returns the new `lodash` wrapper instance.
      * @example
      *
      * function square(n) {
@@ -1519,16 +1519,16 @@
      * _.isArray(squares.value());
      * // => true
      */
-    function lovivo(value) {
+    function lodash(value) {
       if (isObjectLike(value) && !isArray(value) && !(value instanceof LazyWrapper)) {
-        if (value instanceof LovivoWrapper) {
+        if (value instanceof LodashWrapper) {
           return value;
         }
         if (hasOwnProperty.call(value, '__wrapped__')) {
           return wrapperClone(value);
         }
       }
-      return new LovivoWrapper(value);
+      return new LodashWrapper(value);
     }
 
     /**
@@ -1536,18 +1536,18 @@
      *
      * @private
      */
-    function baseLovivo() {
+    function baseLodash() {
       // No operation performed.
     }
 
     /**
-     * The base constructor for creating `lovivo` wrapper objects.
+     * The base constructor for creating `lodash` wrapper objects.
      *
      * @private
      * @param {*} value The value to wrap.
      * @param {boolean} [chainAll] Enable explicit method chain sequences.
      */
-    function LovivoWrapper(value, chainAll) {
+    function LodashWrapper(value, chainAll) {
       this.__wrapped__ = value;
       this.__actions__ = [];
       this.__chain__ = !!chainAll;
@@ -1556,7 +1556,7 @@
     }
 
     /**
-     * By default, the template delimiters used by lovivo are like those in
+     * By default, the template delimiters used by lodash are like those in
      * embedded Ruby (ERB). Change the following template settings to use
      * alternative delimiters.
      *
@@ -1564,7 +1564,7 @@
      * @memberOf _
      * @type {Object}
      */
-    lovivo.templateSettings = {
+    lodash.templateSettings = {
 
       /**
        * Used to detect `data` property values to be HTML-escaped.
@@ -1607,21 +1607,21 @@
       'imports': {
 
         /**
-         * A reference to the `lovivo` function.
+         * A reference to the `lodash` function.
          *
          * @memberOf _.templateSettings.imports
          * @type {Function}
          */
-        '_': lovivo
+        '_': lodash
       }
     };
 
-    // Ensure wrappers are instances of `baseLovivo`.
-    lovivo.prototype = baseLovivo.prototype;
-    lovivo.prototype.constructor = lovivo;
+    // Ensure wrappers are instances of `baseLodash`.
+    lodash.prototype = baseLodash.prototype;
+    lodash.prototype.constructor = lodash;
 
-    LovivoWrapper.prototype = baseCreate(baseLovivo.prototype);
-    LovivoWrapper.prototype.constructor = LovivoWrapper;
+    LodashWrapper.prototype = baseCreate(baseLodash.prototype);
+    LodashWrapper.prototype.constructor = LodashWrapper;
 
     /*------------------------------------------------------------------------*/
 
@@ -1739,8 +1739,8 @@
       return result;
     }
 
-    // Ensure `LazyWrapper` is an instance of `baseLovivo`.
-    LazyWrapper.prototype = baseCreate(baseLovivo.prototype);
+    // Ensure `LazyWrapper` is an instance of `baseLodash`.
+    LazyWrapper.prototype = baseCreate(baseLodash.prototype);
     LazyWrapper.prototype.constructor = LazyWrapper;
 
     /*------------------------------------------------------------------------*/
@@ -4742,7 +4742,7 @@
 
         var length = funcs.length,
             index = length,
-            prereq = LovivoWrapper.prototype.thru;
+            prereq = LodashWrapper.prototype.thru;
 
         if (fromRight) {
           funcs.reverse();
@@ -4753,7 +4753,7 @@
             throw new TypeError(FUNC_ERROR_TEXT);
           }
           if (prereq && !wrapper && getFuncName(func) == 'wrapper') {
-            var wrapper = new LovivoWrapper([], true);
+            var wrapper = new LodashWrapper([], true);
           }
         }
         index = wrapper ? index : length;
@@ -5515,7 +5515,7 @@
      * @returns {*} Returns the placeholder value.
      */
     function getHolder(func) {
-      var object = hasOwnProperty.call(lovivo, 'placeholder') ? lovivo : func;
+      var object = hasOwnProperty.call(lodash, 'placeholder') ? lodash : func;
       return object.placeholder;
     }
 
@@ -5531,7 +5531,7 @@
      * @returns {Function} Returns the chosen function or its result.
      */
     function getIteratee() {
-      var result = lovivo.iteratee || iteratee;
+      var result = lodash.iteratee || iteratee;
       result = result === iteratee ? baseIteratee : result;
       return arguments.length ? result(arguments[0], arguments[1]) : result;
     }
@@ -5948,7 +5948,7 @@
      */
     function isLaziable(func) {
       var funcName = getFuncName(func),
-          other = lovivo[funcName];
+          other = lodash[funcName];
 
       if (typeof other != 'function' || !(funcName in LazyWrapper.prototype)) {
         return false;
@@ -6289,7 +6289,7 @@
       if (wrapper instanceof LazyWrapper) {
         return wrapper.clone();
       }
-      var result = new LovivoWrapper(wrapper.__wrapped__, wrapper.__chain__);
+      var result = new LodashWrapper(wrapper.__wrapped__, wrapper.__chain__);
       result.__actions__ = copyArray(wrapper.__actions__);
       result.__index__  = wrapper.__index__;
       result.__values__ = wrapper.__values__;
@@ -8211,7 +8211,7 @@
     /*------------------------------------------------------------------------*/
 
     /**
-     * Creates a `lovivo` wrapper instance that wraps `value` with explicit method
+     * Creates a `lodash` wrapper instance that wraps `value` with explicit method
      * chain sequences enabled. The result of such sequences must be unwrapped
      * with `_#value`.
      *
@@ -8220,7 +8220,7 @@
      * @since 1.3.0
      * @category Seq
      * @param {*} value The value to wrap.
-     * @returns {Object} Returns the new `lovivo` wrapper instance.
+     * @returns {Object} Returns the new `lodash` wrapper instance.
      * @example
      *
      * var users = [
@@ -8240,7 +8240,7 @@
      * // => 'pebbles is 1'
      */
     function chain(value) {
-      var result = lovivo(value);
+      var result = lodash(value);
       result.__chain__ = true;
       return result;
     }
@@ -8308,7 +8308,7 @@
      * @since 1.0.0
      * @category Seq
      * @param {...(string|string[])} [paths] The property paths of elements to pick.
-     * @returns {Object} Returns the new `lovivo` wrapper instance.
+     * @returns {Object} Returns the new `lodash` wrapper instance.
      * @example
      *
      * var object = { 'a': [{ 'b': { 'c': 3 } }, 4] };
@@ -8333,7 +8333,7 @@
         'args': [interceptor],
         'thisArg': undefined
       });
-      return new LovivoWrapper(value, this.__chain__).thru(function(array) {
+      return new LodashWrapper(value, this.__chain__).thru(function(array) {
         if (length && !array.length) {
           array.push(undefined);
         }
@@ -8342,13 +8342,13 @@
     });
 
     /**
-     * Creates a `lovivo` wrapper instance with explicit method chain sequences enabled.
+     * Creates a `lodash` wrapper instance with explicit method chain sequences enabled.
      *
      * @name chain
      * @memberOf _
      * @since 0.1.0
      * @category Seq
-     * @returns {Object} Returns the new `lovivo` wrapper instance.
+     * @returns {Object} Returns the new `lodash` wrapper instance.
      * @example
      *
      * var users = [
@@ -8379,7 +8379,7 @@
      * @memberOf _
      * @since 3.2.0
      * @category Seq
-     * @returns {Object} Returns the new `lovivo` wrapper instance.
+     * @returns {Object} Returns the new `lodash` wrapper instance.
      * @example
      *
      * var array = [1, 2];
@@ -8399,7 +8399,7 @@
      * // => [1, 2, 3]
      */
     function wrapperCommit() {
-      return new LovivoWrapper(this.value(), this.__chain__);
+      return new LodashWrapper(this.value(), this.__chain__);
     }
 
     /**
@@ -8464,7 +8464,7 @@
      * @since 3.2.0
      * @category Seq
      * @param {*} value The value to plant.
-     * @returns {Object} Returns the new `lovivo` wrapper instance.
+     * @returns {Object} Returns the new `lodash` wrapper instance.
      * @example
      *
      * function square(n) {
@@ -8484,7 +8484,7 @@
       var result,
           parent = this;
 
-      while (parent instanceof baseLovivo) {
+      while (parent instanceof baseLodash) {
         var clone = wrapperClone(parent);
         clone.__index__ = 0;
         clone.__values__ = undefined;
@@ -8509,7 +8509,7 @@
      * @memberOf _
      * @since 0.1.0
      * @category Seq
-     * @returns {Object} Returns the new `lovivo` wrapper instance.
+     * @returns {Object} Returns the new `lodash` wrapper instance.
      * @example
      *
      * var array = [1, 2, 3];
@@ -8533,7 +8533,7 @@
           'args': [reverse],
           'thisArg': undefined
         });
-        return new LovivoWrapper(wrapped, this.__chain__);
+        return new LodashWrapper(wrapped, this.__chain__);
       }
       return this.thru(reverse);
     }
@@ -9021,7 +9021,7 @@
      * `iteratee`. The iteratee is invoked with three arguments:
      * (value, index|key, collection).
      *
-     * Many lovivo methods are guarded to work as iteratees for methods like
+     * Many lodash methods are guarded to work as iteratees for methods like
      * `_.every`, `_.filter`, `_.map`, `_.mapValues`, `_.reject`, and `_.some`.
      *
      * The guarded methods are:
@@ -9154,7 +9154,7 @@
      * value. The iteratee is invoked with four arguments:
      * (accumulator, value, index|key, collection).
      *
-     * Many lovivo methods are guarded to work as iteratees for methods like
+     * Many lodash methods are guarded to work as iteratees for methods like
      * `_.reduce`, `_.reduceRight`, and `_.transform`.
      *
      * The guarded methods are:
@@ -13774,8 +13774,8 @@
      * @returns {string} Returns the escaped string.
      * @example
      *
-     * _.escapeRegExp('[lovivo](https://lovivo.com/)');
-     * // => '\[lovivo\]\(https://lovivo\.com/\)'
+     * _.escapeRegExp('[lodash](https://lodash.com/)');
+     * // => '\[lodash\]\(https://lodash\.com/\)'
      */
     function escapeRegExp(string) {
       string = toString(string);
@@ -14182,7 +14182,7 @@
      * for easier debugging.
      *
      * For more information on precompiling templates see
-     * [lovivo's custom builds documentation](https://lovivo.com/custom-builds).
+     * [lodash's custom builds documentation](https://lodash.com/custom-builds).
      *
      * For more information on Chrome extension sandboxes see
      * [Chrome's extensions documentation](https://developer.chrome.com/extensions/sandboxingEval).
@@ -14201,7 +14201,7 @@
      *  An object to import into the template as free variables.
      * @param {RegExp} [options.interpolate=_.templateSettings.interpolate]
      *  The "interpolate" delimiter.
-     * @param {string} [options.sourceURL='lovivo.templateSources[n]']
+     * @param {string} [options.sourceURL='lodash.templateSources[n]']
      *  The sourceURL of the compiled template.
      * @param {string} [options.variable='obj']
      *  The data object variable name.
@@ -14277,7 +14277,7 @@
       // Based on John Resig's `tmpl` implementation
       // (http://ejohn.org/blog/javascript-micro-templating/)
       // and Laura Doktorova's doT.js (https://github.com/olado/doT).
-      var settings = lovivo.templateSettings;
+      var settings = lodash.templateSettings;
 
       if (guard && isIterateeCall(string, options, guard)) {
         options = undefined;
@@ -14307,7 +14307,7 @@
       var sourceURL = '//# sourceURL=' +
         ('sourceURL' in options
           ? options.sourceURL
-          : ('lovivo.templateSources[' + (++templateCounter) + ']')
+          : ('lodash.templateSources[' + (++templateCounter) + ']')
         ) + '\n';
 
       string.replace(reDelimiters, function(match, escapeValue, interpolateValue, esTemplateValue, evaluateValue, offset) {
@@ -15153,14 +15153,14 @@
      * object to the destination object. If `object` is a function, then methods
      * are added to its prototype as well.
      *
-     * **Note:** Use `_.runInContext` to create a pristine `lovivo` function to
+     * **Note:** Use `_.runInContext` to create a pristine `lodash` function to
      * avoid conflicts caused by modifying the original.
      *
      * @static
      * @since 0.1.0
      * @memberOf _
      * @category Util
-     * @param {Function|Object} [object=lovivo] The destination object.
+     * @param {Function|Object} [object=lodash] The destination object.
      * @param {Object} source The object of functions to add.
      * @param {Object} [options={}] The options object.
      * @param {boolean} [options.chain=true] Specify whether mixins are chainable.
@@ -15222,20 +15222,20 @@
 
     /**
      * Reverts the `_` variable to its previous value and returns a reference to
-     * the `lovivo` function.
+     * the `lodash` function.
      *
      * @static
      * @since 0.1.0
      * @memberOf _
      * @category Util
-     * @returns {Function} Returns the `lovivo` function.
+     * @returns {Function} Returns the `lodash` function.
      * @example
      *
-     * var lovivo = _.noConflict();
+     * var lodash = _.noConflict();
      */
     function noConflict() {
       if (root._ === this) {
-        root._ = oldVivo;
+        root._ = oldDash;
       }
       return this;
     }
@@ -16017,327 +16017,327 @@
     /*------------------------------------------------------------------------*/
 
     // Add methods that return wrapped values in chain sequences.
-    lovivo.after = after;
-    lovivo.ary = ary;
-    lovivo.assign = assign;
-    lovivo.assignIn = assignIn;
-    lovivo.assignInWith = assignInWith;
-    lovivo.assignWith = assignWith;
-    lovivo.at = at;
-    lovivo.before = before;
-    lovivo.bind = bind;
-    lovivo.bindAll = bindAll;
-    lovivo.bindKey = bindKey;
-    lovivo.castArray = castArray;
-    lovivo.chain = chain;
-    lovivo.chunk = chunk;
-    lovivo.compact = compact;
-    lovivo.concat = concat;
-    lovivo.cond = cond;
-    lovivo.conforms = conforms;
-    lovivo.constant = constant;
-    lovivo.countBy = countBy;
-    lovivo.create = create;
-    lovivo.curry = curry;
-    lovivo.curryRight = curryRight;
-    lovivo.debounce = debounce;
-    lovivo.defaults = defaults;
-    lovivo.defaultsDeep = defaultsDeep;
-    lovivo.defer = defer;
-    lovivo.delay = delay;
-    lovivo.difference = difference;
-    lovivo.differenceBy = differenceBy;
-    lovivo.differenceWith = differenceWith;
-    lovivo.drop = drop;
-    lovivo.dropRight = dropRight;
-    lovivo.dropRightWhile = dropRightWhile;
-    lovivo.dropWhile = dropWhile;
-    lovivo.fill = fill;
-    lovivo.filter = filter;
-    lovivo.flatMap = flatMap;
-    lovivo.flatMapDeep = flatMapDeep;
-    lovivo.flatMapDepth = flatMapDepth;
-    lovivo.flatten = flatten;
-    lovivo.flattenDeep = flattenDeep;
-    lovivo.flattenDepth = flattenDepth;
-    lovivo.flip = flip;
-    lovivo.flow = flow;
-    lovivo.flowRight = flowRight;
-    lovivo.fromPairs = fromPairs;
-    lovivo.functions = functions;
-    lovivo.functionsIn = functionsIn;
-    lovivo.groupBy = groupBy;
-    lovivo.initial = initial;
-    lovivo.intersection = intersection;
-    lovivo.intersectionBy = intersectionBy;
-    lovivo.intersectionWith = intersectionWith;
-    lovivo.invert = invert;
-    lovivo.invertBy = invertBy;
-    lovivo.invokeMap = invokeMap;
-    lovivo.iteratee = iteratee;
-    lovivo.keyBy = keyBy;
-    lovivo.keys = keys;
-    lovivo.keysIn = keysIn;
-    lovivo.map = map;
-    lovivo.mapKeys = mapKeys;
-    lovivo.mapValues = mapValues;
-    lovivo.matches = matches;
-    lovivo.matchesProperty = matchesProperty;
-    lovivo.memoize = memoize;
-    lovivo.merge = merge;
-    lovivo.mergeWith = mergeWith;
-    lovivo.method = method;
-    lovivo.methodOf = methodOf;
-    lovivo.mixin = mixin;
-    lovivo.negate = negate;
-    lovivo.nthArg = nthArg;
-    lovivo.omit = omit;
-    lovivo.omitBy = omitBy;
-    lovivo.once = once;
-    lovivo.orderBy = orderBy;
-    lovivo.over = over;
-    lovivo.overArgs = overArgs;
-    lovivo.overEvery = overEvery;
-    lovivo.overSome = overSome;
-    lovivo.partial = partial;
-    lovivo.partialRight = partialRight;
-    lovivo.partition = partition;
-    lovivo.pick = pick;
-    lovivo.pickBy = pickBy;
-    lovivo.property = property;
-    lovivo.propertyOf = propertyOf;
-    lovivo.pull = pull;
-    lovivo.pullAll = pullAll;
-    lovivo.pullAllBy = pullAllBy;
-    lovivo.pullAllWith = pullAllWith;
-    lovivo.pullAt = pullAt;
-    lovivo.range = range;
-    lovivo.rangeRight = rangeRight;
-    lovivo.rearg = rearg;
-    lovivo.reject = reject;
-    lovivo.remove = remove;
-    lovivo.rest = rest;
-    lovivo.reverse = reverse;
-    lovivo.sampleSize = sampleSize;
-    lovivo.set = set;
-    lovivo.setWith = setWith;
-    lovivo.shuffle = shuffle;
-    lovivo.slice = slice;
-    lovivo.sortBy = sortBy;
-    lovivo.sortedUniq = sortedUniq;
-    lovivo.sortedUniqBy = sortedUniqBy;
-    lovivo.split = split;
-    lovivo.spread = spread;
-    lovivo.tail = tail;
-    lovivo.take = take;
-    lovivo.takeRight = takeRight;
-    lovivo.takeRightWhile = takeRightWhile;
-    lovivo.takeWhile = takeWhile;
-    lovivo.tap = tap;
-    lovivo.throttle = throttle;
-    lovivo.thru = thru;
-    lovivo.toArray = toArray;
-    lovivo.toPairs = toPairs;
-    lovivo.toPairsIn = toPairsIn;
-    lovivo.toPath = toPath;
-    lovivo.toPlainObject = toPlainObject;
-    lovivo.transform = transform;
-    lovivo.unary = unary;
-    lovivo.union = union;
-    lovivo.unionBy = unionBy;
-    lovivo.unionWith = unionWith;
-    lovivo.uniq = uniq;
-    lovivo.uniqBy = uniqBy;
-    lovivo.uniqWith = uniqWith;
-    lovivo.unset = unset;
-    lovivo.unzip = unzip;
-    lovivo.unzipWith = unzipWith;
-    lovivo.update = update;
-    lovivo.updateWith = updateWith;
-    lovivo.values = values;
-    lovivo.valuesIn = valuesIn;
-    lovivo.without = without;
-    lovivo.words = words;
-    lovivo.wrap = wrap;
-    lovivo.xor = xor;
-    lovivo.xorBy = xorBy;
-    lovivo.xorWith = xorWith;
-    lovivo.zip = zip;
-    lovivo.zipObject = zipObject;
-    lovivo.zipObjectDeep = zipObjectDeep;
-    lovivo.zipWith = zipWith;
+    lodash.after = after;
+    lodash.ary = ary;
+    lodash.assign = assign;
+    lodash.assignIn = assignIn;
+    lodash.assignInWith = assignInWith;
+    lodash.assignWith = assignWith;
+    lodash.at = at;
+    lodash.before = before;
+    lodash.bind = bind;
+    lodash.bindAll = bindAll;
+    lodash.bindKey = bindKey;
+    lodash.castArray = castArray;
+    lodash.chain = chain;
+    lodash.chunk = chunk;
+    lodash.compact = compact;
+    lodash.concat = concat;
+    lodash.cond = cond;
+    lodash.conforms = conforms;
+    lodash.constant = constant;
+    lodash.countBy = countBy;
+    lodash.create = create;
+    lodash.curry = curry;
+    lodash.curryRight = curryRight;
+    lodash.debounce = debounce;
+    lodash.defaults = defaults;
+    lodash.defaultsDeep = defaultsDeep;
+    lodash.defer = defer;
+    lodash.delay = delay;
+    lodash.difference = difference;
+    lodash.differenceBy = differenceBy;
+    lodash.differenceWith = differenceWith;
+    lodash.drop = drop;
+    lodash.dropRight = dropRight;
+    lodash.dropRightWhile = dropRightWhile;
+    lodash.dropWhile = dropWhile;
+    lodash.fill = fill;
+    lodash.filter = filter;
+    lodash.flatMap = flatMap;
+    lodash.flatMapDeep = flatMapDeep;
+    lodash.flatMapDepth = flatMapDepth;
+    lodash.flatten = flatten;
+    lodash.flattenDeep = flattenDeep;
+    lodash.flattenDepth = flattenDepth;
+    lodash.flip = flip;
+    lodash.flow = flow;
+    lodash.flowRight = flowRight;
+    lodash.fromPairs = fromPairs;
+    lodash.functions = functions;
+    lodash.functionsIn = functionsIn;
+    lodash.groupBy = groupBy;
+    lodash.initial = initial;
+    lodash.intersection = intersection;
+    lodash.intersectionBy = intersectionBy;
+    lodash.intersectionWith = intersectionWith;
+    lodash.invert = invert;
+    lodash.invertBy = invertBy;
+    lodash.invokeMap = invokeMap;
+    lodash.iteratee = iteratee;
+    lodash.keyBy = keyBy;
+    lodash.keys = keys;
+    lodash.keysIn = keysIn;
+    lodash.map = map;
+    lodash.mapKeys = mapKeys;
+    lodash.mapValues = mapValues;
+    lodash.matches = matches;
+    lodash.matchesProperty = matchesProperty;
+    lodash.memoize = memoize;
+    lodash.merge = merge;
+    lodash.mergeWith = mergeWith;
+    lodash.method = method;
+    lodash.methodOf = methodOf;
+    lodash.mixin = mixin;
+    lodash.negate = negate;
+    lodash.nthArg = nthArg;
+    lodash.omit = omit;
+    lodash.omitBy = omitBy;
+    lodash.once = once;
+    lodash.orderBy = orderBy;
+    lodash.over = over;
+    lodash.overArgs = overArgs;
+    lodash.overEvery = overEvery;
+    lodash.overSome = overSome;
+    lodash.partial = partial;
+    lodash.partialRight = partialRight;
+    lodash.partition = partition;
+    lodash.pick = pick;
+    lodash.pickBy = pickBy;
+    lodash.property = property;
+    lodash.propertyOf = propertyOf;
+    lodash.pull = pull;
+    lodash.pullAll = pullAll;
+    lodash.pullAllBy = pullAllBy;
+    lodash.pullAllWith = pullAllWith;
+    lodash.pullAt = pullAt;
+    lodash.range = range;
+    lodash.rangeRight = rangeRight;
+    lodash.rearg = rearg;
+    lodash.reject = reject;
+    lodash.remove = remove;
+    lodash.rest = rest;
+    lodash.reverse = reverse;
+    lodash.sampleSize = sampleSize;
+    lodash.set = set;
+    lodash.setWith = setWith;
+    lodash.shuffle = shuffle;
+    lodash.slice = slice;
+    lodash.sortBy = sortBy;
+    lodash.sortedUniq = sortedUniq;
+    lodash.sortedUniqBy = sortedUniqBy;
+    lodash.split = split;
+    lodash.spread = spread;
+    lodash.tail = tail;
+    lodash.take = take;
+    lodash.takeRight = takeRight;
+    lodash.takeRightWhile = takeRightWhile;
+    lodash.takeWhile = takeWhile;
+    lodash.tap = tap;
+    lodash.throttle = throttle;
+    lodash.thru = thru;
+    lodash.toArray = toArray;
+    lodash.toPairs = toPairs;
+    lodash.toPairsIn = toPairsIn;
+    lodash.toPath = toPath;
+    lodash.toPlainObject = toPlainObject;
+    lodash.transform = transform;
+    lodash.unary = unary;
+    lodash.union = union;
+    lodash.unionBy = unionBy;
+    lodash.unionWith = unionWith;
+    lodash.uniq = uniq;
+    lodash.uniqBy = uniqBy;
+    lodash.uniqWith = uniqWith;
+    lodash.unset = unset;
+    lodash.unzip = unzip;
+    lodash.unzipWith = unzipWith;
+    lodash.update = update;
+    lodash.updateWith = updateWith;
+    lodash.values = values;
+    lodash.valuesIn = valuesIn;
+    lodash.without = without;
+    lodash.words = words;
+    lodash.wrap = wrap;
+    lodash.xor = xor;
+    lodash.xorBy = xorBy;
+    lodash.xorWith = xorWith;
+    lodash.zip = zip;
+    lodash.zipObject = zipObject;
+    lodash.zipObjectDeep = zipObjectDeep;
+    lodash.zipWith = zipWith;
 
     // Add aliases.
-    lovivo.entries = toPairs;
-    lovivo.entriesIn = toPairsIn;
-    lovivo.extend = assignIn;
-    lovivo.extendWith = assignInWith;
+    lodash.entries = toPairs;
+    lodash.entriesIn = toPairsIn;
+    lodash.extend = assignIn;
+    lodash.extendWith = assignInWith;
 
-    // Add methods to `lovivo.prototype`.
-    mixin(lovivo, lovivo);
+    // Add methods to `lodash.prototype`.
+    mixin(lodash, lodash);
 
     /*------------------------------------------------------------------------*/
 
     // Add methods that return unwrapped values in chain sequences.
-    lovivo.add = add;
-    lovivo.attempt = attempt;
-    lovivo.camelCase = camelCase;
-    lovivo.capitalize = capitalize;
-    lovivo.ceil = ceil;
-    lovivo.clamp = clamp;
-    lovivo.clone = clone;
-    lovivo.cloneDeep = cloneDeep;
-    lovivo.cloneDeepWith = cloneDeepWith;
-    lovivo.cloneWith = cloneWith;
-    lovivo.conformsTo = conformsTo;
-    lovivo.deburr = deburr;
-    lovivo.defaultTo = defaultTo;
-    lovivo.divide = divide;
-    lovivo.endsWith = endsWith;
-    lovivo.eq = eq;
-    lovivo.escape = escape;
-    lovivo.escapeRegExp = escapeRegExp;
-    lovivo.every = every;
-    lovivo.find = find;
-    lovivo.findIndex = findIndex;
-    lovivo.findKey = findKey;
-    lovivo.findLast = findLast;
-    lovivo.findLastIndex = findLastIndex;
-    lovivo.findLastKey = findLastKey;
-    lovivo.floor = floor;
-    lovivo.forEach = forEach;
-    lovivo.forEachRight = forEachRight;
-    lovivo.forIn = forIn;
-    lovivo.forInRight = forInRight;
-    lovivo.forOwn = forOwn;
-    lovivo.forOwnRight = forOwnRight;
-    lovivo.get = get;
-    lovivo.gt = gt;
-    lovivo.gte = gte;
-    lovivo.has = has;
-    lovivo.hasIn = hasIn;
-    lovivo.head = head;
-    lovivo.identity = identity;
-    lovivo.includes = includes;
-    lovivo.indexOf = indexOf;
-    lovivo.inRange = inRange;
-    lovivo.invoke = invoke;
-    lovivo.isArguments = isArguments;
-    lovivo.isArray = isArray;
-    lovivo.isArrayBuffer = isArrayBuffer;
-    lovivo.isArrayLike = isArrayLike;
-    lovivo.isArrayLikeObject = isArrayLikeObject;
-    lovivo.isBoolean = isBoolean;
-    lovivo.isBuffer = isBuffer;
-    lovivo.isDate = isDate;
-    lovivo.isElement = isElement;
-    lovivo.isEmpty = isEmpty;
-    lovivo.isEqual = isEqual;
-    lovivo.isEqualWith = isEqualWith;
-    lovivo.isError = isError;
-    lovivo.isFinite = isFinite;
-    lovivo.isFunction = isFunction;
-    lovivo.isInteger = isInteger;
-    lovivo.isLength = isLength;
-    lovivo.isMap = isMap;
-    lovivo.isMatch = isMatch;
-    lovivo.isMatchWith = isMatchWith;
-    lovivo.isNaN = isNaN;
-    lovivo.isNative = isNative;
-    lovivo.isNil = isNil;
-    lovivo.isNull = isNull;
-    lovivo.isNumber = isNumber;
-    lovivo.isObject = isObject;
-    lovivo.isObjectLike = isObjectLike;
-    lovivo.isPlainObject = isPlainObject;
-    lovivo.isRegExp = isRegExp;
-    lovivo.isSafeInteger = isSafeInteger;
-    lovivo.isSet = isSet;
-    lovivo.isString = isString;
-    lovivo.isSymbol = isSymbol;
-    lovivo.isTypedArray = isTypedArray;
-    lovivo.isUndefined = isUndefined;
-    lovivo.isWeakMap = isWeakMap;
-    lovivo.isWeakSet = isWeakSet;
-    lovivo.join = join;
-    lovivo.kebabCase = kebabCase;
-    lovivo.last = last;
-    lovivo.lastIndexOf = lastIndexOf;
-    lovivo.lowerCase = lowerCase;
-    lovivo.lowerFirst = lowerFirst;
-    lovivo.lt = lt;
-    lovivo.lte = lte;
-    lovivo.max = max;
-    lovivo.maxBy = maxBy;
-    lovivo.mean = mean;
-    lovivo.meanBy = meanBy;
-    lovivo.min = min;
-    lovivo.minBy = minBy;
-    lovivo.stubArray = stubArray;
-    lovivo.stubFalse = stubFalse;
-    lovivo.stubObject = stubObject;
-    lovivo.stubString = stubString;
-    lovivo.stubTrue = stubTrue;
-    lovivo.multiply = multiply;
-    lovivo.nth = nth;
-    lovivo.noConflict = noConflict;
-    lovivo.noop = noop;
-    lovivo.now = now;
-    lovivo.pad = pad;
-    lovivo.padEnd = padEnd;
-    lovivo.padStart = padStart;
-    lovivo.parseInt = parseInt;
-    lovivo.random = random;
-    lovivo.reduce = reduce;
-    lovivo.reduceRight = reduceRight;
-    lovivo.repeat = repeat;
-    lovivo.replace = replace;
-    lovivo.result = result;
-    lovivo.round = round;
-    lovivo.runInContext = runInContext;
-    lovivo.sample = sample;
-    lovivo.size = size;
-    lovivo.snakeCase = snakeCase;
-    lovivo.some = some;
-    lovivo.sortedIndex = sortedIndex;
-    lovivo.sortedIndexBy = sortedIndexBy;
-    lovivo.sortedIndexOf = sortedIndexOf;
-    lovivo.sortedLastIndex = sortedLastIndex;
-    lovivo.sortedLastIndexBy = sortedLastIndexBy;
-    lovivo.sortedLastIndexOf = sortedLastIndexOf;
-    lovivo.startCase = startCase;
-    lovivo.startsWith = startsWith;
-    lovivo.subtract = subtract;
-    lovivo.sum = sum;
-    lovivo.sumBy = sumBy;
-    lovivo.template = template;
-    lovivo.times = times;
-    lovivo.toFinite = toFinite;
-    lovivo.toInteger = toInteger;
-    lovivo.toLength = toLength;
-    lovivo.toLower = toLower;
-    lovivo.toNumber = toNumber;
-    lovivo.toSafeInteger = toSafeInteger;
-    lovivo.toString = toString;
-    lovivo.toUpper = toUpper;
-    lovivo.trim = trim;
-    lovivo.trimEnd = trimEnd;
-    lovivo.trimStart = trimStart;
-    lovivo.truncate = truncate;
-    lovivo.unescape = unescape;
-    lovivo.uniqueId = uniqueId;
-    lovivo.upperCase = upperCase;
-    lovivo.upperFirst = upperFirst;
+    lodash.add = add;
+    lodash.attempt = attempt;
+    lodash.camelCase = camelCase;
+    lodash.capitalize = capitalize;
+    lodash.ceil = ceil;
+    lodash.clamp = clamp;
+    lodash.clone = clone;
+    lodash.cloneDeep = cloneDeep;
+    lodash.cloneDeepWith = cloneDeepWith;
+    lodash.cloneWith = cloneWith;
+    lodash.conformsTo = conformsTo;
+    lodash.deburr = deburr;
+    lodash.defaultTo = defaultTo;
+    lodash.divide = divide;
+    lodash.endsWith = endsWith;
+    lodash.eq = eq;
+    lodash.escape = escape;
+    lodash.escapeRegExp = escapeRegExp;
+    lodash.every = every;
+    lodash.find = find;
+    lodash.findIndex = findIndex;
+    lodash.findKey = findKey;
+    lodash.findLast = findLast;
+    lodash.findLastIndex = findLastIndex;
+    lodash.findLastKey = findLastKey;
+    lodash.floor = floor;
+    lodash.forEach = forEach;
+    lodash.forEachRight = forEachRight;
+    lodash.forIn = forIn;
+    lodash.forInRight = forInRight;
+    lodash.forOwn = forOwn;
+    lodash.forOwnRight = forOwnRight;
+    lodash.get = get;
+    lodash.gt = gt;
+    lodash.gte = gte;
+    lodash.has = has;
+    lodash.hasIn = hasIn;
+    lodash.head = head;
+    lodash.identity = identity;
+    lodash.includes = includes;
+    lodash.indexOf = indexOf;
+    lodash.inRange = inRange;
+    lodash.invoke = invoke;
+    lodash.isArguments = isArguments;
+    lodash.isArray = isArray;
+    lodash.isArrayBuffer = isArrayBuffer;
+    lodash.isArrayLike = isArrayLike;
+    lodash.isArrayLikeObject = isArrayLikeObject;
+    lodash.isBoolean = isBoolean;
+    lodash.isBuffer = isBuffer;
+    lodash.isDate = isDate;
+    lodash.isElement = isElement;
+    lodash.isEmpty = isEmpty;
+    lodash.isEqual = isEqual;
+    lodash.isEqualWith = isEqualWith;
+    lodash.isError = isError;
+    lodash.isFinite = isFinite;
+    lodash.isFunction = isFunction;
+    lodash.isInteger = isInteger;
+    lodash.isLength = isLength;
+    lodash.isMap = isMap;
+    lodash.isMatch = isMatch;
+    lodash.isMatchWith = isMatchWith;
+    lodash.isNaN = isNaN;
+    lodash.isNative = isNative;
+    lodash.isNil = isNil;
+    lodash.isNull = isNull;
+    lodash.isNumber = isNumber;
+    lodash.isObject = isObject;
+    lodash.isObjectLike = isObjectLike;
+    lodash.isPlainObject = isPlainObject;
+    lodash.isRegExp = isRegExp;
+    lodash.isSafeInteger = isSafeInteger;
+    lodash.isSet = isSet;
+    lodash.isString = isString;
+    lodash.isSymbol = isSymbol;
+    lodash.isTypedArray = isTypedArray;
+    lodash.isUndefined = isUndefined;
+    lodash.isWeakMap = isWeakMap;
+    lodash.isWeakSet = isWeakSet;
+    lodash.join = join;
+    lodash.kebabCase = kebabCase;
+    lodash.last = last;
+    lodash.lastIndexOf = lastIndexOf;
+    lodash.lowerCase = lowerCase;
+    lodash.lowerFirst = lowerFirst;
+    lodash.lt = lt;
+    lodash.lte = lte;
+    lodash.max = max;
+    lodash.maxBy = maxBy;
+    lodash.mean = mean;
+    lodash.meanBy = meanBy;
+    lodash.min = min;
+    lodash.minBy = minBy;
+    lodash.stubArray = stubArray;
+    lodash.stubFalse = stubFalse;
+    lodash.stubObject = stubObject;
+    lodash.stubString = stubString;
+    lodash.stubTrue = stubTrue;
+    lodash.multiply = multiply;
+    lodash.nth = nth;
+    lodash.noConflict = noConflict;
+    lodash.noop = noop;
+    lodash.now = now;
+    lodash.pad = pad;
+    lodash.padEnd = padEnd;
+    lodash.padStart = padStart;
+    lodash.parseInt = parseInt;
+    lodash.random = random;
+    lodash.reduce = reduce;
+    lodash.reduceRight = reduceRight;
+    lodash.repeat = repeat;
+    lodash.replace = replace;
+    lodash.result = result;
+    lodash.round = round;
+    lodash.runInContext = runInContext;
+    lodash.sample = sample;
+    lodash.size = size;
+    lodash.snakeCase = snakeCase;
+    lodash.some = some;
+    lodash.sortedIndex = sortedIndex;
+    lodash.sortedIndexBy = sortedIndexBy;
+    lodash.sortedIndexOf = sortedIndexOf;
+    lodash.sortedLastIndex = sortedLastIndex;
+    lodash.sortedLastIndexBy = sortedLastIndexBy;
+    lodash.sortedLastIndexOf = sortedLastIndexOf;
+    lodash.startCase = startCase;
+    lodash.startsWith = startsWith;
+    lodash.subtract = subtract;
+    lodash.sum = sum;
+    lodash.sumBy = sumBy;
+    lodash.template = template;
+    lodash.times = times;
+    lodash.toFinite = toFinite;
+    lodash.toInteger = toInteger;
+    lodash.toLength = toLength;
+    lodash.toLower = toLower;
+    lodash.toNumber = toNumber;
+    lodash.toSafeInteger = toSafeInteger;
+    lodash.toString = toString;
+    lodash.toUpper = toUpper;
+    lodash.trim = trim;
+    lodash.trimEnd = trimEnd;
+    lodash.trimStart = trimStart;
+    lodash.truncate = truncate;
+    lodash.unescape = unescape;
+    lodash.uniqueId = uniqueId;
+    lodash.upperCase = upperCase;
+    lodash.upperFirst = upperFirst;
 
     // Add aliases.
-    lovivo.each = forEach;
-    lovivo.eachRight = forEachRight;
-    lovivo.first = head;
+    lodash.each = forEach;
+    lodash.eachRight = forEachRight;
+    lodash.first = head;
 
-    mixin(lovivo, (function() {
+    mixin(lodash, (function() {
       var source = {};
-      baseForOwn(lovivo, function(func, methodName) {
-        if (!hasOwnProperty.call(lovivo.prototype, methodName)) {
+      baseForOwn(lodash, function(func, methodName) {
+        if (!hasOwnProperty.call(lodash.prototype, methodName)) {
           source[methodName] = func;
         }
       });
@@ -16353,11 +16353,11 @@
      * @memberOf _
      * @type {string}
      */
-    lovivo.VERSION = VERSION;
+    lodash.VERSION = VERSION;
 
     // Assign default placeholders.
     arrayEach(['bind', 'bindKey', 'curry', 'curryRight', 'partial', 'partialRight'], function(methodName) {
-      lovivo[methodName].placeholder = lovivo;
+      lodash[methodName].placeholder = lodash;
     });
 
     // Add `LazyWrapper` methods for `_.drop` and `_.take` variants.
@@ -16472,17 +16472,17 @@
       return this.take(MAX_ARRAY_LENGTH);
     };
 
-    // Add `LazyWrapper` methods to `lovivo.prototype`.
+    // Add `LazyWrapper` methods to `lodash.prototype`.
     baseForOwn(LazyWrapper.prototype, function(func, methodName) {
       var checkIteratee = /^(?:filter|find|map|reject)|While$/.test(methodName),
           isTaker = /^(?:head|last)$/.test(methodName),
-          lovivoFunc = lovivo[isTaker ? ('take' + (methodName == 'last' ? 'Right' : '')) : methodName],
+          lodashFunc = lodash[isTaker ? ('take' + (methodName == 'last' ? 'Right' : '')) : methodName],
           retUnwrapped = isTaker || /^find/.test(methodName);
 
-      if (!lovivoFunc) {
+      if (!lodashFunc) {
         return;
       }
-      lovivo.prototype[methodName] = function() {
+      lodash.prototype[methodName] = function() {
         var value = this.__wrapped__,
             args = isTaker ? [1] : arguments,
             isLazy = value instanceof LazyWrapper,
@@ -16490,7 +16490,7 @@
             useLazy = isLazy || isArray(value);
 
         var interceptor = function(value) {
-          var result = lovivoFunc.apply(lovivo, arrayPush([value], args));
+          var result = lodashFunc.apply(lodash, arrayPush([value], args));
           return (isTaker && chainAll) ? result[0] : result;
         };
 
@@ -16507,7 +16507,7 @@
           value = onlyLazy ? value : new LazyWrapper(this);
           var result = func.apply(value, args);
           result.__actions__.push({ 'func': thru, 'args': [interceptor], 'thisArg': undefined });
-          return new LovivoWrapper(result, chainAll);
+          return new LodashWrapper(result, chainAll);
         }
         if (isUnwrapped && onlyLazy) {
           return func.apply(this, args);
@@ -16517,13 +16517,13 @@
       };
     });
 
-    // Add `Array` methods to `lovivo.prototype`.
+    // Add `Array` methods to `lodash.prototype`.
     arrayEach(['pop', 'push', 'shift', 'sort', 'splice', 'unshift'], function(methodName) {
       var func = arrayProto[methodName],
           chainName = /^(?:push|sort|unshift)$/.test(methodName) ? 'tap' : 'thru',
           retUnwrapped = /^(?:pop|shift)$/.test(methodName);
 
-      lovivo.prototype[methodName] = function() {
+      lodash.prototype[methodName] = function() {
         var args = arguments;
         if (retUnwrapped && !this.__chain__) {
           var value = this.value();
@@ -16537,12 +16537,12 @@
 
     // Map minified method names to their real names.
     baseForOwn(LazyWrapper.prototype, function(func, methodName) {
-      var lovivoFunc = lovivo[methodName];
-      if (lovivoFunc) {
-        var key = (lovivoFunc.name + ''),
+      var lodashFunc = lodash[methodName];
+      if (lodashFunc) {
+        var key = (lodashFunc.name + ''),
             names = realNames[key] || (realNames[key] = []);
 
-        names.push({ 'name': methodName, 'func': lovivoFunc });
+        names.push({ 'name': methodName, 'func': lodashFunc });
       }
     });
 
@@ -16556,35 +16556,35 @@
     LazyWrapper.prototype.reverse = lazyReverse;
     LazyWrapper.prototype.value = lazyValue;
 
-    // Add chain sequence methods to the `lovivo` wrapper.
-    lovivo.prototype.at = wrapperAt;
-    lovivo.prototype.chain = wrapperChain;
-    lovivo.prototype.commit = wrapperCommit;
-    lovivo.prototype.next = wrapperNext;
-    lovivo.prototype.plant = wrapperPlant;
-    lovivo.prototype.reverse = wrapperReverse;
-    lovivo.prototype.toJSON = lovivo.prototype.valueOf = lovivo.prototype.value = wrapperValue;
+    // Add chain sequence methods to the `lodash` wrapper.
+    lodash.prototype.at = wrapperAt;
+    lodash.prototype.chain = wrapperChain;
+    lodash.prototype.commit = wrapperCommit;
+    lodash.prototype.next = wrapperNext;
+    lodash.prototype.plant = wrapperPlant;
+    lodash.prototype.reverse = wrapperReverse;
+    lodash.prototype.toJSON = lodash.prototype.valueOf = lodash.prototype.value = wrapperValue;
 
     // Add lazy aliases.
-    lovivo.prototype.first = lovivo.prototype.head;
+    lodash.prototype.first = lodash.prototype.head;
 
     if (iteratorSymbol) {
-      lovivo.prototype[iteratorSymbol] = wrapperToIterator;
+      lodash.prototype[iteratorSymbol] = wrapperToIterator;
     }
-    return lovivo;
+    return lodash;
   }
 
   /*--------------------------------------------------------------------------*/
 
-  // Export lovivo.
+  // Export lodash.
   var _ = runInContext();
 
   // Some AMD build optimizers, like r.js, check for condition patterns like:
   if (typeof define == 'function' && typeof define.amd == 'object' && define.amd) {
-    // Expose Lovivo on the global object to prevent errors when Lovivo is
+    // Expose Lodash on the global object to prevent errors when Lodash is
     // loaded by a script tag in the presence of an AMD loader.
     // See http://requirejs.org/docs/errors.html#mismatch for more details.
-    // Use `_.noConflict` to remove Lovivo from the global object.
+    // Use `_.noConflict` to remove Lodash from the global object.
     root._ = _;
 
     // Define as an anonymous module so, through path mapping, it can be

@@ -7,7 +7,7 @@ FROM ./ci.Dockerfile
 # libc++ produces a flood of reports that cannot be told apart from real ones.
 #
 # Upstream builds this in ci/test/01_base_install.sh, which runs inside its
-# docker build. Vivo has no such script, so it lives here instead, which keeps
+# docker build. Dash has no such script, so it lives here instead, which keeps
 # the result in a cached image layer rather than rebuilding it on every run.
 
 USER root
@@ -34,4 +34,4 @@ RUN set -ex; \
     du -sh /llvm-project; \
     rm -rf /llvm-project;
 
-USER vivo
+USER dash

@@ -1,4 +1,4 @@
-// Copyright (c) 2014-2025 The Vivo Core developers
+// Copyright (c) 2014-2025 The Dash Core developers
 // Distributed under the MIT/X11 software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
@@ -151,7 +151,7 @@ CAmount GetMasternodePayment(int nHeight, CAmount blockValue, const Consensus::P
                    : GetMasternodePayment(nBlockHeight, blockSubsidy + feeReward,
                                           m_consensus_params, era));
 
-    // Do not apply inherited Vivo platform-credit-pool reallocation once the
+    // Do not apply inherited Dash platform-credit-pool reallocation once the
     // VIVO 40/60 deterministic reward era is enforced.
     if (!vivo_dmn_enforced && era == MnRewardEra::EvoReward) {
         CAmount masternodeSubsidyReward = GetMasternodePayment(nBlockHeight, blockSubsidy, m_consensus_params, era);
@@ -328,7 +328,7 @@ CAmount GetMasternodePayment(int nHeight, CAmount blockValue, const Consensus::P
 *   Determine if coinbase outgoing created money is the correct value
 *
 *   Why is this needed?
-*   - In Vivo some blocks are superblocks, which output much higher amounts of coins
+*   - In Dash some blocks are superblocks, which output much higher amounts of coins
 *   - Other blocks are 10% lower in outgoing value, so in total, no extra coins are created
 *   - When non-superblocks are detected, the normal schedule should be maintained
 */

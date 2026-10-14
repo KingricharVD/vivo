@@ -8,12 +8,12 @@ edition = "2021"
 legacy = []
 bip32 = []
 use_serde = ["serde"]
-vivo_helpers = ["rand"]
-default = [ "legacy", "bip32", "vivo_helpers", "use_serde"]
-apple = ["bls-vivo-sys/apple"]
+dash_helpers = ["rand"]
+default = [ "legacy", "bip32", "dash_helpers", "use_serde"]
+apple = ["bls-dash-sys/apple"]
 
 [dependencies]
-bls-vivo-sys = { path = "../bls-vivo-sys" }
+bls-dash-sys = { path = "../bls-dash-sys" }
 serde = { version= "1.0.160", features = ["derive"], optional = true}
 rand = { version= "0.8.5", optional = true}
 hex = { version = "0.4.3"}

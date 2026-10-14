@@ -57,7 +57,7 @@ class QUrl;
 class QWidget;
 QT_END_NAMESPACE
 
-/** Utility functions used by the Vivo Qt UI.
+/** Utility functions used by the Dash Qt UI.
  */
 namespace GUIUtil
 {
@@ -148,7 +148,7 @@ namespace GUIUtil
      */
     void AddButtonShortcut(QAbstractButton* button, const QKeySequence& shortcut);
 
-    // Parse "vivo:" URI into recipient object, return true on successful parsing
+    // Parse "dash:" URI into recipient object, return true on successful parsing
     bool parseBitcoinURI(const QUrl &uri, SendCoinsRecipient *out);
     bool parseBitcoinURI(QString uri, SendCoinsRecipient *out);
     bool validateBitcoinURI(const QString& uri);
@@ -193,7 +193,7 @@ namespace GUIUtil
         Bold,
     };
 
-    /** Load Vivo-specific application fonts. Returns false if any failed to load. */
+    /** Load Dash-specific application fonts. Returns false if any failed to load. */
     bool loadFonts();
     /** True once loadFonts() has completed successfully. */
     bool fontsLoaded();
@@ -383,8 +383,8 @@ namespace GUIUtil
     /** Return the name of the currently active theme.*/
     QString getActiveTheme();
 
-    /** Check if a vivo specific theme is activated (light/dark).*/
-    bool vivoThemeActive();
+    /** Check if a dash specific theme is activated (light/dark).*/
+    bool dashThemeActive();
 
     /** Load the theme and update all UI elements according to the appearance settings. */
     void loadTheme(bool fForce = false);

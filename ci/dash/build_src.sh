@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Copyright (c) 2021-2025 The Vivo Core developers
+# Copyright (c) 2021-2025 The Dash Core developers
 # Distributed under the MIT software license, see the accompanying
 # file COPYING or http://www.opensource.org/licenses/mit-license.php.
 #
@@ -9,7 +9,7 @@ export LC_ALL=C.UTF-8
 
 set -e
 
-source ./ci/vivo/matrix.sh
+source ./ci/dash/matrix.sh
 
 unset CC CXX DISPLAY;
 
@@ -33,7 +33,7 @@ cd build-ci
 bash -c "../configure $BITCOIN_CONFIG_ALL $BITCOIN_CONFIG" || ( cat config.log && false)
 make distdir VERSION="$BUILD_TARGET"
 
-cd "vivocore-$BUILD_TARGET"
+cd "dashcore-$BUILD_TARGET"
 bash -c "./configure $BITCOIN_CONFIG_ALL $BITCOIN_CONFIG" || ( cat config.log && false)
 
 # This step influences compilation and therefore will always be a part of the
@@ -55,5 +55,5 @@ fi
 # GitHub Actions can segment a job into steps, linting is a separate step
 # so Actions runners will perform this step separately.
 if [ "${RUN_TIDY}" = "true" ] && [ "${GITHUB_ACTIONS}" != "true" ]; then
-  "${BASE_ROOT_DIR}/ci/vivo/lint-tidy.sh"
+  "${BASE_ROOT_DIR}/ci/dash/lint-tidy.sh"
 fi

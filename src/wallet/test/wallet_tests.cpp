@@ -1005,7 +1005,7 @@ BOOST_FIXTURE_TEST_CASE(ZapSelectTx, TestChain100Setup)
     TestUnloadWallet(context, std::move(wallet));
 }
 
-/* --------------------------- Vivo-specific tests start here --------------------------- */
+/* --------------------------- Dash-specific tests start here --------------------------- */
 namespace {
 constexpr CAmount fallbackFee = 1000;
 } // anonymous namespace

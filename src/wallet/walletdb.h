@@ -232,7 +232,7 @@ public:
     /** Write a CGovernanceObject to the database */
     bool WriteGovernanceObject(const Governance::Object& obj);
 
-    //! Generic per-wallet key/value records used by Vivo Platform
+    //! Generic per-wallet key/value records used by Dash Platform
     //! integration (flow state, identity metadata). Opaque to the wallet.
     bool WritePlatformData(const std::string& key, const std::vector<unsigned char>& value);
     bool ErasePlatformData(const std::string& key);

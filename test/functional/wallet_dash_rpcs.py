@@ -1,10 +1,10 @@
 #!/usr/bin/env python3
-# Copyright (c) 2026 The Vivo Core developers
+# Copyright (c) 2026 The Dash Core developers
 # Distributed under the MIT software license, see the accompanying
 # file COPYING or http://www.opensource.org/licenses/mit-license.php.
-"""Test wallet-dependent Vivo RPC paths.
+"""Test wallet-dependent Dash RPC paths.
 
-Covers the wallet-mode-divergent surface of Vivo-specific RPCs so that
+Covers the wallet-mode-divergent surface of Dash-specific RPCs so that
 consensus-heavy tests (feature_governance.py, feature_governance_cl.py,
 feature_dip3_deterministicmns.py) only need to run in a single wallet mode:
 
@@ -24,15 +24,15 @@ This test runs in both --legacy-wallet and --descriptors modes.
 from test_framework.governance import prepare_object
 from test_framework.messages import uint256_to_string
 from test_framework.test_framework import (
-    VivoTestFramework,
+    DashTestFramework,
     MasternodeInfo,
 )
 from test_framework.util import assert_equal, assert_raises_rpc_error, p2p_port, softfork_active
 
 
-class WalletVivoRPCsTest(VivoTestFramework):
+class WalletDashRPCsTest(DashTestFramework):
     def set_test_params(self):
-        self.set_vivo_test_params(3, 2)
+        self.set_dash_test_params(3, 2)
 
     def add_options(self, parser):
         self.add_wallet_options(parser)
@@ -238,4 +238,4 @@ class WalletVivoRPCsTest(VivoTestFramework):
 
 
 if __name__ == '__main__':
-    WalletVivoRPCsTest().main()
+    WalletDashRPCsTest().main()

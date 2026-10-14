@@ -1,4 +1,4 @@
-// Copyright (c) 2018-2025 The Vivo Core developers
+// Copyright (c) 2018-2025 The Dash Core developers
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
@@ -1702,7 +1702,7 @@ static void SmlCache(TestChainSetup& setup)
 BOOST_AUTO_TEST_SUITE(evo_dip3_activation_tests)
 
 // FuncDIP3Protx registers six masternodes in successive blocks. Height 109 is the lowest boundary
-// that keeps two mature coinbases available for every 1000 VIVO collateral; height 108 runs out on
+// that keeps two mature coinbases available for every 1000 DASH collateral; height 108 runs out on
 // the sixth registration.
 constexpr int DIP3_ACTIVATION_HEIGHT{109};
 

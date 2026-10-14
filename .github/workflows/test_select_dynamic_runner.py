@@ -12,7 +12,7 @@ SPEC.loader.exec_module(MODULE)
 
 class SelectDynamicRunnerTest(unittest.TestCase):
     def test_count_queued_jobs_deduplicates_runs_across_status_queries(self):
-        repo = "vivopay/vivo"
+        repo = "dashpay/dash"
         queued_url = (
             "https://api.github.com/repos/{}/actions/runs?status=queued&per_page=100"
         ).format(repo)
@@ -44,7 +44,7 @@ class SelectDynamicRunnerTest(unittest.TestCase):
         self.assertEqual(MODULE.count_queued_jobs(fetch_json, [repo]), 2)
 
     def test_count_queued_jobs_excludes_blacksmith_jobs(self):
-        repo = "vivopay/vivo"
+        repo = "dashpay/dash"
         queued_url = (
             "https://api.github.com/repos/{}/actions/runs?status=queued&per_page=100"
         ).format(repo)
@@ -85,7 +85,7 @@ class SelectDynamicRunnerTest(unittest.TestCase):
             runner_amd64_var="blacksmith-amd64",
             runner_arm64_var="blacksmith-arm64",
             fetch_json=lambda _url: ({"workflow_runs": []}, {}),
-            repos=["vivopay/vivo"],
+            repos=["dashpay/dash"],
         )
 
         self.assertEqual(outputs["use_blacksmith"], "true")
@@ -96,7 +96,7 @@ class SelectDynamicRunnerTest(unittest.TestCase):
         self.assertIn("label:blacksmith-ci", outputs["decision_reason"])
 
     def test_backlog_threshold_selects_blacksmith_amd64_only(self):
-        repo = "vivopay/vivo"
+        repo = "dashpay/dash"
         queued_url = (
             "https://api.github.com/repos/{}/actions/runs?status=queued&per_page=100"
         ).format(repo)
@@ -134,7 +134,7 @@ class SelectDynamicRunnerTest(unittest.TestCase):
         self.assertIn("arm64:backlog:11<=30", outputs["decision_reason"])
 
     def test_arm64_requires_higher_backlog_threshold(self):
-        repo = "vivopay/vivo"
+        repo = "dashpay/dash"
         queued_url = (
             "https://api.github.com/repos/{}/actions/runs?status=queued&per_page=100"
         ).format(repo)
@@ -183,7 +183,7 @@ class SelectDynamicRunnerTest(unittest.TestCase):
             runner_amd64_var="blacksmith-amd64",
             runner_arm64_var="blacksmith-arm64",
             fetch_json=fetch_json,
-            repos=["vivopay/vivo"],
+            repos=["dashpay/dash"],
         )
 
         self.assertEqual(outputs["use_blacksmith"], "false")
@@ -203,7 +203,7 @@ class SelectDynamicRunnerTest(unittest.TestCase):
             runner_amd64_var="",
             runner_arm64_var="blacksmith-arm64",
             fetch_json=lambda _url: ({"workflow_runs": []}, {}),
-            repos=["vivopay/vivo"],
+            repos=["dashpay/dash"],
         )
 
         self.assertEqual(outputs["runner_amd64"], MODULE.DEFAULT_RUNNER_AMD64)

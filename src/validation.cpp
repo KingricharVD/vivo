@@ -1,6 +1,6 @@
 // Copyright (c) 2009-2010 Satoshi Nakamoto
 // Copyright (c) 2009-2021 The Bitcoin Core developers
-// Copyright (c) 2014-2025 The Vivo Core developers
+// Copyright (c) 2014-2025 The Dash Core developers
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
@@ -866,7 +866,7 @@ bool MemPoolAccept::PreChecks(ATMPArgs& args, Workspace& ws)
             const CTransaction* ptxConflicting = m_pool.GetConflictTx(txin.prevout);
             if (ptxConflicting)
             {
-                // Transaction conflicts with mempool and RBF doesn't exist in Vivo
+                // Transaction conflicts with mempool and RBF doesn't exist in Dash
                 return state.Invalid(TxValidationResult::TX_CONFLICT, "txn-mempool-conflict");
             }
         }
@@ -2124,7 +2124,7 @@ DisconnectResult Chainstate::DisconnectBlock(const CBlock& block, const CBlockIn
     // Note: the blocks specified here are different than the ones used in ConnectBlock because DisconnectBlock
     // unwinds the blocks in reverse. As a result, the inconsistency is not discovered until the earlier
     // blocks with the duplicate coinbase transactions are disconnected.
-    // NOTE: vivo blockchain doesn't have any violations
+    // NOTE: dash blockchain doesn't have any violations
     bool fEnforceBIP30 = true;
 
     // undo transactions in reverse order
@@ -2227,7 +2227,7 @@ static unsigned int GetBlockScriptFlags(const CBlockIndex* pindex, const Chainst
     unsigned int flags = SCRIPT_VERIFY_NONE;
 
     // Start enforcing P2SH (BIP16)
-    // It always active on Vivo chains
+    // It always active on Dash chains
     flags |= SCRIPT_VERIFY_P2SH;
 
     // Enforce the DERSIG (BIP66) rule
@@ -2264,7 +2264,7 @@ static SteadyClock::duration time_subsidy{};
 static SteadyClock::duration time_value_valid{};
 static SteadyClock::duration time_payee_valid{};
 static SteadyClock::duration time_process_special{};
-static SteadyClock::duration time_vivo_specific{};
+static SteadyClock::duration time_dash_specific{};
 static SteadyClock::duration time_index{};
 static SteadyClock::duration time_total{};
 static int64_t num_blocks_total = 0;
@@ -2417,7 +2417,7 @@ bool Chainstate::ConnectBlock(const CBlock& block, BlockValidationState& state, 
         }
     }
 
-    /// VIVO: Check superblock start
+    /// DASH: Check superblock start
 
     // make sure old budget is the real one
     if (pindex->nHeight == params.GetConsensus().nSuperblockStartBlock &&
@@ -2426,7 +2426,7 @@ bool Chainstate::ConnectBlock(const CBlock& block, BlockValidationState& state, 
             LogPrintf("ERROR: ConnectBlock(): invalid superblock start\n");
             return state.Invalid(BlockValidationResult::BLOCK_CONSENSUS, "bad-sb-start");
     }
-    /// END VIVO
+    /// END DASH
 
     // Enforce BIP68 (sequence locks)
     int nLockTimeFlags = 0;
@@ -2467,7 +2467,7 @@ bool Chainstate::ConnectBlock(const CBlock& block, BlockValidationState& state, 
     // MUST process special txes before updating UTXO to ensure consistency between mempool and block processing
     MNListUpdates mnlist_updates;
     if (!m_chain_helper->special_tx->ProcessSpecialTxsInBlock(*this, m_chain, block, pindex, is_v24_active, view, blockSubsidy, fJustCheck, fScriptChecks, state, mnlist_updates)) {
-        LogError("ConnectBlock(VIVO): ProcessSpecialTxsInBlock for block %s failed with %s\n",
+        LogError("ConnectBlock(DASH): ProcessSpecialTxsInBlock for block %s failed with %s\n",
                      pindex->GetBlockHash().ToString(), state.ToString());
         return false;
     }
@@ -2578,7 +2578,7 @@ bool Chainstate::ConnectBlock(const CBlock& block, BlockValidationState& state, 
              Ticks<MillisecondsDouble>(time_verify) / num_blocks_total);
 
 
-    // VIVO
+    // DASH
 
     // It's possible that we simply don't have enough data and this could fail
     // (i.e. block itself could be a correct one and we need to store it),
@@ -2586,7 +2586,7 @@ bool Chainstate::ConnectBlock(const CBlock& block, BlockValidationState& state, 
     // the peer who sent us this block is missing some data and wasn't able
     // to recognize that block is actually invalid.
 
-    // VIVO : CHECK TRANSACTIONS FOR INSTANTSEND
+    // DASH : CHECK TRANSACTIONS FOR INSTANTSEND
 
     if (!IsInitialBlockDownload()) {
         // Require other nodes to comply, send them some data in case they are missing it.
@@ -2597,12 +2597,12 @@ bool Chainstate::ConnectBlock(const CBlock& block, BlockValidationState& state, 
             while (auto conflictLockOpt = m_chain_helper->ConflictingISLockIfAny(*tx)) {
                 auto [conflict_islock_hash, conflict_txid] = conflictLockOpt.value();
                 if (has_chainlock) {
-                    LogPrint(BCLog::ALL, "ConnectBlock(VIVO): chain-locked transaction %s overrides islock %s\n", tx->GetHash().ToString(), conflict_islock_hash.ToString());
+                    LogPrint(BCLog::ALL, "ConnectBlock(DASH): chain-locked transaction %s overrides islock %s\n", tx->GetHash().ToString(), conflict_islock_hash.ToString());
                     m_chain_helper->RemoveConflictingISLockByTx(*tx);
                 } else {
                     // The node which relayed this should switch to correct chain.
                     // TODO: relay instantsend data/proof.
-                    LogPrintf("ERROR: ConnectBlock(VIVO): transaction %s conflicts with transaction lock %s\n", tx->GetHash().ToString(), conflict_txid.ToString());
+                    LogPrintf("ERROR: ConnectBlock(DASH): transaction %s conflicts with transaction lock %s\n", tx->GetHash().ToString(), conflict_txid.ToString());
                     return state.Invalid(BlockValidationResult::BLOCK_CHAINLOCK, "conflict-tx-lock");
                 }
             }
@@ -2616,7 +2616,7 @@ bool Chainstate::ConnectBlock(const CBlock& block, BlockValidationState& state, 
              Ticks<SecondsDouble>(time_is_filter),
              Ticks<MillisecondsDouble>(time_is_filter) / num_blocks_total);
 
-    // VIVO : MODIFIED TO CHECK MASTERNODE PAYMENTS AND SUPERBLOCKS
+    // DASH : MODIFIED TO CHECK MASTERNODE PAYMENTS AND SUPERBLOCKS
 
     // TODO: resync data (both ways?) and try to reprocess this block later.
     CAmount feeReward = nFees;
@@ -2636,7 +2636,7 @@ bool Chainstate::ConnectBlock(const CBlock& block, BlockValidationState& state, 
 
     if (!m_chain_helper->mn_payments->IsBlockValueValid(m_chain, block, pindex->pprev, blockSubsidy + feeReward, strError, check_superblock)) {
         // NOTE: Do not punish, the node might be missing governance data
-        LogPrintf("ERROR: ConnectBlock(VIVO): %s\n", strError);
+        LogPrintf("ERROR: ConnectBlock(DASH): %s\n", strError);
         return state.Invalid(BlockValidationResult::BLOCK_RESULT_UNSET, "bad-cb-amount");
     }
 
@@ -2673,7 +2673,7 @@ bool Chainstate::ConnectBlock(const CBlock& block, BlockValidationState& state, 
     const MnRewardEra mn_reward_era{GetMnRewardEraAfter(pindex->pprev, m_chainman)};
     if (!m_chain_helper->mn_payments->IsBlockPayeeValid(m_chain, *block.vtx[0], pindex->pprev, blockSubsidy, feeReward, mn_reward_era, is_v24_active, check_superblock)) {
         // NOTE: Do not punish, the node might be missing governance data
-        LogPrintf("ERROR: ConnectBlock(VIVO): couldn't find masternode or superblock payments\n");
+        LogPrintf("ERROR: ConnectBlock(DASH): couldn't find masternode or superblock payments\n");
         return state.Invalid(BlockValidationResult::BLOCK_RESULT_UNSET, "bad-cb-payee");
     }
 
@@ -2685,13 +2685,13 @@ bool Chainstate::ConnectBlock(const CBlock& block, BlockValidationState& state, 
              Ticks<MillisecondsDouble>(time_payee_valid) / num_blocks_total);
 
     const auto time_5{SteadyClock::now()};
-    time_vivo_specific += time_5 - time_4;
-    LogPrint(BCLog::BENCHMARK, "    - Vivo specific: %.2fms [%.2fs (%.2fms/blk)]\n",
+    time_dash_specific += time_5 - time_4;
+    LogPrint(BCLog::BENCHMARK, "    - Dash specific: %.2fms [%.2fs (%.2fms/blk)]\n",
              Ticks<MillisecondsDouble>(time_5 - time_4),
-             Ticks<SecondsDouble>(time_vivo_specific),
-             Ticks<MillisecondsDouble>(time_vivo_specific) / num_blocks_total);
+             Ticks<SecondsDouble>(time_dash_specific),
+             Ticks<MillisecondsDouble>(time_dash_specific) / num_blocks_total);
 
-    // END VIVO
+    // END DASH
 
     if (fJustCheck)
         return true;
@@ -3984,7 +3984,7 @@ void Chainstate::ResetBlockFailureFlags(CBlockIndex *pindex, bool ignore_chainlo
     // Candidate admission is deferred to a second pass over every usable
     // chainstate (upstream reinserts inline into the invoking chainstate
     // only). The failure flags cleared below are ChainstateManager-wide, and
-    // in Vivo this function also runs during dual-chainstate operation via
+    // in Dash this function also runs during dual-chainstate operation via
     // ChainLock enforcement, so an inline insert would leave the other
     // chainstate -- possibly the active one -- blind to a now-valid most-work
     // block. Routing through TryAddBlockIndexCandidate also applies the
@@ -4053,7 +4053,7 @@ void Chainstate::TryAddBlockIndexCandidate(CBlockIndex* pindex)
     AssertLockHeld(cs_main);
     // ChainLock-conflicting blocks are never eligible for activation, even
     // though CBlockIndex::IsValid() only considers BLOCK_FAILED_MASK. This
-    // check is Vivo-only: it preserves the exclusion that the inline insert in
+    // check is Dash-only: it preserves the exclusion that the inline insert in
     // ReceivedBlockTransactions applied before upstream routed admission
     // through this helper.
     if (pindex->nStatus & BLOCK_CONFLICT_CHAINLOCK) {
@@ -4990,7 +4990,7 @@ bool Chainstate::RollforwardBlock(const CBlockIndex* pindex, CCoinsViewCache& in
     const bool is_v24_active{DeploymentActiveAfter(pindex->pprev, m_chainman, Consensus::DEPLOYMENT_V24)};
     MNListUpdates mnlist_updates;
     if (!m_chain_helper->special_tx->ProcessSpecialTxsInBlock(*this, m_chain, block, pindex, is_v24_active, inputs, blockSubsidy, /*fJustCheck=*/false, /*fCheckCbTxMerkleRoots=*/false, state, mnlist_updates)) {
-        LogError("RollforwardBlock(VIVO): ProcessSpecialTxsInBlock for block %s failed with %s\n",
+        LogError("RollforwardBlock(DASH): ProcessSpecialTxsInBlock for block %s failed with %s\n",
             pindex->GetBlockHash().ToString(), state.ToString());
         return false;
     }
@@ -5048,7 +5048,7 @@ bool Chainstate::ReplayBlocks()
         assert(pindexFork != nullptr);
         const bool fDIP0003Active = DeploymentActiveAt(*pindexOld, m_chainman.GetConsensus(), Consensus::DEPLOYMENT_DIP0003);
         if (fDIP0003Active && !m_evoDb.VerifyBestBlock(EvoDbIdentity(), pindexOld->GetBlockHash())) {
-            LogError("ReplayBlocks(VIVO): %s\n", EvoDbInconsistencyMessage());
+            LogError("ReplayBlocks(DASH): %s\n", EvoDbInconsistencyMessage());
             return false;
         }
     }
@@ -6164,7 +6164,7 @@ bool ChainstateManager::PopulateAndValidateSnapshot(
     index->nChainTx = au_data.nChainTx;
     snapshot_chainstate.setBlockIndexCandidates.insert(snapshot_start_block);
 
-    // Until the loadtxoutset milestone the snapshot carries no Vivo payload,
+    // Until the loadtxoutset milestone the snapshot carries no Dash payload,
     // so the base MN list is only derivable when this node's own background
     // chainstate has already validated the base block. On a cold start
     // (background tip below the base) it is not derivable at all: attempting
@@ -6245,7 +6245,7 @@ SnapshotCompletionResult ChainstateManager::MaybeCompleteSnapshotValidation(
     const auto snapshot_base_height_opt = this->GetSnapshotBaseHeight();
     if (!snapshot_base_height_opt) {
         if (!m_snapshot_chainstate->CoinsDB().StoragePath()) {
-            // Some Vivo unit fixtures construct a synthetic in-memory snapshot
+            // Some Dash unit fixtures construct a synthetic in-memory snapshot
             // chainstate before inserting its base block into the block index.
             return SnapshotCompletionResult::SKIPPED;
         }
@@ -6391,7 +6391,7 @@ SnapshotCompletionResult ChainstateManager::MaybeCompleteSnapshotValidation(
     uint256 snapshot_mn_list_hash;
     if (!m_ibd_chainstate->m_evoDb.ReadSnapshotBaseMNListHash(snapshot_mn_list_hash)) {
         // Cold-start activation could not capture the base MN list (the
-        // snapshot format carries no Vivo payload yet), so there is nothing to
+        // snapshot format carries no Dash payload yet), so there is nothing to
         // compare against. The UTXO-set hash above remains the completion
         // criterion, exactly as upstream.
         LogPrintf("[snapshot] no base MN-list marker was captured at activation; skipping deterministic MN-list comparison\n");
@@ -6575,13 +6575,13 @@ ChainstateManager::~ChainstateManager()
 
 bool IsBIP30Repeat(const CBlockIndex& block_index)
 {
-    // Vivo blockchain does not have any BIP30 violations
+    // Dash blockchain does not have any BIP30 violations
     return false;
 }
 
 bool IsBIP30Unspendable(const CBlockIndex& block_index)
 {
-    // Vivo blockchain does not have any BIP30 violations
+    // Dash blockchain does not have any BIP30 violations
     return false;
 }
 

@@ -146,7 +146,7 @@ class WalletHDTest(BitcoinTestFramework):
         assert_equal(keypath[0:13], f"m/44{hardened}/1{hardened}/0{hardened}/1")
 
         if not self.options.descriptors:
-            # NOTE: sethdseed can't replace existing seed in Vivo Core
+            # NOTE: sethdseed can't replace existing seed in Dash Core
             # though bitcoin lets to do it. Therefore this functional test
             # are not the same with bitcoin's
             # Generate a new HD seed on node 1 and make sure it is set

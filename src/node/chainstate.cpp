@@ -157,7 +157,7 @@ static ChainstateLoadResult CompleteChainstateInitialization(ChainstateManager& 
     // Initialize llmq_ctx
     llmq_ctx.reset();
     llmq_ctx = std::make_unique<LLMQContext>(dmnman, evodb, chainman,
-                                             util::DbWrapperParams{.path = options.data_dir, .memory = options.vivo_dbs_in_memory, .wipe = to_wipe_data},
+                                             util::DbWrapperParams{.path = options.data_dir, .memory = options.dash_dbs_in_memory, .wipe = to_wipe_data},
                                              options.bls_threads, options.worker_count, options.max_recsigs_age);
 
     // Initialize chain_helper
@@ -321,7 +321,7 @@ ChainstateLoadResult LoadChainstate(ChainstateManager& chainman, const CacheSize
 
     LOCK(cs_main);
 
-    if (!options.vivo_dbs_in_memory && !options.reindex && !options.reindex_chainstate) {
+    if (!options.dash_dbs_in_memory && !options.reindex && !options.reindex_chainstate) {
         bilingual_str recovery_error;
         if (!RecoverSnapshotCleanup(evodb, options.data_dir, recovery_error)) {
             return {ChainstateLoadStatus::FAILURE, recovery_error};

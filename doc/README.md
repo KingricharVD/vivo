@@ -1,11 +1,11 @@
-Vivo Core
+Dash Core
 ==========
 
-This is the official reference wallet for Vivo digital currency and comprises the backbone of the Vivo peer-to-peer network. You can [download Vivo Core](https://www.vivo.org/downloads/) or [build it yourself](#building) using the guides below.
+This is the official reference wallet for Dash digital currency and comprises the backbone of the Dash peer-to-peer network. You can [download Dash Core](https://www.vivo.org/downloads/) or [build it yourself](#building) using the guides below.
 
 Running
 ---------------------
-The following are some helpful notes on how to run Vivo Core on your native platform.
+The following are some helpful notes on how to run Dash Core on your native platform.
 
 ### Unix
 
@@ -20,18 +20,18 @@ Unpack the files into a directory, and then run vivo-qt.exe.
 
 ### macOS
 
-Drag Vivo Core to your applications folder, and then run Vivo Core.
+Drag Dash Core to your applications folder, and then run Dash Core.
 
 ### Need Help?
 
-* See the [Vivo documentation](https://docs.vivo.org)
+* See the [Dash documentation](https://docs.vivo.org)
 for help and more information.
-* Ask for help on [Vivo Discord](http://stayvivoy.com)
-* Ask for help on the [Vivo Forum](https://vivo.org/forum)
+* Ask for help on [Dash Discord](http://stayvivoy.com)
+* Ask for help on the [Dash Forum](https://vivo.org/forum)
 
 Building
 ---------------------
-The following are developer notes on how to build Vivo Core on your native platform. They are not complete guides, but include notes on the necessary libraries, compile flags, etc.
+The following are developer notes on how to build Dash Core on your native platform. They are not complete guides, but include notes on the necessary libraries, compile flags, etc.
 
 - [Dependencies](dependencies.md)
 - [macOS Build Notes](build-osx.md)
@@ -43,7 +43,7 @@ The following are developer notes on how to build Vivo Core on your native platf
 
 Development
 ---------------------
-The Vivo Core repo's [root README](/README.md) contains relevant information on the development process and automated testing.
+The Dash Core repo's [root README](/README.md) contains relevant information on the development process and automated testing.
 
 - [Developer Notes](developer-notes.md)
 - [Productivity Notes](productivity.md)
@@ -61,11 +61,11 @@ The Vivo Core repo's [root README](/README.md) contains relevant information on 
 - [Internal Design Docs](design/)
 
 ### Resources
-* See the [Vivo Developer Documentation](https://vivocore.readme.io/)
+* See the [Dash Developer Documentation](https://vivocore.readme.io/)
   for technical specifications and implementation details.
-* Discuss on the [Vivo Forum](https://vivo.org/forum), in the Development & Technical Discussion board.
-* Discuss on [Vivo Discord](http://stayvivoy.com)
-* Discuss on [Vivo Developers Discord](http://chat.vivodevs.org/)
+* Discuss on the [Dash Forum](https://vivo.org/forum), in the Development & Technical Discussion board.
+* Discuss on [Dash Discord](http://stayvivoy.com)
+* Discuss on [Dash Developers Discord](http://chat.vivodevs.org/)
 
 ### Miscellaneous
 - [Assets Attribution](assets-attribution.md)

@@ -16,11 +16,11 @@
 #include <pybind11/pybind11.h>
 #include <pybind11/stl.h>
 
-#include <vivobls/bls.hpp>
-#include <vivobls/elements.hpp>
-#include <vivobls/hdkeys.hpp>
-#include <vivobls/privatekey.hpp>
-#include <vivobls/schemes.hpp>
+#include <dashbls/bls.hpp>
+#include <dashbls/elements.hpp>
+#include <dashbls/hdkeys.hpp>
+#include <dashbls/privatekey.hpp>
+#include <dashbls/schemes.hpp>
 
 namespace py = pybind11;
 using namespace bls;

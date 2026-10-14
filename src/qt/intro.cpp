@@ -1,5 +1,5 @@
 // Copyright (c) 2011-2021 The Bitcoin Core developers
-// Copyright (c) 2014-2025 The Vivo Core developers
+// Copyright (c) 2014-2025 The Dash Core developers
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
@@ -136,7 +136,7 @@ Intro::Intro(QWidget *parent, int64_t blockchain_size_gb, int64_t chain_state_si
         .arg(PACKAGE_NAME)
         .arg(m_blockchain_size_gb)
         .arg(2014)
-        .arg("Vivo")
+        .arg("Dash")
     );
     ui->lblExplanation2->setText(ui->lblExplanation2->text().arg(PACKAGE_NAME));
 
@@ -234,7 +234,7 @@ bool Intro::showIfNeeded(bool& did_show_intro, int64_t& prune_MiB)
         GUIUtil::disableMacFocusRect(&intro);
         GUIUtil::loadStyleSheet(true);
         intro.setDataDirectory(dataDirDefaultCurrent);
-        intro.setWindowIcon(QIcon(":icons/vivo"));
+        intro.setWindowIcon(QIcon(":icons/dash"));
         did_show_intro = true;
 
         while(true)
@@ -267,7 +267,7 @@ bool Intro::showIfNeeded(bool& did_show_intro, int64_t& prune_MiB)
     }
     /* Only override -datadir if different from the default, to make it possible to
      * override -datadir in the vivo.conf file in the default data directory
-     * (to be consistent with vivod behavior)
+     * (to be consistent with dashd behavior)
      */
     if(dataDir != GUIUtil::getDefaultDataDirectory()) {
         gArgs.SoftSetArg("-datadir", fs::PathToString(GUIUtil::QStringToPath(dataDir))); // use OS locale for path setting
@@ -396,7 +396,7 @@ void Intro::UpdatePruneLabels(bool prune_checked)
         //: Explanatory text on the capability of the current prune target.
         tr("(sufficient to restore backups %n day(s) old)", "", expected_backup_days));
     ui->sizeWarningLabel->setText(
-        tr("%1 will download and store a copy of the Vivo block chain.").arg(PACKAGE_NAME) + " " +
+        tr("%1 will download and store a copy of the Dash block chain.").arg(PACKAGE_NAME) + " " +
         storageRequiresMsg.arg(m_required_space_gb) + " " +
         tr("The wallet will also be stored in this directory.")
     );

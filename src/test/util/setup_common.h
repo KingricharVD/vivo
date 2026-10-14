@@ -1,5 +1,5 @@
 // Copyright (c) 2015-2021 The Bitcoin Core developers
-// Copyright (c) 2014-2025 The Vivo Core developers
+// Copyright (c) 2014-2025 The Dash Core developers
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
@@ -94,12 +94,12 @@ struct BasicTestingSetup {
 
     explicit BasicTestingSetup(const std::string& chainName = CBaseChainParams::MAIN,
                                const std::vector<const char*>& extra_args = {},
-                               bool vivo_dbs_in_memory = true);
+                               bool dash_dbs_in_memory = true);
     ~BasicTestingSetup();
 
     const fs::path m_path_root;
     ArgsManager m_args;
-    const bool m_vivo_dbs_in_memory;
+    const bool m_dash_dbs_in_memory;
 };
 
 
@@ -114,7 +114,7 @@ struct ChainTestingSetup : public BasicTestingSetup {
 
     explicit ChainTestingSetup(const std::string& chainName = CBaseChainParams::MAIN,
                                const std::vector<const char*>& extra_args = {},
-                               bool vivo_dbs_in_memory = true);
+                               bool dash_dbs_in_memory = true);
     ~ChainTestingSetup();
 
     // Supplies a chainstate, if one is needed
@@ -133,7 +133,7 @@ struct TestingSetup : public ChainTestingSetup {
         const std::vector<const char*>& extra_args = {},
         const bool coins_db_in_memory = true,
         const bool block_tree_db_in_memory = true,
-        const bool vivo_dbs_in_memory = true);
+        const bool dash_dbs_in_memory = true);
     ~TestingSetup();
 };
 
@@ -154,7 +154,7 @@ struct TestChainSetup : public TestingSetup
                    const std::vector<const char*>& extra_args = {},
                    const bool coins_db_in_memory = true,
                    const bool block_tree_db_in_memory = true,
-                   const bool vivo_dbs_in_memory = true);
+                   const bool dash_dbs_in_memory = true);
     ~TestChainSetup();
 
     /**
@@ -243,7 +243,7 @@ struct TestChain100Setup : public TestChainSetup {
         const std::vector<const char*>& extra_args = {},
         const bool coins_db_in_memory = true,
         const bool block_tree_db_in_memory = true,
-        const bool vivo_dbs_in_memory = true);
+        const bool dash_dbs_in_memory = true);
 };
 
 /**

@@ -24,7 +24,7 @@ class FeatureFastpruneTest(BitcoinTestFramework):
         self.generate(wallet, COINBASE_MATURITY + 1)
 
         self.log.info("Create an oversized tx (>64 KiB) and mine it via generateblock")
-        # In Vivo weight == serialized size (no SegWit), so target_weight
+        # In Dash weight == serialized size (no SegWit), so target_weight
         # of 0x10000 (65536 bytes) produces a block that exceeds the
         # fastprune blockfile limit of 64 KiB, exercising the dynamic
         # adjustment added in bitcoin/bitcoin#27191.
@@ -34,7 +34,7 @@ class FeatureFastpruneTest(BitcoinTestFramework):
             output="raw(55)",
             transactions=[tx.serialize().hex()],
         )
-        # Note: no block count assertion — Vivo starts at block 200 (DIP3/masternode
+        # Note: no block count assertion — Dash starts at block 200 (DIP3/masternode
         # activation), so the absolute count differs from Bitcoin regtest.
 
 

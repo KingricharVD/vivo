@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-# Copyright (c) 2021-2025 The Vivo Core developers
+# Copyright (c) 2021-2025 The Dash Core developers
 # Distributed under the MIT software license, see the accompanying
 # file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
@@ -22,7 +22,7 @@ from test_framework.p2p import (
     P2PInterface,
 )
 from test_framework.test_framework import (
-    VivoTestFramework,
+    DashTestFramework,
     MasternodeInfo,
 )
 from test_framework.util import (
@@ -176,13 +176,13 @@ class QuorumDataInterface(P2PInterface):
         return self.last_message["qdata"]
 
 
-class QuorumDataMessagesTest(VivoTestFramework):
+class QuorumDataMessagesTest(DashTestFramework):
     def add_options(self, parser):
         self.add_wallet_options(parser)
 
     def set_test_params(self):
         extra_args = [["-llmq-data-recovery=0", "-deprecatedrpc=banscore"]] * 4
-        self.set_vivo_test_params(4, 3, extra_args=extra_args)
+        self.set_dash_test_params(4, 3, extra_args=extra_args)
 
     def restart_mn(self, mn: MasternodeInfo, reindex=False):
         args = self.extra_args[mn.nodeIdx] + ['-masternodeblsprivkey=%s' % mn.keyOperator]

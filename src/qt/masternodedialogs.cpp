@@ -1,4 +1,4 @@
-// Copyright (c) 2026 The Vivo Core developers
+// Copyright (c) 2026 The Dash Core developers
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
@@ -72,7 +72,7 @@ std::optional<CTxDestination> ParseDestination(const QString& text, QString& err
 {
     const CTxDestination destination{DecodeDestination(text.trimmed().toStdString())};
     if (!IsValidDestination(destination)) {
-        error = QObject::tr("Invalid Vivo address: %1").arg(text);
+        error = QObject::tr("Invalid Dash address: %1").arg(text);
         return std::nullopt;
     }
     return destination;

@@ -1,21 +1,21 @@
 #!/usr/bin/env python3
-# Copyright (c) 2025-2026 The Vivo Core developers
+# Copyright (c) 2025-2026 The Dash Core developers
 # Distributed under the MIT software license, see the accompanying
 # file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
 """Recover ChainLocks from blocks without receiving CLSIG messages."""
 
-from test_framework.test_framework import VivoTestFramework
+from test_framework.test_framework import DashTestFramework
 from test_framework.util import assert_equal, force_finish_mnsync
 
 
-class LLMQChainLocksAutomaticTest(VivoTestFramework):
+class LLMQChainLocksAutomaticTest(DashTestFramework):
     def add_options(self, parser):
         self.add_wallet_options(parser)
 
     def set_test_params(self):
-        self.set_vivo_test_params(2, 1)
-        self.set_vivo_llmq_test_params(1, 1)
+        self.set_dash_test_params(2, 1)
+        self.set_dash_llmq_test_params(1, 1)
         self.delay_v20_and_mn_rr(height=200)
         self.extra_args[1].append("-sporkkey=cP4EKFyJsHT39LDqgdcB43Y3YXjNyjb5Fuas1GQSeAtjnZWmZEQK")
 

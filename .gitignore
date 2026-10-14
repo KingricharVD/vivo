@@ -6,20 +6,20 @@ reset-files.bash
 *.tar.gz
 
 *.exe
-src/vivo
-src/vivod
-src/vivo-cli
-src/vivo-gui
-src/vivo-node
-src/vivo-tx
-src/vivo-util
-src/vivo-chainstate
-src/vivo-wallet
+src/dash
+src/dashd
+src/dash-cli
+src/dash-gui
+src/dash-node
+src/dash-tx
+src/dash-util
+src/dash-chainstate
+src/dash-wallet
 src/test/fuzz/fuzz
-src/test/test_vivo
-src/qt/test/test_vivo-qt
+src/test/test_dash
+src/qt/test/test_dash-qt
 src/qt/res/css/colors/*
-src/bench/bench_vivo
+src/bench/bench_dash
 
 # autoreconf
 Makefile.in
@@ -94,15 +94,15 @@ libconftest.dylib*
 *.qm
 Makefile
 !depends/Makefile
-vivo-qt
-Vivo-Qt.app
+dash-qt
+Dash-Qt.app
 
 # Qt Creator
 Makefile.am.user
 
 # Unit-tests
 Makefile.test
-vivo-qt_test
+dash-qt_test
 
 # Resources cpp
 qrc_*.cpp
@@ -119,7 +119,7 @@ releases
 *.gcno
 *.gcda
 /*.info
-test_vivo.coverage/
+test_dash.coverage/
 total.coverage/
 fuzz.coverage/
 coverage_percent.txt
@@ -141,15 +141,15 @@ test/.mypy_cache/
 .autotools
 /doc/doxygen/
 
-libvivoconsensus.pc
+libdashconsensus.pc
 contrib/devtools/split-debug.sh
 src/qt/vivo-qt.bash
 qa/pull-tester/tests-config.sh
 
 #development symlinks
-vivo-cli
-vivod
-vivo-qt
+dash-cli
+dashd
+dash-qt
 make
 
 /docker/bin

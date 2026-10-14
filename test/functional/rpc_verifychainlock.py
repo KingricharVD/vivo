@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
-# Copyright (c) 2021-2024 The Vivo Core developers
+# Copyright (c) 2021-2024 The Dash Core developers
 # Distributed under the MIT software license, see the accompanying
 # file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
-from test_framework.test_framework import VivoTestFramework
+from test_framework.test_framework import DashTestFramework
 from test_framework.util import assert_equal, assert_raises_rpc_error
 
 '''
@@ -16,7 +16,7 @@ Test the following RPC:
 '''
 
 
-class RPCVerifyChainLockTest(VivoTestFramework):
+class RPCVerifyChainLockTest(DashTestFramework):
     def add_options(self, parser):
         self.add_wallet_options(parser)
 
@@ -24,8 +24,8 @@ class RPCVerifyChainLockTest(VivoTestFramework):
         # -whitelist is needed to avoid the trickling logic on node0.
         # A single-member quorum still produces real ChainLocks; node1 stays a
         # non-masternode so it can be isolated to test divergent ChainLock state.
-        self.set_vivo_test_params(3, 1, [["-whitelist=127.0.0.1"], [], []])
-        self.set_vivo_llmq_test_params(1, 1)
+        self.set_dash_test_params(3, 1, [["-whitelist=127.0.0.1"], [], []])
+        self.set_dash_llmq_test_params(1, 1)
 
     def cl_helper(self, height, chainlock, mempool):
         return {'height': height, 'chainlock': chainlock, 'mempool': mempool}

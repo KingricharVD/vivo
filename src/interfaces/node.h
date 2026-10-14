@@ -129,7 +129,7 @@ public:
 
 using MnListPtr = std::shared_ptr<MnList>;
 
-//! Interface for the src/evo part of a vivo node (vivod process).
+//! Interface for the src/evo part of a dash node (dashd process).
 class EVO
 {
 public:
@@ -159,7 +159,7 @@ public:
     virtual void setContext(node::NodeContext* context) {}
 };
 
-//! Interface for the src/governance part of a vivo node (vivod process).
+//! Interface for the src/governance part of a dash node (dashd process).
 class GOV
 {
 public:
@@ -205,7 +205,7 @@ public:
     virtual void setContext(node::NodeContext* context) {}
 };
 
-//! Interface for the src/llmq part of a vivo node (vivod process).
+//! Interface for the src/llmq part of a dash node (dashd process).
 class LLMQ
 {
 public:
@@ -256,7 +256,7 @@ public:
     virtual void setContext(node::NodeContext* context) {}
 };
 
-//! Interface for the src/masternode part of a vivo node (vivod process).
+//! Interface for the src/masternode part of a dash node (dashd process).
 namespace Masternode
 {
 class Sync
@@ -323,7 +323,7 @@ public:
     virtual std::string getName() = 0;
 };
 
-//! Top-level interface for a vivo node (vivod process).
+//! Top-level interface for a dash node (dashd process).
 class Node
 {
 public:

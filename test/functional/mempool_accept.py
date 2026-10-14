@@ -82,8 +82,8 @@ class MempoolAcceptanceTest(BitcoinTestFramework):
             rawtxs=[raw_tx_in_block],
             maxfeerate=-0.01,
         ))
-        # Also check feerate. 1VIVO/kB fails
-        assert_raises_rpc_error(-8, "Fee rates larger than or equal to 1VIVO/kB are not accepted", lambda: self.check_mempool_result(
+        # Also check feerate. 1DASH/kB fails
+        assert_raises_rpc_error(-8, "Fee rates larger than or equal to 1DASH/kB are not accepted", lambda: self.check_mempool_result(
             result_expected=None,
             rawtxs=[raw_tx_in_block],
             maxfeerate=1,
@@ -146,7 +146,7 @@ class MempoolAcceptanceTest(BitcoinTestFramework):
         raw_tx_0_reject = tx.serialize().hex()
         txid_0_reject = tx.rehash()
         self.check_mempool_result(
-            # No RBF in VIVO
+            # No RBF in DASH
             result_expected=[{'txid': txid_0_reject, 'allowed': False, 'reject-reason': 'txn-mempool-conflict'}],
             rawtxs=[raw_tx_0_reject],
         )

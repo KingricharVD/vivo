@@ -1,4 +1,4 @@
-// Copyright (c) 2014-2025 The Vivo Core developers
+// Copyright (c) 2014-2025 The Dash Core developers
 // Distributed under the MIT/X11 software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
@@ -551,13 +551,13 @@ static RPCHelpMan masternodelist_helper(bool is_composite)
         "  json           - Print info in JSON format (can be additionally filtered, partial match)\n"
         "  lastpaidblock  - Print the last block height a node was paid on the network\n"
         "  lastpaidtime   - Print the last time a node was paid on the network\n"
-        "  owneraddress   - Print the masternode owner Vivo address\n"
-        "  payee          - Print the masternode payout Vivo address (can be additionally filtered,\n"
+        "  owneraddress   - Print the masternode owner Dash address\n"
+        "  payee          - Print the masternode payout Dash address (can be additionally filtered,\n"
         "                   partial match)\n"
         "  pubKeyOperator - Print the masternode operator public key\n"
         "  status         - Print masternode status: ENABLED / POSE_BANNED\n"
         "                   (can be additionally filtered, partial match)\n"
-        "  votingaddress  - Print the masternode voting Vivo address\n",
+        "  votingaddress  - Print the masternode voting Dash address\n",
         {
             {"mode", RPCArg::Type::STR, RPCArg::DefaultHint{"json"}, "The mode to run list in"},
             {"filter", RPCArg::Type::STR, RPCArg::Default{""}, "Filter results. Partial match by outpoint by default in all modes, additional matches in some modes are also available"},
@@ -594,15 +594,15 @@ static RPCHelpMan masternodelist_helper(bool is_composite)
             RPCResult{"for mode = lastpaidtime", RPCResult::Type::OBJ_DYN, "", "json object with masternode outpoint as keys",
                 {{RPCResult::Type::NUM, "<outpoint>", "Timestamp of block the masternode was last paid"}}},
             RPCResult{"for mode = payee", RPCResult::Type::OBJ_DYN, "", "json object with masternode outpoint as keys",
-                {{RPCResult::Type::STR, "<outpoint>", "Vivo address used for masternode reward payments"}}},
+                {{RPCResult::Type::STR, "<outpoint>", "Dash address used for masternode reward payments"}}},
             RPCResult{"for mode = owneraddress", RPCResult::Type::OBJ_DYN, "", "json object with masternode outpoint as keys",
-                {{RPCResult::Type::STR, "<outpoint>", "Vivo address used for payee updates and proposal voting"}}},
+                {{RPCResult::Type::STR, "<outpoint>", "Dash address used for payee updates and proposal voting"}}},
             RPCResult{"for mode = pubkeyoperator", RPCResult::Type::OBJ_DYN, "", "json object with masternode outpoint as keys",
                 {{RPCResult::Type::STR, "<outpoint>", "BLS public key used for operator signing"}}},
             RPCResult{"for mode = status", RPCResult::Type::OBJ_DYN, "", "json object with masternode outpoint as keys",
                 {{RPCResult::Type::STR, "<outpoint>", "Masternode status (human-readable string)"}}},
             RPCResult{"for mode = votingaddress", RPCResult::Type::OBJ_DYN, "", "json object with masternode outpoint as keys",
-                {{RPCResult::Type::STR, "<outpoint>", "Vivo address used for voting"}}},
+                {{RPCResult::Type::STR, "<outpoint>", "Dash address used for voting"}}},
         },
         RPCExamples{""},
         [&](const RPCHelpMan& self, const JSONRPCRequest& request) -> UniValue
@@ -797,7 +797,7 @@ static RPCHelpMan masternodelist_composite()
 Span<const CRPCCommand> GetWalletMasternodeRPCCommands()
 {
     static const CRPCCommand commands[]{
-        {"vivo", &masternode_outputs},
+        {"dash", &masternode_outputs},
     };
     return commands;
 }
@@ -806,14 +806,14 @@ Span<const CRPCCommand> GetWalletMasternodeRPCCommands()
 void RegisterMasternodeRPCCommands(CRPCTable &t)
 {
     static const CRPCCommand commands[]{
-        {"vivo", &masternode_help},
-        {"vivo", &masternodelist_composite},
-        {"vivo", &masternodelist},
-        {"vivo", &masternode_connect},
-        {"vivo", &masternode_count},
-        {"vivo", &masternode_status},
-        {"vivo", &masternode_payments},
-        {"vivo", &masternode_winners},
+        {"dash", &masternode_help},
+        {"dash", &masternodelist_composite},
+        {"dash", &masternodelist},
+        {"dash", &masternode_connect},
+        {"dash", &masternode_count},
+        {"dash", &masternode_status},
+        {"dash", &masternode_payments},
+        {"dash", &masternode_winners},
     };
     for (const auto& command : commands) {
         t.appendCommand(command.name, &command);

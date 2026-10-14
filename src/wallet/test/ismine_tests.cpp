@@ -247,7 +247,7 @@ BOOST_AUTO_TEST_CASE(ismine_standard)
     }
 
     // P2WPKH uncompressed (invalid) - Descriptor
-    // Not applicable for Vivo Core because there is no segwit
+    // Not applicable for Dash Core because there is no segwit
 
     // scriptPubKey multisig - Legacy
     {
@@ -349,7 +349,7 @@ BOOST_AUTO_TEST_CASE(ismine_standard)
         result = spk_manager->IsMine(GetScriptForDestination(PKHash(pubkeys[0])));
         BOOST_CHECK_EQUAL(result, ISMINE_SPENDABLE);
 
-        // Test P2SH-P2PKH (Vivo's combo descriptor describes it in place of upstream's P2SH-P2WPKH)
+        // Test P2SH-P2PKH (Dash's combo descriptor describes it in place of upstream's P2SH-P2WPKH)
         CScript redeemScript = GetScriptForDestination(PKHash(pubkeys[0]));
         scriptPubKey = GetScriptForDestination(ScriptHash(redeemScript));
         result = spk_manager->IsMine(scriptPubKey);

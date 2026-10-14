@@ -41,10 +41,10 @@ The command processes snapshot pairs (snapshots are stored every 576 blocks) and
 **Example:**
 ```bash
 # Verify entire chain
-vivo-cli evodb verify
+dash-cli evodb verify
 
 # Verify specific range
-vivo-cli evodb verify 1000 10000
+dash-cli evodb verify 1000 10000
 ```
 
 ---
@@ -104,10 +104,10 @@ The repair process:
 **Example:**
 ```bash
 # Repair entire chain
-vivo-cli evodb repair
+dash-cli evodb repair
 
 # Repair specific range
-vivo-cli evodb repair 1000 10000
+dash-cli evodb repair 1000 10000
 ```
 
 ---

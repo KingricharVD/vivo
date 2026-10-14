@@ -92,5 +92,5 @@ jobs:
 
     - name: Build and test Rust bindings
       run: |
-        cd rust-bindings/bls-vivo-sys
+        cd rust-bindings/bls-dash-sys
         cargo test

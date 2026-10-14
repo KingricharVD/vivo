@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-# Copyright (c) 2015-2025 The Vivo Core developers
+# Copyright (c) 2015-2025 The Dash Core developers
 # Distributed under the MIT software license, see the accompanying
 # file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
@@ -13,7 +13,7 @@ This functional test is similar to feature_llmq_signing.py but difference are bi
 
 from test_framework.authproxy import JSONRPCException
 from test_framework.test_framework import (
-    VivoTestFramework,
+    DashTestFramework,
     MasternodeInfo,
 )
 from test_framework.util import (
@@ -29,14 +29,14 @@ msgHashConflict = "0000000000000000000000000000000000000000000000000000000000000
 
 
 q_type=100
-class LLMQSigningTest(VivoTestFramework):
+class LLMQSigningTest(DashTestFramework):
     def add_options(self, parser):
         self.add_wallet_options(parser)
 
     def set_test_params(self):
-        self.set_vivo_test_params(1, 0, [["-llmqtestinstantsenddip0024=llmq_test_instantsend", "-peertimeout=300000000"]],
+        self.set_dash_test_params(1, 0, [["-llmqtestinstantsenddip0024=llmq_test_instantsend", "-peertimeout=300000000"]],
                 evo_count=2)
-        self.set_vivo_llmq_test_params(1, 1)
+        self.set_dash_llmq_test_params(1, 1)
 
     def check_sigs(self, hasrecsigs, isconflicting1, isconflicting2):
         has_sig = False

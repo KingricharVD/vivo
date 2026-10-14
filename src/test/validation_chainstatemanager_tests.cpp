@@ -52,7 +52,7 @@ void SeedSnapshotMarker(CEvoDB& evodb, const uint256& hash)
 
 BOOST_FIXTURE_TEST_SUITE(validation_chainstatemanager_tests, ChainTestingSetup)
 
-static void VivoChainstateSetup(ChainstateManager& chainman,
+static void DashChainstateSetup(ChainstateManager& chainman,
                          node::NodeContext& node,
                          bool llmq_dbs_in_memory,
                          bool llmq_dbs_wipe)
@@ -68,7 +68,7 @@ static void VivoChainstateSetup(ChainstateManager& chainman,
                                                             *Assert(node.chainlocks), *(node.llmq_ctx->qman));
 }
 
-static void VivoChainstateSetupClose(node::NodeContext& node)
+static void DashChainstateSetupClose(node::NodeContext& node)
 {
     node.chain_helper.reset();
     node.llmq_ctx.reset();
@@ -94,7 +94,7 @@ BOOST_AUTO_TEST_CASE(chainstatemanager)
         /*cache_size_bytes=*/1 << 23, /*in_memory=*/true, /*should_wipe=*/false);
     WITH_LOCK(::cs_main, c1.InitCoinsCache(1 << 23));
 
-    VivoChainstateSetup(manager, m_node, /*llmq_dbs_in_memory=*/true, /*llmq_dbs_wipe=*/false);
+    DashChainstateSetup(manager, m_node, /*llmq_dbs_in_memory=*/true, /*llmq_dbs_wipe=*/false);
 
     BOOST_REQUIRE(c1.LoadGenesisBlock());
     BlockValidationState val_state;
@@ -118,7 +118,7 @@ BOOST_AUTO_TEST_CASE(chainstatemanager)
 
     BOOST_CHECK(!manager.SnapshotBlockhash().has_value());
 
-    VivoChainstateSetupClose(m_node);
+    DashChainstateSetupClose(m_node);
 
     // Create a snapshot-based chainstate.
     //
@@ -134,7 +134,7 @@ BOOST_AUTO_TEST_CASE(chainstatemanager)
     BOOST_CHECK_EQUAL(c2.GetMempool(), &mempool);
     BOOST_CHECK(!c1.GetMempool());
 
-    VivoChainstateSetup(manager, m_node, /*llmq_dbs_in_memory=*/true, /*llmq_dbs_wipe=*/false);
+    DashChainstateSetup(manager, m_node, /*llmq_dbs_in_memory=*/true, /*llmq_dbs_wipe=*/false);
 
     BOOST_CHECK_EQUAL(manager.SnapshotBlockhash().value(), snapshot_blockhash);
 
@@ -168,7 +168,7 @@ BOOST_AUTO_TEST_CASE(chainstatemanager)
     // Let scheduler events finish running to avoid accessing memory that is going to be unloaded
     SyncWithValidationInterfaceQueue();
 
-    VivoChainstateSetupClose(m_node);
+    DashChainstateSetupClose(m_node);
     // dmnman holds a reference to m_node.evodb, it mustn't outlive it
     m_node.dmnman.reset();
 }
@@ -238,7 +238,7 @@ struct SnapshotTestSetup : TestChain100Setup {
                               {},
                               /*coins_db_in_memory=*/false,
                               /*block_tree_db_in_memory=*/false,
-                              /*vivo_dbs_in_memory=*/false,
+                              /*dash_dbs_in_memory=*/false,
                           }
     {
     }
@@ -454,7 +454,7 @@ struct SnapshotTestSetup : TestChain100Setup {
                     cs->ForceFlushStateToDisk();
                 }
             }
-            VivoChainstateSetupClose(m_node);
+            DashChainstateSetupClose(m_node);
             chainman.ResetChainstates();
             BOOST_CHECK_EQUAL(chainman.GetAll().size(), 0);
             const ChainstateManager::Options chainman_opts{

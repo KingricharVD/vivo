@@ -99,7 +99,7 @@ jobs:
     with:
       context: ./contrib/containers/ci
       file: ./contrib/containers/ci/ci.Dockerfile
-      name: vivocore-ci-runner
+      name: dashcore-ci-runner
       runs-on-amd64: ${{ needs.check-skip.outputs['runner-amd64'] }}
       runs-on-arm64: ${{ needs.check-skip.outputs['runner-arm64'] }}
 
@@ -111,7 +111,7 @@ jobs:
     with:
       context: ./contrib/containers/ci
       file: ./contrib/containers/ci/ci-slim.Dockerfile
-      name: vivocore-ci-slim
+      name: dashcore-ci-slim
       runs-on-amd64: ${{ needs.check-skip.outputs['runner-amd64'] }}
       runs-on-arm64: ${{ needs.check-skip.outputs['runner-arm64'] }}
 

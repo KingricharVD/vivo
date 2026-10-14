@@ -40,7 +40,7 @@ BOOST_AUTO_TEST_CASE(test_assumeutxo)
     BOOST_CHECK_EQUAL(out210.nChainTx, 200U);
 }
 
-//! Test the Vivo (non-witness) IsBlockMutated() predicate directly.
+//! Test the Dash (non-witness) IsBlockMutated() predicate directly.
 BOOST_AUTO_TEST_CASE(block_malleation)
 {
     // Calls IsBlockMutated and clears the CBlock validity-cache flags so the

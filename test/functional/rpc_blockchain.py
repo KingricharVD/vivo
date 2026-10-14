@@ -36,7 +36,7 @@ from test_framework.blocktools import (
 from test_framework.governance import EXPECTED_STDERR_NO_GOV_PRUNE
 from test_framework.messages import (
     CBlockHeader,
-    vivohash,
+    dashhash,
     from_hex,
     msg_block,
 )
@@ -566,7 +566,7 @@ class BlockchainTest(BitcoinTestFramework):
 
         def assert_hexblock_hashes(verbosity):
             block = node.getblock(blockhash, verbosity)
-            assert_equal(blockhash, vivohash(bytes.fromhex(block[:160]))[::-1].hex())
+            assert_equal(blockhash, dashhash(bytes.fromhex(block[:160]))[::-1].hex())
 
         def assert_fee_not_in_block(verbosity):
             block = node.getblock(blockhash, verbosity)

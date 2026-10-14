@@ -1,6 +1,6 @@
 // Copyright (c) 2010 Satoshi Nakamoto
 // Copyright (c) 2009-2020 The Bitcoin Core developers
-// Copyright (c) 2014-2025 The Vivo Core developers
+// Copyright (c) 2014-2025 The Dash Core developers
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
@@ -637,7 +637,7 @@ static RPCHelpMan createwallet()
         flags |= WALLET_FLAG_AVOID_REUSE;
     }
     if (!request.params[5].isNull() && request.params[6].isNull()) {
-        throw JSONRPCError(RPC_INVALID_PARAMETER, "The createwallet RPC requires specifying the 'load_on_startup' flag when param 'descriptors' is specified. Upstream Vivo Core v21 introduced this requirement due to breaking changes in the createwallet RPC.");
+        throw JSONRPCError(RPC_INVALID_PARAMETER, "The createwallet RPC requires specifying the 'load_on_startup' flag when param 'descriptors' is specified. Upstream Dash Core v21 introduced this requirement due to breaking changes in the createwallet RPC.");
     }
     if (request.params[5].isNull() || request.params[5].get_bool()) {
 #ifndef USE_SQLITE

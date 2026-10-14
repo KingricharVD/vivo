@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Copyright (c) 2018-2025 The Vivo Core developers
+# Copyright (c) 2018-2025 The Dash Core developers
 # Distributed under the MIT software license, see the accompanying
 # file COPYING or http://www.opensource.org/licenses/mit-license.php.
 #
@@ -11,7 +11,7 @@ set -e
 
 PASS_ARGS="$*"
 
-source ./ci/vivo/matrix.sh
+source ./ci/dash/matrix.sh
 
 if [ "$RUN_FUNCTIONAL_TESTS" != "true" ]; then
   echo "Skipping integration tests"
@@ -26,10 +26,10 @@ if [ "$DOWNLOAD_PREVIOUS_RELEASES" = "true" ]; then
   ./test/get_previous_releases.py -b -t "$PREVIOUS_RELEASES_DIR"
 fi
 
-cd "build-ci/vivocore-$BUILD_TARGET"
+cd "build-ci/dashcore-$BUILD_TARGET"
 
 if [ -n "${CI_LIMIT_STACK_SIZE}" ]; then
-  # Upstream uses 512, which segfaults vivod during test framework startup.
+  # Upstream uses 512, which segfaults dashd during test framework startup.
   ulimit -s 1024
 fi
 
@@ -45,7 +45,7 @@ if [ "$SOCKETEVENTS" = "" ]; then
   fi
 fi
 echo "Using socketevents mode: $SOCKETEVENTS"
-EXTRA_ARGS="--vivod-arg=-socketevents=$SOCKETEVENTS"
+EXTRA_ARGS="--dashd-arg=-socketevents=$SOCKETEVENTS"
 
 set +e
 # shellcheck disable=SC2086
