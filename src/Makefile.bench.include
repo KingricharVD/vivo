@@ -36,7 +36,7 @@ bench_bench_dash_SOURCES = \
   bench/duplicate_inputs.cpp \
   bench/ecdsa.cpp \
   bench/ellswift.cpp \
-  bench/Examples.cpp \
+  bench/examples.cpp \
   bench/gcs_filter.cpp \
   bench/hashpadding.cpp \
   bench/logging.cpp \
