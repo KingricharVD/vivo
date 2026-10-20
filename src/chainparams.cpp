@@ -201,7 +201,7 @@ public:
         consensus.DIP0020Height = 2147483647; // 000000000000000f64ed3bd9af1078177ac026f6aa2677aa4d8beeae43be56cc
         consensus.DIP0024Height = 2147483647; // 0000000000000001342be9c0b75ad40c276beaad91616423c4d9cb101b3db438
         consensus.DIP0024QuorumsHeight = 2147483647; // 000000000000001aa25181e4c466e593992c98f9eb21c69ee757b8bb0af50244
-        consensus.V19Height = 2147483647; // 0000000000000015e32e73052d663626327004c81c5c22cb8b42c361015c0eae
+        consensus.V19Height = 2184029; // VIVO v25.0.4.0 // 0000000000000015e32e73052d663626327004c81c5c22cb8b42c361015c0eae
         consensus.V20Height = 2147483647; // 000000000000001bf41cff06b76780050682ca29e61a91c391893d4745579777
         consensus.MN_RRHeight = 2147483647; // 0000000000000009a9696da93d3807eb14eb00a4ff449206d689156a21b27f26
         consensus.WithdrawalsHeight = 2147483647; // 00000000000000210518749e17c00b035a2a4982c906236c28c41ea2231bf7ef
@@ -228,6 +228,7 @@ public:
         consensus.vDeployments[Consensus::DEPLOYMENT_V24].nThresholdMin = 2420;       // 60% of 4032
         consensus.vDeployments[Consensus::DEPLOYMENT_V24].nFalloffCoeff = 5;          // this corresponds to 10 periods
         consensus.vDeployments[Consensus::DEPLOYMENT_V24].useEHF = true;
+        consensus.vDeployments[Consensus::DEPLOYMENT_V24].min_activation_height = 2184529; // VIVO: 500 blocks after V19
 
         consensus.nMinimumChainWork = uint256S("0x00"); // 2487500
         consensus.defaultAssumeValid = uint256S("0x00"); // 2487500
@@ -295,6 +296,10 @@ public:
         AddLLMQ(Consensus::LLMQType::LLMQ_400_60);
         AddLLMQ(Consensus::LLMQType::LLMQ_400_85);
         AddLLMQ(Consensus::LLMQType::LLMQ_100_67);
+        AddLLMQ(Consensus::LLMQType::LLMQ_VIVO_CHAINLOCKS);
+        AddLLMQ(Consensus::LLMQType::LLMQ_VIVO_INSTANTSEND);
+        AddLLMQ(Consensus::LLMQType::LLMQ_VIVO_PLATFORM);
+        AddLLMQ(Consensus::LLMQType::LLMQ_VIVO_MNHF);
         consensus.llmqTypeChainLocks = Consensus::LLMQType::LLMQ_400_60;
         consensus.llmqTypeDIP0024InstantSend = Consensus::LLMQType::LLMQ_60_75;
         consensus.llmqTypePlatform = Consensus::LLMQType::LLMQ_100_67;
@@ -334,9 +339,7 @@ public:
                 {378129, uint256S("0x000000002f22a53a0228c6b94c960ba923df660531911392841196f641970b5f")},
                 {420300, uint256S("0x0000000037e291974d11f3f0c5309632db5d1b5c70162014a11e3de7920a548b")},
                 {444770, uint256S("0x00000000a21f0077a24e0d814dcfca41144a49d671ad2f3adb9f5fe5f509efaa")},
-				{2169890, uint256S("0x00000012e30cd3fc22886e36570b48e7d7b426e27c9322255f6b5e9fff9bef15")},
-                {2181177, uint256S("0x0000000792d1176a9c234d80d1fb146bf3ff5bcf4f94cd29c54de8a6e068972b")},
-                {2181756, uint256S("0x00000003da86543021d8d38aa56338ce2262a7386360dcfc13f3958e1df1a0c2")},
+		{2169890, uint256S("0x00000012e30cd3fc22886e36570b48e7d7b426e27c9322255f6b5e9fff9bef15")},
             }
         };
 
@@ -439,7 +442,8 @@ public:
         assert(genesis.hashMerkleRoot == uint256S("0xe0028eb9648db56b1ac77cf090b99048a8007e2bb64b68f092c03c7f56a662c7"));
 
         vFixedSeeds.clear();
-        vFixedSeeds = std::vector<uint8_t>(std::begin(chainparams_seed_test), std::end(chainparams_seed_test));
+        // VIVO testnet has no fixed bootstrap seeds.
+        vFixedSeeds.clear();
 
         vSeeds.clear();
         // nodes with support for servicebits filtering should be at the top
@@ -792,18 +796,18 @@ public:
         consensus.BIP147Height = 0;  // Always active unless overridden
         consensus.CSVHeight = 1;     // Always active unless overridden
         consensus.DIP0001Height = 1; // Always active unless overridden
-        consensus.DIP0003Height = 432; // Always active for DashTestFramework in functional tests (see dip3params)
+        consensus.DIP0003Height = 30; // Always active for DashTestFramework in functional tests (see dip3params)
                                        // For unit tests and for BitcoinTestFramework is disabled due to missing quorum commitment for blocks created by helpers such as create_blocks
-        consensus.DIP0003EnforcementHeight = 500;
+        consensus.DIP0003EnforcementHeight = 50;
         consensus.DIP0003EnforcementHash = uint256();
         consensus.DIP0008Height = 1; // Always active unless overridden
         consensus.BRRHeight = 1;     // Always active unless overridden
-        consensus.DIP0020Height = 1; // Always active unless overridden
-        consensus.DIP0024Height = 1; // Always have dip0024 quorums unless overridden
-        consensus.DIP0024QuorumsHeight = 1; // Always have dip0024 quorums unless overridden
-        consensus.V19Height = 1; // Always active unless overridden
-        consensus.V20Height = consensus.DIP0003Height; // Active not earlier than dip0003. Functional tests (DashTestFramework) uses height 100 (same as coinbase maturity)
-        consensus.MN_RRHeight = consensus.V20Height; // MN_RR does not really have effect before v20 activation
+        consensus.DIP0020Height = 110; // Always active unless overridden
+        consensus.DIP0024Height = 130; // Always have dip0024 quorums unless overridden
+        consensus.DIP0024QuorumsHeight = 150; // Always have dip0024 quorums unless overridden
+        consensus.V19Height = 70; // Always active unless overridden
+        consensus.V20Height = 90; // Active not earlier than dip0003. Functional tests (DashTestFramework) uses height 100 (same as coinbase maturity)
+        consensus.MN_RRHeight = 2147483647; // MN_RR does not really have effect before v20 activation
         consensus.WithdrawalsHeight = 600;
         consensus.MinBIP9WarningHeight = 0;
         consensus.powLimit = uint256S("7fffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff"); // ~uint256(0) >> 1
@@ -824,11 +828,12 @@ public:
         consensus.vDeployments[Consensus::DEPLOYMENT_V24].bit = 12;
         consensus.vDeployments[Consensus::DEPLOYMENT_V24].nStartTime = 0;
         consensus.vDeployments[Consensus::DEPLOYMENT_V24].nTimeout = Consensus::BIP9Deployment::NO_TIMEOUT;
-        consensus.vDeployments[Consensus::DEPLOYMENT_V24].nWindowSize = 250;
-        consensus.vDeployments[Consensus::DEPLOYMENT_V24].nThresholdStart = 250 / 5 * 4;     // 80% of window size
-        consensus.vDeployments[Consensus::DEPLOYMENT_V24].nThresholdMin = 250 / 5 * 3;       // 60% of window size
+        consensus.vDeployments[Consensus::DEPLOYMENT_V24].nWindowSize = 10;
+        consensus.vDeployments[Consensus::DEPLOYMENT_V24].nThresholdStart = 8;     // 80% of window size
+        consensus.vDeployments[Consensus::DEPLOYMENT_V24].nThresholdMin = 6;       // 60% of window size
         consensus.vDeployments[Consensus::DEPLOYMENT_V24].nFalloffCoeff = 5;                 // this corresponds to 10 periods
         consensus.vDeployments[Consensus::DEPLOYMENT_V24].useEHF = true;
+        consensus.vDeployments[Consensus::DEPLOYMENT_V24].min_activation_height = 170;
 
         consensus.nMinimumChainWork = uint256{};
         consensus.defaultAssumeValid = uint256{};

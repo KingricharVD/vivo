@@ -6495,6 +6495,14 @@ bool ChainstateManager::IsQuorumTypeEnabled(const Consensus::LLMQType llmqType,
     case Consensus::LLMQType::LLMQ_25_67:
         return pindexPrev->nHeight >= TESTNET_LLMQ_25_67_ACTIVATION_HEIGHT;
 
+    // VIVO v25.0.4.0: recognize future mainnet quorum IDs.
+    // Do not enable them until the consensus-safe activation
+    // and historical role transitions are implemented.
+    case Consensus::LLMQType::LLMQ_VIVO_CHAINLOCKS:
+    case Consensus::LLMQType::LLMQ_VIVO_INSTANTSEND:
+    case Consensus::LLMQType::LLMQ_VIVO_PLATFORM:
+    case Consensus::LLMQType::LLMQ_VIVO_MNHF:
+        return false;
     default:
         throw std::runtime_error(strprintf("%s: Unknown LLMQ type %d", __func__, std23::to_underlying(llmqType)));
     }

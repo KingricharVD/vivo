@@ -1,0 +1,20 @@
+{
+  "network": "regtest",
+  "version": "25.0.4.0",
+  "activation_heights": {
+    "DIP0003Height": 30,
+    "DIP0003EnforcementHeight": 50,
+    "V19Height": 70,
+    "V20Height": 90,
+    "DIP0020Height": 110,
+    "DIP0024Height": 130,
+    "DIP0024QuorumsHeight": 150,
+    "MN_RRHeight": 2147483647
+  },
+  "v24_minimum_height": 170,
+  "v24_window": 10,
+  "v24_threshold_start": 8,
+  "v24_threshold_min": 6,
+  "status": "TEST_ONLY",
+  "mainnet_unchanged": true
+}
