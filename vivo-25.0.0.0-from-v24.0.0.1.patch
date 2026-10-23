@@ -1,0 +1,368 @@
+diff --git a/configure.ac b/configure.ac
+index e82869a..a9d238d 100644
+--- a/configure.ac
++++ b/configure.ac
+@@ -1,14 +1,14 @@
+ AC_PREREQ([2.69])
+ dnl Don't forget to push a corresponding tag when updating any of _CLIENT_VERSION_* numbers
+-define(_CLIENT_VERSION_MAJOR, 24)
++define(_CLIENT_VERSION_MAJOR, 25)
+ define(_CLIENT_VERSION_MINOR, 0)
+ define(_CLIENT_VERSION_BUILD, 0)
+-define(_CLIENT_VERSION_REVISION, 1)
++define(_CLIENT_VERSION_REVISION, 0)
+ define(_CLIENT_VERSION_IS_RELEASE, true)
+ define(_COPYRIGHT_YEAR, 2026)
+ define(_COPYRIGHT_HOLDERS,[The %s developers])
+ define(_COPYRIGHT_HOLDERS_SUBSTITUTION,[[Vivo Core]])
+-AC_INIT([Vivo Core],[24.0.0.1],[https://github.com/KingricharVD/vivo/issues],[vivocore],[https://github.com/KingricharVD/vivo])
++AC_INIT([Vivo Core],[25.0.0.0],[https://github.com/KingricharVD/vivo/issues],[vivocore],[https://github.com/KingricharVD/vivo])
+ AC_CONFIG_SRCDIR([src/validation.cpp])
+ AC_CONFIG_HEADERS([src/config/bitcoin-config.h])
+ AC_CONFIG_AUX_DIR([build-aux])
+@@ -2067,7 +2067,7 @@ AC_CONFIG_LINKS([test/functional/test_runner.py:test/functional/test_runner.py])
+ AC_CONFIG_LINKS([test/fuzz/test_runner.py:test/fuzz/test_runner.py])
+ AC_CONFIG_LINKS([test/util/test_runner.py:test/util/test_runner.py])
+ AC_CONFIG_LINKS([test/util/rpcauth-test.py:test/util/rpcauth-test.py])
+-AC_CONFIG_LINKS([src/qt/Makefile:src/qt/Makefile])
++dnl VIVO 25: removed invalid src/qt/Makefile self-link; Qt rules are included via src/Makefile.qt.include
+ AC_CONFIG_LINKS([src/qt/test/Makefile:src/qt/test/Makefile])
+ AC_CONFIG_LINKS([src/test/Makefile:src/test/Makefile])
+ 
+diff --git a/src/chainparams.cpp b/src/chainparams.cpp
+index 098224e..87b568e 100644
+--- a/src/chainparams.cpp
++++ b/src/chainparams.cpp
+@@ -167,7 +167,7 @@ public:
+     CMainParams() {
+         strNetworkID = CBaseChainParams::MAIN;
+         consensus.nSubsidyHalvingInterval = 262800; // Note: actual number of blocks per calendar year with DGW v3 is ~200700 (for example 449750 - 249050)
+-        consensus.nVivoDmnHeight = 2147483647; // deterministic MN registration
++        consensus.nVivoDmnHeight = 2177196; // VIVO deterministic MN/ProTx registration opens 500 blocks after V2
+         consensus.nVivoV2Height = 2176696; // scarce economics activation
+         consensus.nVivoV2ReductionInterval = 262800;
+         consensus.nMasternodePaymentsStartBlock = 2147483647; // not true, but it's ok as long as it's less then nMasternodePaymentsIncreaseBlock
+@@ -192,8 +192,9 @@ public:
+         consensus.BIP147Height = consensus.nVivoV2Height; // 00000000000000117befca4fab5622514772f608852e5edd8df9c55464b6fe37
+         consensus.CSVHeight = consensus.nVivoV2Height; // 00000000000002e3d3a6224cfce80bae367fd3283d1e5a8ba50e5e60b2d2905d
+         consensus.DIP0001Height = 2147483647; // 000000000000000cbc9cb551e8ee1ac7aa223585cbdfb755d3683bafd93679e4
+-        consensus.DIP0003Height = 2147483647;
+-        consensus.DIP0003EnforcementHeight = 2147483647;
++        // VIVO deterministic MN migration: registration +500 blocks, enforcement +1000.
++        consensus.DIP0003Height = 2177196;
++        consensus.DIP0003EnforcementHeight = 2177696;
+         consensus.DIP0003EnforcementHash = uint256();
+         consensus.DIP0008Height = 2147483647; // 00000000000000112e41e4b3afda8b233b8cc07c532d2eac5de097b68358c43e
+         consensus.BRRHeight = 2147483647; // 000000000000000c5a124f3eccfbe6e17876dca79cec9e63dfa70d269113c926
+diff --git a/src/evo/deterministicmns.cpp b/src/evo/deterministicmns.cpp
+index 42ebacf..d4d2c14 100644
+--- a/src/evo/deterministicmns.cpp
++++ b/src/evo/deterministicmns.cpp
+@@ -157,94 +157,50 @@ static bool CompareByLastPaid(const CDeterministicMN* _a, const CDeterministicMN
+ 
+ CDeterministicMNCPtr CDeterministicMNList::GetMNPayee(gsl::not_null<const CBlockIndex*> pindexPrev) const
+ {
+-    if (mnMap.size() == 0) {
+-        return nullptr;
+-    }
+-
+-    // The flag is-v19-activate is used for optimization; we don't need to go over all masternodes every pre-v19 block
+-    const bool isv19Active{DeploymentActiveAfter(pindexPrev, Params().GetConsensus(), Consensus::DEPLOYMENT_V19)};
+-    const bool isMNRewardReallocation{DeploymentActiveAfter(pindexPrev, Params().GetConsensus(), Consensus::DEPLOYMENT_MN_RR)};
+-    // EvoNodes are rewarded 4 blocks in a row until MNRewardReallocation (Platform release)
+-    // For optimization purposes we also check if v19 active to avoid loop over all masternodes
+-    CDeterministicMNCPtr best = nullptr;
+-    if (isv19Active && !isMNRewardReallocation) {
+-        ForEachMNShared(/*onlyValid=*/true, [&](const auto& dmn) {
+-            if (dmn->pdmnState->nLastPaidHeight == nHeight) {
+-                // We found the last MN Payee.
+-                // If the last payee is an EvoNode, we need to check its consecutive payments and pay him again if needed
+-                if (dmn->nType == MnType::Evo && dmn->pdmnState->nConsecutivePayments < dmn_types::Evo.voting_weight) {
+-                    best = dmn;
+-                }
+-            }
+-        });
+-
+-        if (best != nullptr) return best;
+-
+-        // Note: If the last payee was a regular MN or if the payee is an EvoNode that was removed from the mnList then that's fine.
+-        // We can proceed with classic MN payee selection
+-    }
++    if (mnMap.size() == 0) return nullptr;
+ 
++    // VIVO: one primary payment position per valid node.
++    CDeterministicMNCPtr best{nullptr};
+     ForEachMNShared(/*onlyValid=*/true, [&](const auto& dmn) {
+         if (best == nullptr || CompareByLastPaid(dmn.get(), best.get())) {
+             best = dmn;
+         }
+     });
+-
+     return best;
+ }
+ 
+-std::vector<CDeterministicMNCPtr> CDeterministicMNList::GetProjectedMNPayees(gsl::not_null<const CBlockIndex* const> pindexPrev, int nCount) const
++CDeterministicMNCPtr CDeterministicMNList::GetVivoEvoSupplementalPayee(
++    gsl::not_null<const CBlockIndex*> pindexPrev) const
+ {
+-    if (nCount < 0 ) {
+-        return {};
+-    }
+-    const bool isMNRewardReallocation = DeploymentActiveAfter(pindexPrev, Params().GetConsensus(),
+-                                                              Consensus::DEPLOYMENT_MN_RR);
+-    const auto counts = GetCounts();
+-    const auto weighted_count = isMNRewardReallocation ? counts.enabled() : counts.m_valid_weighted;
+-    nCount = std::min(nCount, int(weighted_count));
+-
+-    std::vector<CDeterministicMNCPtr> result;
+-    result.reserve(weighted_count);
+-
+-    int remaining_evo_payments{0};
+-    CDeterministicMNCPtr evo_to_be_skipped{nullptr};
+-    if (!isMNRewardReallocation) {
+-        ForEachMNShared(/*onlyValid=*/true, [&](const auto& dmn) {
+-            if (dmn->pdmnState->nLastPaidHeight == nHeight) {
+-                // We found the last MN Payee.
+-                // If the last payee is an EvoNode, we need to check its consecutive payments and pay him again if needed
+-                if (dmn->nType == MnType::Evo && dmn->pdmnState->nConsecutivePayments < dmn_types::Evo.voting_weight) {
+-                    remaining_evo_payments = dmn_types::Evo.voting_weight - dmn->pdmnState->nConsecutivePayments;
+-                    for ([[maybe_unused]] auto _ : util::irange(remaining_evo_payments)) {
+-                        result.emplace_back(dmn);
+-                        evo_to_be_skipped = dmn;
+-                    }
+-                }
+-            }
+-        });
+-    }
+-
++    std::vector<CDeterministicMNCPtr> evos;
+     ForEachMNShared(/*onlyValid=*/true, [&](const auto& dmn) {
+-        if (dmn == evo_to_be_skipped) return;
+-        for ([[maybe_unused]] auto _ : util::irange(isMNRewardReallocation ? 1 : GetMnType(dmn->nType).voting_weight)) {
+-            result.emplace_back(dmn);
+-        }
++        if (dmn->nType == MnType::Evo) evos.emplace_back(dmn);
+     });
++    if (evos.empty()) return nullptr;
+ 
+-    if (evo_to_be_skipped != nullptr) {
+-        // if EvoNode is in the middle of payments, add entries for already paid ones to the end of the list
+-        for ([[maybe_unused]] auto _ : util::irange(evo_to_be_skipped->pdmnState->nConsecutivePayments)) {
+-            result.emplace_back(evo_to_be_skipped);
+-        }
+-    }
+-
+-    std::sort(result.begin() + remaining_evo_payments, result.end(), [&](const CDeterministicMNCPtr& a, const CDeterministicMNCPtr& b) {
+-        return CompareByLastPaid(a.get(), b.get());
++    std::sort(evos.begin(), evos.end(), [](const CDeterministicMNCPtr& a,
++                                           const CDeterministicMNCPtr& b) {
++        return a->proTxHash < b->proTxHash;
+     });
+ 
+-    result.resize(nCount);
++    const uint64_t selector = pindexPrev->GetBlockHash().GetUint64(0);
++    return evos[selector % evos.size()];
++}
++
++std::vector<CDeterministicMNCPtr> CDeterministicMNList::GetProjectedMNPayees(
++    gsl::not_null<const CBlockIndex* const> pindexPrev, int nCount) const
++{
++    if (nCount < 0) return {};
+ 
++    std::vector<CDeterministicMNCPtr> result;
++    ForEachMNShared(/*onlyValid=*/true, [&](const auto& dmn) {
++        result.emplace_back(dmn);
++    });
++    std::sort(result.begin(), result.end(), [&](const CDeterministicMNCPtr& a,
++                                                const CDeterministicMNCPtr& b) {
++        return CompareByLastPaid(a.get(), b.get());
++    });
++    if (nCount < static_cast<int>(result.size())) result.resize(nCount);
+     return result;
+ }
+ 
+diff --git a/src/evo/deterministicmns.h b/src/evo/deterministicmns.h
+index 2fd5cf9..3305e35 100644
+--- a/src/evo/deterministicmns.h
++++ b/src/evo/deterministicmns.h
+@@ -370,6 +370,7 @@ public:
+     [[nodiscard]] CDeterministicMNCPtr GetMNByService(const CService& service) const;
+     [[nodiscard]] CDeterministicMNCPtr GetMNByInternalId(uint64_t internalId) const;
+     [[nodiscard]] CDeterministicMNCPtr GetMNPayee(gsl::not_null<const CBlockIndex*> pindexPrev) const;
++    [[nodiscard]] CDeterministicMNCPtr GetVivoEvoSupplementalPayee(gsl::not_null<const CBlockIndex*> pindexPrev) const;
+ 
+     /**
+      * Calculates the projected MN payees for the next *count* blocks. The result is not guaranteed to be correct
+diff --git a/src/evo/dmn_types.h b/src/evo/dmn_types.h
+index 509239b..f799040 100644
+--- a/src/evo/dmn_types.h
++++ b/src/evo/dmn_types.h
+@@ -36,7 +36,7 @@ constexpr auto Regular = mntype_struct{
+ };
+ constexpr auto Evo = mntype_struct{
+     .voting_weight = 4,
+-    .collat_amount = 4000 * COIN,
++    .collat_amount = 20000 * COIN, // VIVO EVO collateral
+     .description = "Evo",
+ };
+ constexpr auto Invalid = mntype_struct{
+@@ -47,8 +47,7 @@ constexpr auto Invalid = mntype_struct{
+ 
+ [[nodiscard]] static constexpr bool IsCollateralAmount(CAmount amount)
+ {
+-    // VIVO v2 supports one deterministic masternode class.
+-    return amount == Regular.collat_amount;
++    return amount == Regular.collat_amount || amount == Evo.collat_amount;
+ }
+ 
+ } // namespace dmn_types
+@@ -64,8 +63,7 @@ constexpr auto Invalid = mntype_struct{
+ 
+ [[nodiscard]] constexpr bool IsValidMnType(MnType type)
+ {
+-    // VIVO v2: Regular deterministic masternodes only.
+-    return type == MnType::Regular;
++    return type == MnType::Regular || type == MnType::Evo;
+ }
+ 
+ #endif // BITCOIN_EVO_DMN_TYPES_H
+diff --git a/src/masternode/payments.cpp b/src/masternode/payments.cpp
+index daf30f2..fa9cab1 100644
+--- a/src/masternode/payments.cpp
++++ b/src/masternode/payments.cpp
+@@ -62,8 +62,11 @@ CAmount PlatformShare(const CAmount reward)
+ 
+ CAmount GetMasternodePayment(int nHeight, CAmount blockValue, const Consensus::Params& consensus_params, MnRewardEra era)
+ {
++    if (nHeight >= consensus_params.DIP0003EnforcementHeight) {
++        return blockValue * 3 / 5; // VIVO DMN/EVO era: 60% service-node pool
++    }
+     if (nHeight >= consensus_params.nVivoV2Height) {
+-        return blockValue * 2 / 5; // VIVO v2 40%
++        return blockValue * 2 / 5; // VIVO V2 migration era
+     }
+     CAmount ret = blockValue/5; // start at 20%
+ 
+@@ -137,61 +140,83 @@ CAmount GetMasternodePayment(int nHeight, CAmount blockValue, const Consensus::P
+ {
+     voutMasternodePaymentsRet.clear();
+ 
+-    const int nBlockHeight = pindexPrev  == nullptr ? 0 : pindexPrev->nHeight + 1;
++    const int nBlockHeight = pindexPrev == nullptr ? 0 : pindexPrev->nHeight + 1;
++    const bool vivo_dmn_enforced = nBlockHeight >= m_consensus_params.DIP0003EnforcementHeight;
+ 
+-    // VIVO v2: 40% of subsidy to deterministic MN.
+-    // Transaction fees remain with the miner.
+     CAmount masternodeReward =
+-        nBlockHeight >= m_consensus_params.nVivoV2Height
+-            ? blockSubsidy * 2 / 5
+-            : GetMasternodePayment(nBlockHeight, blockSubsidy + feeReward, m_consensus_params, era);
+-
+-    // Credit Pool doesn't exist before V20. If any part of reward will re-allocated to credit pool before v20
+-    // activation these fund will be just permanently lost. Applicable for devnets, regtest, testnet
+-    if (era == MnRewardEra::EvoReward) {
++        vivo_dmn_enforced
++            ? blockSubsidy * 3 / 5
++            : (nBlockHeight >= m_consensus_params.nVivoV2Height
++                   ? blockSubsidy * 2 / 5
++                   : GetMasternodePayment(nBlockHeight, blockSubsidy + feeReward,
++                                          m_consensus_params, era));
++
++    // Do not apply inherited Dash platform-credit-pool reallocation once the
++    // VIVO 40/60 deterministic reward era is enforced.
++    if (!vivo_dmn_enforced && era == MnRewardEra::EvoReward) {
+         CAmount masternodeSubsidyReward = GetMasternodePayment(nBlockHeight, blockSubsidy, m_consensus_params, era);
+         const CAmount platformReward = PlatformShare(masternodeSubsidyReward);
+         masternodeReward -= platformReward;
+-
+         assert(MoneyRange(masternodeReward));
+-
+-        LogPrint(BCLog::MNPAYMENTS, "CMNPaymentsProcessor::%s -- MN reward %lld reallocated to credit pool\n", __func__, platformReward);
+         voutMasternodePaymentsRet.emplace_back(platformReward, CScript() << OP_RETURN);
+     }
++
+     const auto mnList = m_dmnman.GetListForBlock(pindexPrev);
+-    if (mnList.GetCounts().total() == 0) {
+-        LogPrint(BCLog::MNPAYMENTS, "CMNPaymentsProcessor::%s -- no masternode registered to receive a payment\n", __func__);
+-        return true;
+-    }
+-    const auto dmnPayee = mnList.GetMNPayee(pindexPrev);
+-    if (!dmnPayee) {
+-        return false;
+-    }
++    if (mnList.GetCounts().total() == 0) return true;
+ 
+-    CAmount operatorReward = 0;
++    const auto primary = mnList.GetMNPayee(pindexPrev);
++    if (!primary) return false;
+ 
+-    if (dmnPayee->nOperatorReward != 0 && dmnPayee->pdmnState->scriptOperatorPayout != CScript()) {
+-        // This calculation might eventually turn out to result in 0 even if an operator reward percentage is given.
+-        // This will however only happen in a few years when the block rewards drops very low.
+-        operatorReward = (masternodeReward * dmnPayee->nOperatorReward) / 10000;
+-        masternodeReward -= operatorReward;
+-    }
++    const auto append_payee_outputs = [&](const CDeterministicMNCPtr& payee, CAmount reward) {
++        if (!payee || reward <= 0) return;
+ 
+-    const auto owner_payouts = GetOwnerPayouts(*dmnPayee->pdmnState);
+-    CAmount paid_owner_reward{0};
+-    for (size_t i = 0; i < owner_payouts.size(); ++i) {
+-        const bool last = i + 1 == owner_payouts.size();
+-        const CAmount payout_amount = last ? masternodeReward - paid_owner_reward
+-                                           : (masternodeReward * owner_payouts[i].reward) / MasternodePayoutShare::MAX_REWARD;
+-        paid_owner_reward += payout_amount;
+-        if (payout_amount > 0) {
+-            voutMasternodePaymentsRet.emplace_back(payout_amount, owner_payouts[i].scriptPayout);
++        CAmount operatorReward{0};
++        if (payee->nOperatorReward != 0 && payee->pdmnState->scriptOperatorPayout != CScript()) {
++            operatorReward = (reward * payee->nOperatorReward) / 10000;
++            reward -= operatorReward;
+         }
++
++        const auto owner_payouts = GetOwnerPayouts(*payee->pdmnState);
++        CAmount paid_owner_reward{0};
++        for (size_t i = 0; i < owner_payouts.size(); ++i) {
++            const bool last = i + 1 == owner_payouts.size();
++            const CAmount payout_amount = last
++                ? reward - paid_owner_reward
++                : (reward * owner_payouts[i].reward) / MasternodePayoutShare::MAX_REWARD;
++            paid_owner_reward += payout_amount;
++            if (payout_amount > 0) {
++                voutMasternodePaymentsRet.emplace_back(payout_amount, owner_payouts[i].scriptPayout);
++            }
++        }
++        if (operatorReward > 0) {
++            voutMasternodePaymentsRet.emplace_back(operatorReward, payee->pdmnState->scriptOperatorPayout);
++        }
++    };
++
++    if (!vivo_dmn_enforced) {
++        append_payee_outputs(primary, masternodeReward);
++        return true;
++    }
++
++    // Enforced VIVO economics:
++    //   EVO primary      -> EVO 60%, miner 40% + fees.
++    //   Regular primary  -> Regular 30%, EVO supplemental 30%, miner 40% + fees.
++    //   No valid EVO     -> Regular receives full 60%; nothing is burned.
++    if (primary->nType == MnType::Evo) {
++        append_payee_outputs(primary, masternodeReward);
++        return true;
+     }
+-    if (operatorReward > 0) {
+-        voutMasternodePaymentsRet.emplace_back(operatorReward, dmnPayee->pdmnState->scriptOperatorPayout);
++
++    const auto evoSupplemental = mnList.GetVivoEvoSupplementalPayee(pindexPrev);
++    if (!evoSupplemental) {
++        append_payee_outputs(primary, masternodeReward);
++        return true;
+     }
+ 
++    const CAmount regularReward = masternodeReward / 2;
++    const CAmount evoReward = masternodeReward - regularReward;
++    append_payee_outputs(primary, regularReward);
++    append_payee_outputs(evoSupplemental, evoReward);
+     return true;
+ }
+ 

@@ -1,0 +1,10 @@
+prefix=/usr/local
+exec_prefix=${prefix}
+libdir=${exec_prefix}/lib
+includedir=${prefix}/include
+
+Name: Vivo Core consensus library
+Description: Library for the Dash consensus protocol.
+Version: 25.0.4.0
+Libs: -L${libdir} -ldashconsensus
+Cflags: -I${includedir}

@@ -202,7 +202,7 @@ public:
         consensus.DIP0024Height = 2147483647; // 0000000000000001342be9c0b75ad40c276beaad91616423c4d9cb101b3db438
         consensus.DIP0024QuorumsHeight = 2147483647; // 000000000000001aa25181e4c466e593992c98f9eb21c69ee757b8bb0af50244
         consensus.V19Height = 2184029; // VIVO v25.0.4.0 // 0000000000000015e32e73052d663626327004c81c5c22cb8b42c361015c0eae
-        consensus.V20Height = 2147483647; // 000000000000001bf41cff06b76780050682ca29e61a91c391893d4745579777
+        consensus.V20Height = 2187065; // VIVO v25.0.5.0 proposed V20 mainnet activation // 000000000000001bf41cff06b76780050682ca29e61a91c391893d4745579777
         consensus.MN_RRHeight = 2147483647; // 0000000000000009a9696da93d3807eb14eb00a4ff449206d689156a21b27f26
         consensus.WithdrawalsHeight = 2147483647; // 00000000000000210518749e17c00b035a2a4982c906236c28c41ea2231bf7ef
         consensus.MinBIP9WarningHeight = 2201472 + 2016; // withdrawals activation height + miner confirmation window
