@@ -1166,8 +1166,8 @@ class BitcoinTestFramework(metaclass=BitcoinTestMetaClass):
         """Checks whether the wallet module was compiled with BDB support."""
         return self.config["components"].getboolean("USE_BDB")
 
-MASTERNODE_COLLATERAL = 1000
-EVONODE_COLLATERAL = 4000
+MASTERNODE_COLLATERAL = 5000
+EVONODE_COLLATERAL = 20000
 
 class MasternodeInfo:
     proTxHash: str = ""

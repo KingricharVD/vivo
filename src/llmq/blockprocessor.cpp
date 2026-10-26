@@ -243,6 +243,12 @@ bool CQuorumBlockProcessor::ProcessBlock(Chainstate& chainstate, const CBlock& b
         }
 
         if (numCommitmentsRequired > numCommitmentsInNewBlock) {
+            LogPrintf(
+                "[R47E-QC-MISSING] height=%d llmqType=%d required=%u present=%u\n",
+                pindex->nHeight,
+                std23::to_underlying(params.type),
+                static_cast<unsigned>(numCommitmentsRequired),
+                static_cast<unsigned>(numCommitmentsInNewBlock));
             return state.Invalid(BlockValidationResult::BLOCK_CONSENSUS, "bad-qc-missing");
         }
         if (IsQuorumRotationEnabled(params, pindex)) {
@@ -603,7 +609,39 @@ size_t CQuorumBlockProcessor::GetNumCommitmentsRequired(const Consensus::LLMQPar
     size_t quorums_num = rotation_enabled ? llmqParams.signingActiveQuorumCount : 1;
     size_t ret{0};
 
+    // R45E: Never require a newly activated VIVO quorum
+    // commitment for a DKG round which began before activation.
+    // Preserve historical legacy quorum requirements.
+    const auto& consensus = m_chainman.GetConsensus();
+    const bool isVivoQuorum =
+        llmqParams.type == Consensus::LLMQType::LLMQ_VIVO_CHAINLOCKS ||
+        llmqParams.type == Consensus::LLMQType::LLMQ_VIVO_INSTANTSEND ||
+        llmqParams.type == Consensus::LLMQType::LLMQ_VIVO_PLATFORM ||
+        llmqParams.type == Consensus::LLMQType::LLMQ_VIVO_MNHF;
+
+    const bool isVivoNetwork =
+        m_chainman.GetParams().NetworkIDString() == CBaseChainParams::MAIN ||
+        m_chainman.GetParams().NetworkIDString() == CBaseChainParams::REGTEST;
+
     for (const auto quorumIndex : util::irange(quorums_num)) {
+        if (isVivoQuorum && isVivoNetwork) {
+            const int quorumBaseHeight =
+                nHeight - (nHeight % llmqParams.dkgInterval) + quorumIndex;
+
+            int activationHeight = consensus.VivoQuorumRecoveryHeight;
+
+            // R52J: regtest-only independent MnHF commitment gate.
+            if (llmqParams.type == Consensus::LLMQType::LLMQ_VIVO_MNHF &&
+                m_chainman.GetParams().NetworkIDString() == CBaseChainParams::REGTEST) {
+                activationHeight = consensus.VivoMnhfHeight;
+            }
+
+            if (activationHeight >= 2147483647 ||
+                quorumBaseHeight < activationHeight) {
+                continue;
+            }
+        }
+
         uint256 quorumHash = GetQuorumBlockHash(llmqParams, chain, nHeight, quorumIndex);
         if (!quorumHash.IsNull() && !HasMinedCommitment(llmqParams.type, quorumHash, chain)) ++ret;
     }

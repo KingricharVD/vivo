@@ -133,6 +133,12 @@ struct Params {
     /** Block height at which DIP0001 becomes active */
     int DIP0001Height;
     /** Block height at which DIP0002 and DIP0003 (txv3 and deterministic MN lists) becomes active */
+    // VIVO quorum recovery: disabled unless explicitly scheduled.
+    int VivoQuorumRecoveryHeight{2147483647};
+    // Experimental: separate signing-role handover.
+    int VivoChainLocksHandoverHeight{2147483647};
+    // R52E: proposed MnHF-specific activation; disabled on mainnet until coordinated.
+    int VivoMnhfHeight{2147483647};
     int DIP0003Height;
     /** Block height at which DIP0003 becomes enforced */
     int DIP0003EnforcementHeight;

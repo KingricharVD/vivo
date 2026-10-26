@@ -193,6 +193,12 @@ public:
         consensus.CSVHeight = consensus.nVivoV2Height; // 00000000000002e3d3a6224cfce80bae367fd3283d1e5a8ba50e5e60b2d2905d
         consensus.DIP0001Height = 2147483647; // 000000000000000cbc9cb551e8ee1ac7aa223585cbdfb755d3683bafd93679e4
         // VIVO deterministic MN migration: registration +500 blocks, enforcement +1000.
+        // R41A: future quorum recovery height not yet selected.
+        consensus.VivoQuorumRecoveryHeight = 2188700;
+        // Remains disabled until quorum-readiness tests pass.
+        consensus.VivoChainLocksHandoverHeight = 2189000;
+        // R52E: no mainnet MnHF role handover is approved.
+        consensus.VivoMnhfHeight = 2147483647;
         consensus.DIP0003Height = 2182235;
         consensus.DIP0003EnforcementHeight = 2182735;
         consensus.DIP0003EnforcementHash = uint256();
@@ -926,10 +932,26 @@ public:
         AddLLMQ(Consensus::LLMQType::LLMQ_TEST_V17);
         AddLLMQ(Consensus::LLMQType::LLMQ_TEST_DIP0024);
         AddLLMQ(Consensus::LLMQType::LLMQ_TEST_PLATFORM);
+        // R41V-B: regtest-only recovery activation.
+        consensus.VivoQuorumRecoveryHeight = 200;
+        consensus.VivoChainLocksHandoverHeight = 350;
+        // R52H: preserve the regtest activation height
+        // parsed earlier by UpdateActivationParametersFromArgs.
+        AddLLMQ(Consensus::LLMQType::LLMQ_VIVO_CHAINLOCKS);
+        AddLLMQ(Consensus::LLMQType::LLMQ_VIVO_INSTANTSEND);
+        AddLLMQ(Consensus::LLMQType::LLMQ_VIVO_PLATFORM);
+        AddLLMQ(Consensus::LLMQType::LLMQ_VIVO_MNHF);
+
         consensus.llmqTypeChainLocks = Consensus::LLMQType::LLMQ_TEST;
         consensus.llmqTypeDIP0024InstantSend = Consensus::LLMQType::LLMQ_TEST_DIP0024;
         consensus.llmqTypePlatform = Consensus::LLMQType::LLMQ_TEST_PLATFORM;
         consensus.llmqTypeMnhf = Consensus::LLMQType::LLMQ_TEST;
+        // R52H: opt-in regtest MnHF role.
+        // Use only with a fresh, isolated regtest chain.
+        if (consensus.VivoMnhfHeight < 2147483647) {
+            consensus.llmqTypeMnhf =
+                Consensus::LLMQType::LLMQ_VIVO_MNHF;
+        }
 
         UpdateLLMQTestParametersFromArgs(args, Consensus::LLMQType::LLMQ_TEST);
         UpdateLLMQTestParametersFromArgs(args, Consensus::LLMQType::LLMQ_TEST_INSTANTSEND);
@@ -1051,6 +1073,8 @@ static void MaybeUpdateHeights(const ArgsManager& args, Consensus::Params& conse
             consensus.V20Height = int{height};
         } else if (name == "mn_rr") {
             consensus.MN_RRHeight = int{height};
+        } else if (name == "vivo_mnhf") {
+            consensus.VivoMnhfHeight = int{height};
         } else {
             throw std::runtime_error(strprintf("Invalid name (%s) for -testactivationheight=name@height.", arg));
         }

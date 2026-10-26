@@ -497,83 +497,83 @@ static constexpr std::array<LLMQParams, 18> available_llmqs = {
         .type = LLMQType::LLMQ_VIVO_CHAINLOCKS,
         .name = "llmq_vivo_chainlocks",
         .useRotation = false,
-        .size = 67,
-        .minSize = 50,
-        .threshold = 40,
+        .size = 8,
+        .minSize = 6,
+        .threshold = 5,
 
         .dkgInterval = 24 * 12, // one DKG every 12 hours
         .dkgPhaseBlocks = 4,
         .dkgMiningWindowStart = 20, // dkgPhaseBlocks * 5 = after finalization
         .dkgMiningWindowEnd = 28,
-        .dkgBadVotesThreshold = 50,
+        .dkgBadVotesThreshold = 6,
 
         .signingActiveQuorumCount = 4, // two days worth of LLMQs
 
         .keepOldConnections = 5,
         .keepOldKeys = 8,
-        .recoveryMembers = 67,
+        .recoveryMembers = 8,
     },
     // VIVO new quorum; activation not yet implemented.
     LLMQParams{
         .type = LLMQType::LLMQ_VIVO_INSTANTSEND,
         .name = "llmq_vivo_instantsend",
         .useRotation = true,
-        .size = 10,
-        .minSize = 9,
-        .threshold = 8,
+        .size = 8,
+        .minSize = 6,
+        .threshold = 5,
 
         .dkgInterval = 24 * 12, // DKG cycle every 12 hours
         .dkgPhaseBlocks = 2,
         .dkgMiningWindowStart = 42, // signingActiveQuorumCount + dkgPhaseBlocks * 5 = after finalization
         .dkgMiningWindowEnd = 50,
-        .dkgBadVotesThreshold = 8,
+        .dkgBadVotesThreshold = 6,
 
         .signingActiveQuorumCount = 32,
         .keepOldConnections = 64,
         .keepOldKeys = 64,
-        .recoveryMembers = 10,
+        .recoveryMembers = 8,
     },
     // VIVO new quorum; activation not yet implemented.
     LLMQParams{
         .type = LLMQType::LLMQ_VIVO_PLATFORM,
         .name = "llmq_vivo_platform",
         .useRotation = false,
-        .size = 17,
-        .minSize = 14,
-        .threshold = 12,
+        .size = 4,
+        .minSize = 3,
+        .threshold = 3,
 
         .dkgInterval = 24, // one DKG per hour
         .dkgPhaseBlocks = 2,
         .dkgMiningWindowStart = 10, // dkgPhaseBlocks * 5 = after finalization
         .dkgMiningWindowEnd = 18,
-        .dkgBadVotesThreshold = 14,
+        .dkgBadVotesThreshold = 3,
 
         .signingActiveQuorumCount = 24, // a full day worth of LLMQs
 
         .keepOldConnections = 25,
         .keepOldKeys = 24 * 30 * 2, // 2 months of quorums
-        .recoveryMembers = 17,
+        .recoveryMembers = 4,
     },
     // VIVO new quorum; activation not yet implemented.
     LLMQParams{
         .type = LLMQType::LLMQ_VIVO_MNHF,
         .name = "llmq_vivo_mnhf",
         .useRotation = false,
-        .size = 67,
-        .minSize = 59,
-        .threshold = 57,
+        .size = 8,
+        .minSize = 6,
+        .threshold = 5,
 
         .dkgInterval = 24 * 24, // one DKG every 24 hours
         .dkgPhaseBlocks = 4,
         .dkgMiningWindowStart = 20, // dkgPhaseBlocks * 5 = after finalization
         .dkgMiningWindowEnd = 48,   // give it a larger mining window to make sure it is mined
-        .dkgBadVotesThreshold = 50,
+        .dkgBadVotesThreshold = 6,
 
         .signingActiveQuorumCount = 4, // four days worth of LLMQs
 
         .keepOldConnections = 5,
         .keepOldKeys = 8,
-        .recoveryMembers = 67,
+        .recoveryMembers = 8,
     },
     LLMQParams{
         .type = LLMQType::LLMQ_25_67,

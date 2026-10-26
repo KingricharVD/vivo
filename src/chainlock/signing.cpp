@@ -2,6 +2,7 @@
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
+#include <llmq/vivo_quorum_roles.h>
 #include <chainlock/signing.h>
 
 #include <chainlock/clsig.h>
@@ -174,7 +175,16 @@ void ChainLockSigner::TrySignChainTip()
         lastSignedMsgHash = msgHash;
     }
 
-    m_shareman.AsyncSignIfMember(Params().GetConsensus().llmqTypeChainLocks, requestId, msgHash);
+    // R41N: experimental height-aware ChainLocks signing.
+    // Quorum readiness and activation transition remain untested.
+    const auto& consensus = Params().GetConsensus();
+    const auto llmqType = llmq::SelectVivoChainLocksType(
+        pindex->nHeight,
+        consensus.VivoChainLocksHandoverHeight,
+        Params().NetworkIDString() == CBaseChainParams::MAIN,
+        Params().NetworkIDString() == CBaseChainParams::REGTEST);
+
+    m_shareman.AsyncSignIfMember(llmqType, requestId, msgHash);
 }
 
 void ChainLockSigner::BlockDisconnected(const std::shared_ptr<const CBlock>& block, const CBlockIndex* pindex)

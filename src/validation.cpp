@@ -6501,8 +6501,25 @@ bool ChainstateManager::IsQuorumTypeEnabled(const Consensus::LLMQType llmqType,
     case Consensus::LLMQType::LLMQ_VIVO_CHAINLOCKS:
     case Consensus::LLMQType::LLMQ_VIVO_INSTANTSEND:
     case Consensus::LLMQType::LLMQ_VIVO_PLATFORM:
+        // Preserve the existing R41B recovery gate.
+        return (GetParams().NetworkIDString() == CBaseChainParams::MAIN ||
+                GetParams().NetworkIDString() == CBaseChainParams::REGTEST) &&
+               GetConsensus().VivoQuorumRecoveryHeight < 2147483647 &&
+               static_cast<int64_t>(pindexPrev->nHeight) + 1 >=
+                   GetConsensus().VivoQuorumRecoveryHeight;
+
     case Consensus::LLMQType::LLMQ_VIVO_MNHF:
-        return false;
+        // R52H: isolated regtest MnHF activation.
+        // Do not change already deployed mainnet eligibility.
+        if (GetParams().NetworkIDString() == CBaseChainParams::REGTEST) {
+            return GetConsensus().VivoMnhfHeight < 2147483647 &&
+                   static_cast<int64_t>(pindexPrev->nHeight) + 1 >=
+                       GetConsensus().VivoMnhfHeight;
+        }
+        return GetParams().NetworkIDString() == CBaseChainParams::MAIN &&
+               GetConsensus().VivoQuorumRecoveryHeight < 2147483647 &&
+               static_cast<int64_t>(pindexPrev->nHeight) + 1 >=
+                   GetConsensus().VivoQuorumRecoveryHeight;
     default:
         throw std::runtime_error(strprintf("%s: Unknown LLMQ type %d", __func__, std23::to_underlying(llmqType)));
     }

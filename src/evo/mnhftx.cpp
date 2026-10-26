@@ -142,7 +142,33 @@ static bool CheckMNHFTxImpl(const node::BlockManager& blockman, GetQuorum&& get_
     SetTxPayload(tx_copy, payload_copy);
     const uint256 msgHash = tx_copy.GetHash();
 
-    const Consensus::LLMQType llmqType = Params().GetConsensus().llmqTypeMnhf;
+    // R52X: select the signature domain from the referenced
+    // quorum's historical base height, not the current chain tip.
+    //
+    // Mainnet VivoMnhfHeight remains disabled until a
+    // separately approved consensus activation.
+    const auto& consensus = Params().GetConsensus();
+    Consensus::LLMQType llmqType = consensus.llmqTypeMnhf;
+
+    const auto& network = Params().NetworkIDString();
+
+    if (network == CBaseChainParams::MAIN ||
+        network == CBaseChainParams::REGTEST) {
+
+        // Preserve the historical signing domain even if
+        // the network's configured signing role has changed.
+        const Consensus::LLMQType legacyType =
+            network == CBaseChainParams::MAIN
+                ? Consensus::LLMQType::LLMQ_400_85
+                : Consensus::LLMQType::LLMQ_TEST;
+
+        llmqType = legacyType;
+
+        if (consensus.VivoMnhfHeight < 2147483647 &&
+            pindexQuorum->nHeight >= consensus.VivoMnhfHeight) {
+            llmqType = Consensus::LLMQType::LLMQ_VIVO_MNHF;
+        }
+    }
     const auto quorum = get_quorum(llmqType, mnhfTx.signal.quorumHash);
     if (!quorum) {
         return state.Invalid(TxValidationResult::TX_CONSENSUS, "bad-mnhf-missing-quorum");

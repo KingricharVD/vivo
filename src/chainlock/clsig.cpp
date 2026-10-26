@@ -3,6 +3,7 @@
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
 #include <chainlock/clsig.h>
+#include <llmq/vivo_quorum_roles.h>
 
 #include <chainparams.h>
 #include <chainlock/chainlock.h>
@@ -21,7 +22,11 @@ uint256 GenSigRequestId(const int32_t nHeight)
 llmq::VerifyRecSigStatus VerifyChainLock(const Consensus::Params& params, const CChain& chain,
                                          const llmq::CQuorumManager& qman, const chainlock::ChainLockSig& clsig)
 {
-    const auto llmqType = params.llmqTypeChainLocks;
+    const auto llmqType = llmq::SelectVivoChainLocksType(
+        clsig.getHeight(),
+        params.VivoChainLocksHandoverHeight,
+        Params().NetworkIDString() == CBaseChainParams::MAIN,
+        Params().NetworkIDString() == CBaseChainParams::REGTEST);
     const uint256 request_id = GenSigRequestId(clsig.getHeight());
 
     return llmq::VerifyRecoveredSig(llmqType, chain, qman, clsig.getHeight(), request_id, clsig.getBlockHash(),
@@ -31,7 +36,11 @@ llmq::VerifyRecSigStatus VerifyChainLock(const Consensus::Params& params, const 
 llmq::VerifyRecSigStatus VerifyChainLock(const Consensus::Params& params, const llmq::CQuorumManager& qman,
                                          const chainlock::ChainLockSig& clsig, const CBlockIndex* pindexStart)
 {
-    const auto llmqType = params.llmqTypeChainLocks;
+    const auto llmqType = llmq::SelectVivoChainLocksType(
+        clsig.getHeight(),
+        params.VivoChainLocksHandoverHeight,
+        Params().NetworkIDString() == CBaseChainParams::MAIN,
+        Params().NetworkIDString() == CBaseChainParams::REGTEST);
     const uint256 request_id = GenSigRequestId(clsig.getHeight());
 
     return llmq::VerifyRecoveredSig(llmqType, qman, pindexStart, request_id, clsig.getBlockHash(), clsig.getSig());
