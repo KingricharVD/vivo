@@ -554,6 +554,22 @@ bool CDKGSession::PreVerifyMessage(const CDKGPrematureCommitment& qc, bool& retB
 
 std::optional<CInv> CDKGSession::ReceiveMessage(const CDKGPrematureCommitment& qc)
 {
+    if (params.type ==
+        Consensus::LLMQType::LLMQ_VIVO_INSTANTSEND) {
+        std::string bitmap;
+        for (bool bit : qc.validMembers) {
+            bitmap += bit ? '1' : '0';
+        }
+        LogPrintf("R397C_TRAP stage=PREMATURE_RECEIVED "
+                  "type=8 index=%d sender=%s "
+                  "quorum=%s bitmap=%s pubkey=%s\n",
+                  quorumIndex,
+                  qc.proTxHash.ToString(),
+                  qc.quorumHash.ToString(),
+                  bitmap,
+                  qc.quorumPublicKey.ToString());
+    }
+
     CDKGLogger logger(*this, __func__, __LINE__);
 
     cxxtimer::Timer t1(true);
@@ -625,6 +641,16 @@ std::optional<CInv> CDKGSession::ReceiveMessage(const CDKGPrematureCommitment& q
 
     t1.stop();
 
+    if (params.type ==
+        Consensus::LLMQType::LLMQ_VIVO_INSTANTSEND) {
+        LogPrintf("R397C_TRAP stage=PREMATURE_VERIFIED "
+                  "type=8 index=%d sender=%s "
+                  "received=%d valid_members=%d\n",
+                  quorumIndex,
+                  qc.proTxHash.ToString(),
+                  receivedCount,
+                  qc.CountValidMembers());
+    }
     logger.Batch("verified premature commitment. received=%d/%d, time=%d", receivedCount, members.size(), t1.count());
     return inv;
 }
@@ -644,7 +670,156 @@ CDKGMember* CDKGSession::GetMemberAtIndex(size_t index) const
     return members[index].get();
 }
 
-std::vector<CFinalCommitment> CDKGSession::FinalizeCommitments() { return {}; }
+std::vector<CFinalCommitment> CDKGSession::FinalizeCommitments()
+{
+    if (params.type ==
+        Consensus::LLMQType::LLMQ_VIVO_INSTANTSEND) {
+        LogPrintf("R397C_TRAP stage=FINALIZE_ENTER "
+                  "type=8 index=%d member=%d\n",
+                  quorumIndex, int(AreWeMember()));
+    }
+    if (!AreWeMember()) {
+        return {};
+    }
+
+    CDKGLogger logger(*this, __func__, __LINE__);
+
+    using Key = std::vector<bool>;
+    std::map<Key, std::vector<CDKGPrematureCommitment>> commitmentsMap;
+
+    {
+        LOCK(invCs);
+
+        for (const auto& p : prematureCommitments) {
+            const auto& qc = p.second;
+            if (validCommitments.count(p.first) == 0) {
+                continue;
+            }
+
+            // should have been verified before
+            assert(qc.CountValidMembers() >= params.minSize);
+
+            auto it = commitmentsMap.find(qc.validMembers);
+            if (it == commitmentsMap.end()) {
+                it = commitmentsMap.emplace(qc.validMembers, std::vector<CDKGPrematureCommitment>()).first;
+            }
+
+            it->second.emplace_back(qc);
+        }
+    }
+
+    std::vector<CFinalCommitment> finalCommitments;
+    for (const auto& p : commitmentsMap) {
+        const auto& cvec = p.second;
+        if (params.type ==
+            Consensus::LLMQType::LLMQ_VIVO_INSTANTSEND) {
+            LogPrintf("R397C_TRAP stage=FINALIZE_GROUP "
+                      "type=8 index=%d candidates=%d "
+                      "min_size=%d threshold=%d\n",
+                      quorumIndex,
+                      int(cvec.size()),
+                      params.minSize,
+                      params.threshold);
+        }
+        if (cvec.size() < size_t(params.minSize)) {
+            // commitment was signed by a minority
+            continue;
+        }
+
+        std::vector<CBLSId> signerIds;
+        std::vector<CBLSSignature> thresholdSigs;
+
+        const auto& first = cvec[0];
+
+        CFinalCommitment fqc(params, first.quorumHash);
+        fqc.validMembers = first.validMembers;
+        fqc.quorumPublicKey = first.quorumPublicKey;
+        fqc.quorumVvecHash = first.quorumVvecHash;
+
+        const bool isQuorumRotationEnabled{IsQuorumRotationEnabled(params, m_quorum_base_block_index)};
+        fqc.nVersion = CFinalCommitment::GetVersion(isQuorumRotationEnabled, DeploymentActiveAfter(m_quorum_base_block_index, Params().GetConsensus(), Consensus::DEPLOYMENT_V19));
+        fqc.quorumIndex = isQuorumRotationEnabled ? quorumIndex : 0;
+
+        uint256 commitmentHash = BuildCommitmentHash(fqc.llmqType, fqc.quorumHash, fqc.validMembers, fqc.quorumPublicKey, fqc.quorumVvecHash);
+
+        std::vector<CBLSSignature> aggSigs;
+        std::vector<CBLSPublicKey> aggPks;
+        aggSigs.reserve(cvec.size());
+        aggPks.reserve(cvec.size());
+
+        for (const auto& qc : cvec) {
+            if (qc.quorumPublicKey != first.quorumPublicKey || qc.quorumVvecHash != first.quorumVvecHash) {
+                logger.Batch("quorumPublicKey or quorumVvecHash does not match, skipping");
+                continue;
+            }
+
+            size_t signerIndex = membersMap[qc.proTxHash];
+            const auto& m = members[signerIndex];
+
+            fqc.signers[signerIndex] = true;
+            aggSigs.emplace_back(qc.sig);
+            aggPks.emplace_back(m->dmn->pdmnState->pubKeyOperator.Get());
+
+            signerIds.emplace_back(m->id);
+            thresholdSigs.emplace_back(qc.quorumSig);
+        }
+
+        cxxtimer::Timer t1(true);
+        fqc.membersSig = CBLSSignature::AggregateSecure(aggSigs, aggPks, commitmentHash);
+        t1.stop();
+
+        cxxtimer::Timer t2(true);
+        if (!fqc.quorumSig.Recover(thresholdSigs, signerIds)) {
+            if (params.type ==
+                Consensus::LLMQType::LLMQ_VIVO_INSTANTSEND) {
+                LogPrintf("R397C_TRAP stage=RECOVER_FAILED "
+                          "type=8 index=%d\n", quorumIndex);
+            }
+            logger.Batch("failed to recover quorum sig");
+            continue;
+        }
+        t2.stop();
+
+        cxxtimer::Timer t3(true);
+        if (!fqc.Verify({m_dmnman, m_qsnapman, m_chainman, m_quorum_base_block_index}, true)) {
+            if (params.type ==
+                Consensus::LLMQType::LLMQ_VIVO_INSTANTSEND) {
+                LogPrintf("R397C_TRAP stage=FINAL_VERIFY_FAILED "
+                          "type=8 index=%d signers=%d\n",
+                          quorumIndex, fqc.CountSigners());
+            }
+            logger.Batch("failed to verify final commitment");
+            continue;
+        }
+        t3.stop();
+
+        if (params.type ==
+            Consensus::LLMQType::LLMQ_VIVO_INSTANTSEND) {
+            LogPrintf("R397C_TRAP stage=FINALIZE_VALID "
+                      "type=8 index=%d quorum=%s "
+                      "signers=%d valid=%d\n",
+                      quorumIndex,
+                      fqc.quorumHash.ToString(),
+                      fqc.CountSigners(),
+                      fqc.CountValidMembers());
+        }
+        finalCommitments.emplace_back(fqc);
+
+        logger.Batch("final commitment: validMembers=%d, signers=%d, quorumPublicKey=%s, time1=%d, time2=%d, time3=%d",
+                        fqc.CountValidMembers(), fqc.CountSigners(), fqc.quorumPublicKey.ToString(),
+                        t1.count(), t2.count(), t3.count());
+    }
+
+    logger.Flush();
+
+    if (params.type ==
+        Consensus::LLMQType::LLMQ_VIVO_INSTANTSEND) {
+        LogPrintf("R397C_TRAP stage=FINALIZE_EXIT "
+                  "type=8 index=%d count=%d\n",
+                  quorumIndex, int(finalCommitments.size()));
+    }
+    return finalCommitments;
+}
 
 CFinalCommitment CDKGSession::FinalizeSingleCommitment() { return {}; }
 

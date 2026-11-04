@@ -18,6 +18,7 @@
 #include <evo/specialtxman.h>
 #include <interfaces/node.h>
 #include <llmq/context.h>
+#include <llmq/commitment.h>
 #include <node/mempool_args.h>
 #include <messagesigner.h>
 #include <netbase.h>
@@ -34,6 +35,7 @@
 #include <util/std23.h>
 #include <validation.h>
 
+#include <validationinterface.h>
 #include <boost/test/unit_test.hpp>
 
 #include <map>
@@ -3422,6 +3424,1337 @@ BOOST_AUTO_TEST_CASE(migration_logic_validation)
     BOOST_CHECK_EQUAL(convertedDiff.state.GetBannedHeight(), legacyDiff.state.GetBannedHeight());
     BOOST_CHECK(convertedDiff.state.pubKeyOperator.Get() == legacyDiff.state.pubKeyOperator.Get());
     BOOST_CHECK_EQUAL(convertedDiff.state.pubKeyOperator.ToString(), legacyDiff.state.pubKeyOperator.ToString());
+}
+
+
+// R87/R93: A real internally collateralized ProReg must spend mature
+// coinbases, connect in a block, and enter the deterministic MN list.
+// This test never operates on the production chain.
+BOOST_AUTO_TEST_CASE(r87_mature_coinbase_proreg_registration)
+{
+    TestChainSetup setup(
+        105,
+        CBaseChainParams::REGTEST,
+        {"-dip3params=30:31"}
+    );
+
+    auto& chainman = *Assert(setup.m_node.chainman);
+    auto& dmnman = *Assert(setup.m_node.dmnman);
+
+    const CScript coinbase_pk =
+        GetScriptForRawPubKey(setup.coinbaseKey.GetPubKey());
+
+    const int before_height = WITH_LOCK(
+        cs_main,
+        return chainman.ActiveChain().Height()
+    );
+
+    BOOST_REQUIRE_EQUAL(before_height, 105);
+    BOOST_REQUIRE_EQUAL(
+        dmn_types::Regular.collat_amount,
+        5000 * COIN
+    );
+    BOOST_REQUIRE_EQUAL(COINBASE_MATURITY, 100);
+
+    // The test funding helper requires an additional maturity margin.
+    // Fail explicitly rather than letting SelectUTXOs assert.
+    CAmount mature_available{0};
+    const auto& coins = setup.m_coinbase_txns;
+
+    for (size_t i = 0; i < coins.size(); ++i) {
+        const int recorded_height = static_cast<int>(i) + 1;
+        if (before_height - recorded_height < 101) {
+            continue;
+        }
+        for (const auto& output : coins[i]->vout) {
+            if (!output.scriptPubKey.IsUnspendable()) {
+                mature_available += output.nValue;
+            }
+        }
+    }
+
+    BOOST_REQUIRE_MESSAGE(
+        mature_available >= dmn_types::Regular.collat_amount,
+        "R87 fixture has insufficient mature coinbase funds"
+    );
+
+    auto utxos = BuildSimpleUtxoMap(coins);
+
+    CKey owner_key;
+    CBLSSecretKey operator_key;
+
+    // Standard P2PKH payout required by ProReg validation.
+    // Block coinbase remains the original raw-pubkey script.
+    const CScript payout =
+        GetScriptForDestination(
+            PKHash(setup.coinbaseKey.GetPubKey())
+        );
+
+    auto proreg = CreateProRegTx(
+        chainman,
+        utxos,
+        1,
+        payout,
+        setup.coinbaseKey,
+        owner_key,
+        operator_key
+    );
+
+    const uint256 protx_hash = proreg.GetHash();
+
+    BOOST_REQUIRE(!proreg.vin.empty());
+    BOOST_REQUIRE(!proreg.vin[0].scriptSig.empty());
+    BOOST_REQUIRE(operator_key.GetPublicKey().IsValid());
+
+    auto block = std::make_shared<CBlock>(
+        setup.CreateBlock(
+            {proreg},
+            coinbase_pk,
+            chainman.ActiveChainstate()
+        )
+    );
+
+    // R98: distinguish block submission from consensus acceptance.
+    class R98ValidationCatcher : public CValidationInterface {
+    public:
+        explicit R98ValidationCatcher(const uint256& hash) :
+            m_hash(hash) {}
+
+        const uint256 m_hash;
+        std::optional<BlockValidationState> m_state;
+
+    protected:
+        void BlockChecked(
+            const CBlock& checked,
+            const BlockValidationState& state
+        ) override {
+            if (checked.GetHash() == m_hash) {
+                m_state = state;
+            }
+        }
+    };
+
+    R98ValidationCatcher catcher(block->GetHash());
+    RegisterValidationInterface(&catcher);
+
+    bool new_block{false};
+    const bool processed = chainman.ProcessNewBlock(
+        block,
+        /*force_processing=*/true,
+        &new_block
+    );
+
+    UnregisterValidationInterface(&catcher);
+    SyncWithValidationInterfaceQueue();
+
+    BOOST_TEST_MESSAGE("R98_PROCESSED=" << processed);
+    BOOST_TEST_MESSAGE("R98_NEW_BLOCK=" << new_block);
+
+    if (catcher.m_state) {
+        BOOST_TEST_MESSAGE(
+            "R98_VALIDATION_STATE=" <<
+            catcher.m_state->ToString()
+        );
+        BOOST_TEST_MESSAGE(
+            "R98_REJECT_REASON=" <<
+            catcher.m_state->GetRejectReason()
+        );
+    } else {
+        BOOST_TEST_MESSAGE("R98_VALIDATION_STATE=NOT_CAPTURED");
+    }
+
+    BOOST_REQUIRE_MESSAGE(
+        processed,
+        "R98 ProcessNewBlock returned false"
+    );
+
+    BOOST_REQUIRE_MESSAGE(
+        catcher.m_state.has_value(),
+        "R98 BlockChecked validation state not captured"
+    );
+
+    BOOST_REQUIRE_MESSAGE(
+        catcher.m_state->IsValid(),
+        "R98 block validation rejected the registration block"
+    );
+
+    const auto* new_tip = WITH_LOCK(
+        cs_main,
+        return chainman.ActiveChain().Tip()
+    );
+
+    BOOST_REQUIRE(new_tip != nullptr);
+    BOOST_CHECK_EQUAL(new_tip->nHeight, before_height + 1);
+    BOOST_CHECK(new_tip->GetBlockHash() == block->GetHash());
+
+    dmnman.UpdatedBlockTip(new_tip);
+
+    BOOST_REQUIRE(
+        dmnman.GetListAtChainTip().HasMN(protx_hash)
+    );
+}
+
+
+BOOST_AUTO_TEST_CASE(r107_invalid_internal_collateral_rejected)
+{
+    TestChainSetup setup(
+        105,
+        CBaseChainParams::REGTEST,
+        {"-dip3params=30:31"}
+    );
+
+    auto& chainman = *Assert(setup.m_node.chainman);
+    auto& dmnman = *Assert(setup.m_node.dmnman);
+
+    const CScript coinbase_pk =
+        GetScriptForRawPubKey(setup.coinbaseKey.GetPubKey());
+
+    const int before_height = WITH_LOCK(
+        cs_main,
+        return chainman.ActiveChain().Height()
+    );
+
+    BOOST_REQUIRE_EQUAL(before_height, 105);
+    BOOST_REQUIRE_EQUAL(
+        dmn_types::Regular.collat_amount,
+        5000 * COIN
+    );
+    BOOST_REQUIRE_EQUAL(COINBASE_MATURITY, 100);
+
+    // The test funding helper requires an additional maturity margin.
+    // Fail explicitly rather than letting SelectUTXOs assert.
+    CAmount mature_available{0};
+    const auto& coins = setup.m_coinbase_txns;
+
+    for (size_t i = 0; i < coins.size(); ++i) {
+        const int recorded_height = static_cast<int>(i) + 1;
+        if (before_height - recorded_height < 101) {
+            continue;
+        }
+        for (const auto& output : coins[i]->vout) {
+            if (!output.scriptPubKey.IsUnspendable()) {
+                mature_available += output.nValue;
+            }
+        }
+    }
+
+    BOOST_REQUIRE_MESSAGE(
+        mature_available >= dmn_types::Regular.collat_amount,
+        "R87 fixture has insufficient mature coinbase funds"
+    );
+
+    auto utxos = BuildSimpleUtxoMap(coins);
+
+    CKey owner_key;
+    CBLSSecretKey operator_key;
+
+    // Standard P2PKH payout required by ProReg validation.
+    // Block coinbase remains the original raw-pubkey script.
+    const CScript payout =
+        GetScriptForDestination(
+            PKHash(setup.coinbaseKey.GetPubKey())
+        );
+
+    auto proreg = CreateProRegTx(
+        chainman,
+        utxos,
+        1,
+        payout,
+        setup.coinbaseKey,
+        owner_key,
+        operator_key
+    );
+
+    const uint256 protx_hash = proreg.GetHash();
+
+    BOOST_REQUIRE(!proreg.vin.empty());
+    BOOST_REQUIRE(!proreg.vin[0].scriptSig.empty());
+    BOOST_REQUIRE(operator_key.GetPublicKey().IsValid());
+
+    auto block = std::make_shared<CBlock>(
+        setup.CreateBlock(
+            {proreg},
+            coinbase_pk,
+            chainman.ActiveChainstate()
+        )
+    );
+
+    // R107: Build a valid template first, because the template
+    // builder itself requires valid special transactions.
+    BOOST_REQUIRE(!proreg.vout.empty());
+    BOOST_REQUIRE_EQUAL(
+        proreg.vout[0].nValue,
+        dmn_types::Regular.collat_amount
+    );
+
+    auto invalid_proreg = proreg;
+    invalid_proreg.vout[0].nValue =
+        dmn_types::Regular.collat_amount - COIN;
+
+    // The changed output changes the transaction signature hash.
+    // Re-sign using the original mature fixture coinbase UTXOs.
+    for (auto& input : invalid_proreg.vin) {
+        input.scriptSig.clear();
+    }
+
+    const auto signing_utxos = BuildSimpleUtxoMap(coins);
+    SignTransaction(
+        invalid_proreg,
+        signing_utxos,
+        setup.coinbaseKey
+    );
+
+    BOOST_REQUIRE(!invalid_proreg.vin[0].scriptSig.empty());
+
+    const uint256 invalid_hash = invalid_proreg.GetHash();
+    BOOST_REQUIRE(invalid_hash != protx_hash);
+
+    size_t replaced{0};
+    for (auto& txref : block->vtx) {
+        if (txref->GetHash() == protx_hash) {
+            txref = MakeTransactionRef(invalid_proreg);
+            ++replaced;
+        }
+    }
+
+    BOOST_REQUIRE_EQUAL(replaced, 1U);
+
+    // The block must remain structurally consistent after replacing
+    // the transaction. Consensus must reject the collateral amount.
+    block->hashMerkleRoot = BlockMerkleRoot(*block);
+    block->nNonce = 0;
+
+    while (!CheckProofOfWork(
+        block->GetHash(),
+        block->nBits,
+        chainman.GetConsensus()
+    )) {
+        ++block->nNonce;
+    }
+
+    BOOST_TEST_MESSAGE(
+        "R107_COLLATERAL_AMOUNT=" <<
+        invalid_proreg.vout[0].nValue
+    );
+
+    // R98: distinguish block submission from consensus acceptance.
+    class R98ValidationCatcher : public CValidationInterface {
+    public:
+        explicit R98ValidationCatcher(const uint256& hash) :
+            m_hash(hash) {}
+
+        const uint256 m_hash;
+        std::optional<BlockValidationState> m_state;
+
+    protected:
+        void BlockChecked(
+            const CBlock& checked,
+            const BlockValidationState& state
+        ) override {
+            if (checked.GetHash() == m_hash) {
+                m_state = state;
+            }
+        }
+    };
+
+    R98ValidationCatcher catcher(block->GetHash());
+    RegisterValidationInterface(&catcher);
+
+    bool new_block{false};
+    const bool processed = chainman.ProcessNewBlock(
+        block,
+        /*force_processing=*/true,
+        &new_block
+    );
+
+    UnregisterValidationInterface(&catcher);
+    SyncWithValidationInterfaceQueue();
+
+    BOOST_TEST_MESSAGE("R98_PROCESSED=" << processed);
+    BOOST_TEST_MESSAGE("R98_NEW_BLOCK=" << new_block);
+
+    if (catcher.m_state) {
+        BOOST_TEST_MESSAGE(
+            "R98_VALIDATION_STATE=" <<
+            catcher.m_state->ToString()
+        );
+        BOOST_TEST_MESSAGE(
+            "R98_REJECT_REASON=" <<
+            catcher.m_state->GetRejectReason()
+        );
+    } else {
+        BOOST_TEST_MESSAGE("R98_VALIDATION_STATE=NOT_CAPTURED");
+    }
+
+    BOOST_REQUIRE_MESSAGE(
+        processed,
+        "R98 ProcessNewBlock returned false"
+    );
+
+    BOOST_REQUIRE_MESSAGE(
+        catcher.m_state.has_value(),
+        "R98 BlockChecked validation state not captured"
+    );
+
+    BOOST_REQUIRE_MESSAGE(
+        !catcher.m_state->IsValid(),
+        "R107 invalid collateral block was not rejected"
+    );
+
+    BOOST_CHECK_EQUAL(
+        catcher.m_state->GetRejectReason(),
+        "bad-protx-collateral"
+    );
+
+    BOOST_TEST_MESSAGE(
+        "R107_EXPECTED_REJECTION=bad-protx-collateral"
+    );
+
+    const auto* new_tip = WITH_LOCK(
+        cs_main,
+        return chainman.ActiveChain().Tip()
+    );
+
+    BOOST_REQUIRE(new_tip != nullptr);
+
+    BOOST_CHECK_EQUAL(
+        new_tip->nHeight,
+        before_height
+    );
+
+    BOOST_CHECK(
+        new_tip->GetBlockHash() == block->hashPrevBlock
+    );
+
+    dmnman.UpdatedBlockTip(new_tip);
+
+    BOOST_CHECK(
+        !dmnman.GetListAtChainTip().HasMN(invalid_hash)
+    );
+
+    BOOST_TEST_MESSAGE(
+        "R107_ACTIVE_TIP_UNCHANGED=" <<
+        (new_tip->nHeight == before_height &&
+         new_tip->GetBlockHash() == block->hashPrevBlock)
+    );
+
+    BOOST_TEST_MESSAGE(
+        "R107_INVALID_PROTX_ABSENT=" <<
+        !dmnman.GetListAtChainTip().HasMN(invalid_hash)
+    );
+
+}
+
+
+
+// R108: a correctly signed spend of an immature coinbase output
+// must fail consensus validation and must not advance the chain.
+BOOST_AUTO_TEST_CASE(r108_immature_coinbase_spend_rejected)
+{
+    TestChainSetup setup(
+        105,
+        CBaseChainParams::REGTEST,
+        {"-dip3params=30:31"}
+    );
+
+    auto& chainman = *Assert(setup.m_node.chainman);
+
+    BOOST_REQUIRE_EQUAL(COINBASE_MATURITY, 100);
+
+    const int before_height = WITH_LOCK(
+        cs_main,
+        return chainman.ActiveChain().Height()
+    );
+
+    BOOST_REQUIRE_EQUAL(before_height, 105);
+    BOOST_REQUIRE(!setup.m_coinbase_txns.empty());
+
+    const auto coinbase = setup.m_coinbase_txns.back();
+
+    BOOST_REQUIRE(coinbase != nullptr);
+    BOOST_REQUIRE(coinbase->IsCoinBase());
+
+    const CScript coinbase_pk =
+        GetScriptForRawPubKey(setup.coinbaseKey.GetPubKey());
+
+    int chosen_output = -1;
+
+    for (size_t i = 0; i < coinbase->vout.size(); ++i) {
+        const auto& output = coinbase->vout[i];
+
+        if (output.scriptPubKey == coinbase_pk &&
+            output.nValue > 1000) {
+            chosen_output = static_cast<int>(i);
+            break;
+        }
+    }
+
+    BOOST_REQUIRE_MESSAGE(
+        chosen_output >= 0,
+        "R108 no spendable recent coinbase output"
+    );
+
+    const CAmount input_value =
+        coinbase->vout[chosen_output].nValue;
+
+    CMutableTransaction spend;
+
+    spend.vin.emplace_back(
+        COutPoint(coinbase->GetHash(), chosen_output)
+    );
+
+    spend.vout.emplace_back(
+        input_value - 1000,
+        GetScriptForDestination(
+            PKHash(setup.coinbaseKey.GetPubKey())
+        )
+    );
+
+    const auto signing_utxos =
+        BuildSimpleUtxoMap({coinbase});
+
+    SignTransaction(
+        spend,
+        signing_utxos,
+        setup.coinbaseKey
+    );
+
+    BOOST_REQUIRE(!spend.vin[0].scriptSig.empty());
+
+    // Build the valid block before inserting the invalid spend.
+    auto block = std::make_shared<CBlock>(
+        setup.CreateBlock(
+            {},
+            coinbase_pk,
+            chainman.ActiveChainstate()
+        )
+    );
+
+    block->vtx.push_back(MakeTransactionRef(spend));
+    block->hashMerkleRoot = BlockMerkleRoot(*block);
+    block->nNonce = 0;
+
+    while (!CheckProofOfWork(
+        block->GetHash(),
+        block->nBits,
+        chainman.GetConsensus()
+    )) {
+        ++block->nNonce;
+    }
+
+    class R108ValidationCatcher : public CValidationInterface {
+    public:
+        explicit R108ValidationCatcher(const uint256& hash)
+            : m_hash(hash) {}
+
+        const uint256 m_hash;
+        std::optional<BlockValidationState> m_state;
+
+    protected:
+        void BlockChecked(
+            const CBlock& checked,
+            const BlockValidationState& state
+        ) override {
+            if (checked.GetHash() == m_hash) {
+                m_state = state;
+            }
+        }
+    };
+
+    R108ValidationCatcher catcher(block->GetHash());
+
+    RegisterValidationInterface(&catcher);
+
+    bool new_block{false};
+
+    const bool processed = chainman.ProcessNewBlock(
+        block,
+        /*force_processing=*/true,
+        &new_block
+    );
+
+    UnregisterValidationInterface(&catcher);
+    SyncWithValidationInterfaceQueue();
+
+    BOOST_TEST_MESSAGE("R108_PROCESSED=" << processed);
+    BOOST_TEST_MESSAGE("R108_NEW_BLOCK=" << new_block);
+
+    BOOST_REQUIRE_MESSAGE(
+        catcher.m_state.has_value(),
+        "R108 validation callback not captured"
+    );
+
+    BOOST_TEST_MESSAGE(
+        "R108_VALIDATION_STATE=" <<
+        catcher.m_state->ToString()
+    );
+
+    BOOST_TEST_MESSAGE(
+        "R108_REJECT_REASON=" <<
+        catcher.m_state->GetRejectReason()
+    );
+
+    BOOST_REQUIRE_MESSAGE(
+        !catcher.m_state->IsValid(),
+        "R108 immature coinbase spend was accepted"
+    );
+
+    BOOST_CHECK_EQUAL(
+        catcher.m_state->GetRejectReason(),
+        "bad-txns-premature-spend-of-coinbase"
+    );
+
+    const auto* tip = WITH_LOCK(
+        cs_main,
+        return chainman.ActiveChain().Tip()
+    );
+
+    BOOST_REQUIRE(tip != nullptr);
+
+    BOOST_CHECK_EQUAL(tip->nHeight, before_height);
+
+    BOOST_CHECK(
+        tip->GetBlockHash() == block->hashPrevBlock
+    );
+
+    BOOST_TEST_MESSAGE(
+        "R108_ACTIVE_TIP_UNCHANGED=" <<
+        (tip->nHeight == before_height &&
+         tip->GetBlockHash() == block->hashPrevBlock)
+    );
+}
+
+
+// R111: submit an otherwise mined regtest block containing
+// a quorum commitment transaction with an unsupported LLMQ
+// type. Require the exact consensus rejection reason.
+BOOST_AUTO_TEST_CASE(r111_unknown_llmq_type_block_rejected)
+{
+    TestChainSetup setup(
+        105,
+        CBaseChainParams::REGTEST,
+        {"-dip3params=30:31"}
+    );
+
+    auto& chainman = *Assert(setup.m_node.chainman);
+
+    const int before_height = WITH_LOCK(
+        cs_main,
+        return chainman.ActiveChain().Height()
+    );
+
+    BOOST_REQUIRE_EQUAL(before_height, 105);
+
+    const uint256 before_hash = WITH_LOCK(
+        cs_main,
+        return chainman.ActiveChain().Tip()->GetBlockHash()
+    );
+
+    const CScript coinbase_pk =
+        GetScriptForRawPubKey(setup.coinbaseKey.GetPubKey());
+
+    // Start with a block produced by the normal test fixture.
+    auto block = std::make_shared<CBlock>(
+        setup.CreateBlock(
+            {},
+            coinbase_pk,
+            chainman.ActiveChainstate()
+        )
+    );
+
+    BOOST_REQUIRE(!block->vtx.empty());
+    BOOST_REQUIRE(block->hashPrevBlock == before_hash);
+
+    llmq::CFinalCommitmentTxPayload payload;
+    payload.nVersion =
+        llmq::CFinalCommitmentTxPayload::CURRENT_VERSION;
+    payload.nHeight = before_height + 1;
+
+    // 254 is intentionally outside the supported LLMQ types.
+    payload.commitment.llmqType =
+        static_cast<Consensus::LLMQType>(254);
+
+    CMutableTransaction invalid_tx;
+    invalid_tx.nVersion = CTransaction::SPECIAL_VERSION;
+    invalid_tx.nType = TRANSACTION_QUORUM_COMMITMENT;
+
+    SetTxPayload(invalid_tx, payload);
+
+    const auto round_trip =
+        GetTxPayload<llmq::CFinalCommitmentTxPayload>(
+            CTransaction(invalid_tx)
+        );
+
+    BOOST_REQUIRE(round_trip.has_value());
+    BOOST_CHECK(
+        round_trip->commitment.llmqType ==
+        static_cast<Consensus::LLMQType>(254)
+    );
+
+    block->vtx.push_back(MakeTransactionRef(invalid_tx));
+
+    block->hashMerkleRoot = BlockMerkleRoot(*block);
+    block->nNonce = 0;
+
+    while (!CheckProofOfWork(
+        block->GetHash(),
+        block->nBits,
+        chainman.GetConsensus()
+    )) {
+        ++block->nNonce;
+    }
+
+    class R111ValidationCatcher : public CValidationInterface {
+    public:
+        explicit R111ValidationCatcher(const uint256& hash)
+            : m_hash(hash) {}
+
+        const uint256 m_hash;
+        std::optional<BlockValidationState> m_state;
+
+    protected:
+        void BlockChecked(
+            const CBlock& checked,
+            const BlockValidationState& state
+        ) override {
+            if (checked.GetHash() == m_hash) {
+                m_state = state;
+            }
+        }
+    };
+
+    R111ValidationCatcher catcher(block->GetHash());
+
+    RegisterValidationInterface(&catcher);
+
+    bool new_block{false};
+
+    const bool processed = chainman.ProcessNewBlock(
+        block,
+        /*force_processing=*/true,
+        &new_block
+    );
+
+    UnregisterValidationInterface(&catcher);
+    SyncWithValidationInterfaceQueue();
+
+    BOOST_TEST_MESSAGE("R111_PROCESSED=" << processed);
+    BOOST_TEST_MESSAGE("R111_NEW_BLOCK=" << new_block);
+
+    BOOST_REQUIRE_MESSAGE(
+        catcher.m_state.has_value(),
+        "R111 block validation callback not captured"
+    );
+
+    BOOST_TEST_MESSAGE(
+        "R111_VALIDATION_STATE=" <<
+        catcher.m_state->ToString()
+    );
+
+    BOOST_TEST_MESSAGE(
+        "R111_REJECT_REASON=" <<
+        catcher.m_state->GetRejectReason()
+    );
+
+    BOOST_REQUIRE_MESSAGE(
+        !catcher.m_state->IsValid(),
+        "R111 malformed quorum block was accepted"
+    );
+
+    BOOST_CHECK_EQUAL(
+        catcher.m_state->GetRejectReason(),
+        "bad-qc-commitment-type"
+    );
+
+    const auto* tip = WITH_LOCK(
+        cs_main,
+        return chainman.ActiveChain().Tip()
+    );
+
+    BOOST_REQUIRE(tip != nullptr);
+
+    BOOST_CHECK_EQUAL(tip->nHeight, before_height);
+    BOOST_CHECK(tip->GetBlockHash() == before_hash);
+
+    const bool tip_unchanged =
+        tip->nHeight == before_height &&
+        tip->GetBlockHash() == before_hash;
+
+    BOOST_TEST_MESSAGE(
+        "R111_ACTIVE_TIP_UNCHANGED=" <<
+        tip_unchanged
+    );
+
+    BOOST_TEST_MESSAGE(
+        "R111_EXPECTED_REJECTION=bad-qc-commitment-type"
+    );
+}
+
+
+// R114: Correct external collateral ownership signature is valid;
+// a registration signed by another collateral key must be rejected.
+BOOST_AUTO_TEST_CASE(r114_external_collateral_wrong_signature_rejected)
+{
+    TestChainSetup setup(
+        105,
+        CBaseChainParams::REGTEST,
+        {"-dip3params=30:31"}
+    );
+
+    auto& chainman = *Assert(setup.m_node.chainman);
+    auto& dmnman = *Assert(setup.m_node.dmnman);
+
+    BOOST_REQUIRE_EQUAL(
+        dmn_types::Regular.collat_amount, 5000 * COIN
+    );
+
+    const CScript coinbase_pk =
+        GetScriptForRawPubKey(setup.coinbaseKey.GetPubKey());
+
+    auto utxos = BuildSimpleUtxoMap(setup.m_coinbase_txns);
+
+    CKey owner_key;
+    CKey collateral_key;
+    CKey incorrect_key;
+    CBLSSecretKey operator_key;
+
+    owner_key.MakeNewKey(true);
+    collateral_key.MakeNewKey(true);
+    incorrect_key.MakeNewKey(true);
+    operator_key.MakeNewKey();
+
+    BOOST_REQUIRE(
+        collateral_key.GetPubKey().GetID() !=
+        incorrect_key.GetPubKey().GetID()
+    );
+
+    const CScript collateral_script =
+        GetScriptForDestination(
+            PKHash(collateral_key.GetPubKey())
+        );
+
+    const CScript payout_script = GenerateRandomAddress();
+
+    // Mine an ordinary transaction funding an external
+    // collateral UTXO, independently from ProReg.
+    auto funding = CreateSpendTx(
+        chainman,
+        utxos,
+        collateral_script,
+        dmn_types::Regular.collat_amount,
+        setup.coinbaseKey
+    );
+
+    auto funding_block = std::make_shared<CBlock>(
+        setup.CreateBlock(
+            {funding},
+            coinbase_pk,
+            chainman.ActiveChainstate()
+        )
+    );
+
+    BOOST_REQUIRE(
+        chainman.ProcessNewBlock(
+            funding_block, true, nullptr
+        )
+    );
+
+    const COutPoint collateral =
+        GetCollateralOutpoint(funding);
+
+    BOOST_REQUIRE(!collateral.IsNull());
+
+    const int before_height = WITH_LOCK(
+        cs_main,
+        return chainman.ActiveChain().Height()
+    );
+
+    BOOST_REQUIRE_EQUAL(before_height, 106);
+
+    const uint256 before_hash = WITH_LOCK(
+        cs_main,
+        return chainman.ActiveChain().Tip()->GetBlockHash()
+    );
+
+    dmnman.UpdatedBlockTip(
+        WITH_LOCK(
+            cs_main,
+            return chainman.ActiveChain().Tip()
+        )
+    );
+
+    // The same fee UTXO is used to make two alternative
+    // transactions. Only the invalid one is submitted.
+    auto valid_utxos = utxos;
+    auto invalid_utxos = utxos;
+
+    const auto valid_reg =
+        CreateProRegTxExternalCollateral(
+            chainman,
+            valid_utxos,
+            1,
+            collateral,
+            payout_script,
+            owner_key,
+            operator_key,
+            collateral_key,
+            setup.coinbaseKey
+        );
+
+    const auto invalid_reg =
+        CreateProRegTxExternalCollateral(
+            chainman,
+            invalid_utxos,
+            1,
+            collateral,
+            payout_script,
+            owner_key,
+            operator_key,
+            incorrect_key,
+            setup.coinbaseKey
+        );
+
+    BOOST_REQUIRE(
+        valid_reg.GetHash() != invalid_reg.GetHash()
+    );
+
+    TxValidationState valid_state;
+    TxValidationState invalid_state;
+
+    bool valid_sig_accepted{false};
+    bool invalid_sig_accepted{true};
+
+    {
+        LOCK(cs_main);
+
+        const auto* previous =
+            chainman.ActiveChain().Tip();
+
+        BOOST_REQUIRE(previous != nullptr);
+
+        const bool v24 =
+            IsV24Active(chainman);
+
+        const auto& view =
+            chainman.ActiveChainstate().CoinsTip();
+
+        valid_sig_accepted = CheckProRegTx(
+            CTransaction(valid_reg),
+            previous,
+            dmnman,
+            view,
+            chainman.GetConsensus(),
+            v24,
+            valid_state,
+            /*check_sigs=*/true
+        );
+
+        invalid_sig_accepted = CheckProRegTx(
+            CTransaction(invalid_reg),
+            previous,
+            dmnman,
+            view,
+            chainman.GetConsensus(),
+            v24,
+            invalid_state,
+            /*check_sigs=*/true
+        );
+    }
+
+    BOOST_TEST_MESSAGE(
+        "R114_VALID_SIGNATURE_ACCEPTED=" <<
+        valid_sig_accepted
+    );
+
+    BOOST_TEST_MESSAGE(
+        "R114_INVALID_SIGNATURE_ACCEPTED=" <<
+        invalid_sig_accepted
+    );
+
+    BOOST_TEST_MESSAGE(
+        "R114_DIRECT_REJECT_REASON=" <<
+        invalid_state.GetRejectReason()
+    );
+
+    BOOST_REQUIRE(valid_sig_accepted);
+    BOOST_REQUIRE(valid_state.IsValid());
+    BOOST_REQUIRE(!invalid_sig_accepted);
+
+    BOOST_REQUIRE_EQUAL(
+        invalid_state.GetRejectReason(),
+        "bad-protx-sig"
+    );
+
+    // Build a valid empty template before inserting the
+    // invalid ProReg. This avoids fixture assertions.
+    auto block = std::make_shared<CBlock>(
+        setup.CreateBlock(
+            {},
+            coinbase_pk,
+            chainman.ActiveChainstate()
+        )
+    );
+
+    BOOST_REQUIRE(block->hashPrevBlock == before_hash);
+
+    block->vtx.push_back(
+        MakeTransactionRef(invalid_reg)
+    );
+    block->hashMerkleRoot = BlockMerkleRoot(*block);
+    block->nNonce = 0;
+
+    while (!CheckProofOfWork(
+        block->GetHash(),
+        block->nBits,
+        chainman.GetConsensus()
+    )) {
+        ++block->nNonce;
+    }
+
+    class ValidationCatcher : public CValidationInterface {
+    public:
+        explicit ValidationCatcher(const uint256& hash)
+            : m_hash(hash) {}
+
+        uint256 m_hash;
+        std::optional<BlockValidationState> m_state;
+
+    protected:
+        void BlockChecked(
+            const CBlock& checked,
+            const BlockValidationState& state
+        ) override {
+            if (checked.GetHash() == m_hash) {
+                m_state = state;
+            }
+        }
+    };
+
+    ValidationCatcher catcher(block->GetHash());
+    RegisterValidationInterface(&catcher);
+
+    bool new_block{false};
+    const bool processed = chainman.ProcessNewBlock(
+        block, true, &new_block
+    );
+
+    UnregisterValidationInterface(&catcher);
+    SyncWithValidationInterfaceQueue();
+
+    BOOST_TEST_MESSAGE(
+        "R114_PROCESSED=" << processed
+    );
+    BOOST_TEST_MESSAGE(
+        "R114_NEW_BLOCK=" << new_block
+    );
+
+    BOOST_REQUIRE(catcher.m_state.has_value());
+
+    BOOST_TEST_MESSAGE(
+        "R114_BLOCK_REJECT_REASON=" <<
+        catcher.m_state->GetRejectReason()
+    );
+
+    BOOST_REQUIRE(!catcher.m_state->IsValid());
+    BOOST_CHECK_EQUAL(
+        catcher.m_state->GetRejectReason(),
+        "bad-protx-sig"
+    );
+
+    const auto* tip = WITH_LOCK(
+        cs_main,
+        return chainman.ActiveChain().Tip()
+    );
+
+    BOOST_REQUIRE(tip != nullptr);
+
+    const bool unchanged =
+        tip->nHeight == before_height &&
+        tip->GetBlockHash() == before_hash;
+
+    BOOST_CHECK(unchanged);
+
+    dmnman.UpdatedBlockTip(tip);
+
+    const bool absent =
+        !dmnman.GetListAtChainTip().HasMN(
+            invalid_reg.GetHash()
+        );
+
+    BOOST_CHECK(absent);
+
+    BOOST_TEST_MESSAGE(
+        "R114_ACTIVE_TIP_UNCHANGED=" << unchanged
+    );
+    BOOST_TEST_MESSAGE(
+        "R114_INVALID_PROTX_ABSENT=" << absent
+    );
+}
+
+
+// R117: a properly signed external-collateral ProReg
+// must connect to the active chain and register the MN.
+BOOST_AUTO_TEST_CASE(r117_positive_external_proreg_block)
+{
+    TestChainSetup setup(
+        105,
+        CBaseChainParams::REGTEST,
+        {"-dip3params=30:31"}
+    );
+
+    auto& chainman = *Assert(setup.m_node.chainman);
+    auto& dmnman = *Assert(setup.m_node.dmnman);
+
+    BOOST_REQUIRE_EQUAL(
+        dmn_types::Regular.collat_amount,
+        5000 * COIN
+    );
+
+    const CScript coinbase_pk =
+        GetScriptForRawPubKey(
+            setup.coinbaseKey.GetPubKey()
+        );
+
+    auto utxos =
+        BuildSimpleUtxoMap(setup.m_coinbase_txns);
+
+    CKey owner_key;
+    CKey collateral_key;
+    CKey payout_key;
+    CBLSSecretKey operator_key;
+
+    owner_key.MakeNewKey(true);
+    collateral_key.MakeNewKey(true);
+    payout_key.MakeNewKey(true);
+    operator_key.MakeNewKey();
+
+    const CScript collateral_script =
+        GetScriptForDestination(
+            PKHash(collateral_key.GetPubKey())
+        );
+
+    const CScript payout_script =
+        GetScriptForDestination(
+            PKHash(payout_key.GetPubKey())
+        );
+
+    const int initial_height = WITH_LOCK(
+        cs_main,
+        return chainman.ActiveChain().Height()
+    );
+
+    BOOST_REQUIRE_EQUAL(initial_height, 105);
+
+    // First connect a block funding the collateral.
+    auto funding = CreateSpendTx(
+        chainman,
+        utxos,
+        collateral_script,
+        dmn_types::Regular.collat_amount,
+        setup.coinbaseKey
+    );
+
+    const COutPoint collateral =
+        GetCollateralOutpoint(funding);
+
+    BOOST_REQUIRE(!collateral.IsNull());
+
+    auto funding_block =
+        std::make_shared<CBlock>(
+            setup.CreateBlock(
+                {funding},
+                coinbase_pk,
+                chainman.ActiveChainstate()
+            )
+        );
+
+    bool funding_new{false};
+
+    BOOST_REQUIRE(
+        chainman.ProcessNewBlock(
+            funding_block,
+            true,
+            &funding_new
+        )
+    );
+
+    BOOST_REQUIRE(funding_new);
+
+    const auto* funding_tip = WITH_LOCK(
+        cs_main,
+        return chainman.ActiveChain().Tip()
+    );
+
+    BOOST_REQUIRE(funding_tip != nullptr);
+    BOOST_REQUIRE_EQUAL(funding_tip->nHeight, 106);
+    BOOST_REQUIRE(
+        funding_tip->GetBlockHash() ==
+        funding_block->GetHash()
+    );
+
+    dmnman.UpdatedBlockTip(funding_tip);
+
+    BOOST_TEST_MESSAGE(
+        "R117_FUNDING_BLOCK_ACCEPTED=true"
+    );
+
+    // Create a correctly signed external ProReg using
+    // the confirmed collateral output.
+    auto registration =
+        CreateProRegTxExternalCollateral(
+            chainman,
+            utxos,
+            1,
+            collateral,
+            payout_script,
+            owner_key,
+            operator_key,
+            collateral_key,
+            setup.coinbaseKey
+        );
+
+    const uint256 protx_hash =
+        registration.GetHash();
+
+    TxValidationState direct_state;
+    bool direct_valid{false};
+
+    {
+        LOCK(cs_main);
+
+        direct_valid = CheckProRegTx(
+            CTransaction(registration),
+            chainman.ActiveChain().Tip(),
+            dmnman,
+            chainman.ActiveChainstate().CoinsTip(),
+            chainman.GetConsensus(),
+            IsV24Active(chainman),
+            direct_state,
+            /*check_sigs=*/true
+        );
+    }
+
+    BOOST_TEST_MESSAGE(
+        "R117_DIRECT_SIGNATURE_VALID=" <<
+        direct_valid
+    );
+
+    BOOST_REQUIRE(direct_valid);
+    BOOST_REQUIRE(direct_state.IsValid());
+
+    auto block = std::make_shared<CBlock>(
+        setup.CreateBlock(
+            {registration},
+            coinbase_pk,
+            chainman.ActiveChainstate()
+        )
+    );
+
+    BOOST_REQUIRE(
+        block->hashPrevBlock ==
+        funding_block->GetHash()
+    );
+
+    class ValidationCatcher :
+        public CValidationInterface {
+    public:
+        explicit ValidationCatcher(const uint256& hash)
+            : m_hash(hash) {}
+
+        const uint256 m_hash;
+        std::optional<BlockValidationState> m_state;
+
+    protected:
+        void BlockChecked(
+            const CBlock& checked,
+            const BlockValidationState& state
+        ) override {
+            if (checked.GetHash() == m_hash) {
+                m_state = state;
+            }
+        }
+    };
+
+    ValidationCatcher catcher(block->GetHash());
+    RegisterValidationInterface(&catcher);
+
+    bool registration_new{false};
+
+    const bool processed =
+        chainman.ProcessNewBlock(
+            block,
+            true,
+            &registration_new
+        );
+
+    UnregisterValidationInterface(&catcher);
+    SyncWithValidationInterfaceQueue();
+
+    BOOST_TEST_MESSAGE(
+        "R117_REGISTRATION_PROCESSED=" <<
+        processed
+    );
+
+    BOOST_TEST_MESSAGE(
+        "R117_REGISTRATION_NEW_BLOCK=" <<
+        registration_new
+    );
+
+    BOOST_REQUIRE(catcher.m_state.has_value());
+
+    BOOST_TEST_MESSAGE(
+        "R117_VALIDATION_STATE=" <<
+        catcher.m_state->ToString()
+    );
+
+    BOOST_REQUIRE(catcher.m_state->IsValid());
+    BOOST_REQUIRE(processed);
+    BOOST_REQUIRE(registration_new);
+
+    const auto* tip = WITH_LOCK(
+        cs_main,
+        return chainman.ActiveChain().Tip()
+    );
+
+    BOOST_REQUIRE(tip != nullptr);
+    BOOST_REQUIRE_EQUAL(tip->nHeight, 107);
+
+    const bool connected =
+        tip->GetBlockHash() == block->GetHash();
+
+    BOOST_REQUIRE(connected);
+
+    dmnman.UpdatedBlockTip(tip);
+
+    const auto list =
+        dmnman.GetListAtChainTip();
+
+    const bool registered =
+        list.HasMN(protx_hash);
+
+    BOOST_REQUIRE(registered);
+
+    const auto mn =
+        list.GetMNByCollateral(collateral);
+
+    BOOST_REQUIRE(mn != nullptr);
+    BOOST_REQUIRE(
+        mn->proTxHash == protx_hash
+    );
+
+    BOOST_TEST_MESSAGE(
+        "R117_REGISTRATION_BLOCK_ACCEPTED=" <<
+        connected
+    );
+
+    BOOST_TEST_MESSAGE(
+        "R117_PROTX_REGISTERED=" <<
+        registered
+    );
+
+    BOOST_TEST_MESSAGE(
+        "R117_COLLATERAL_MAPPING_VALID=true"
+    );
 }
 
 BOOST_AUTO_TEST_SUITE_END()

@@ -843,12 +843,43 @@ void NetDKG::HandleDKGRound(ActiveDKGSessionHandler& handler)
     const CBlockIndex* pQuorumBaseBlockIndex = WITH_LOCK(::cs_main,
                                                          return m_chainman.m_blockman.LookupBlockIndex(curQuorumHash));
 
+    if (handler.params.type ==
+        Consensus::LLMQType::LLMQ_VIVO_INSTANTSEND) {
+        LogPrintf("R397C_TRAP stage=INIT_ATTEMPT "
+                  "type=8 index=%d hash=%s height=%d "
+                  "configured_members=%d\n",
+                  handler.QuorumIndex(),
+                  curQuorumHash.ToString(),
+                  pQuorumBaseBlockIndex ?
+                      pQuorumBaseBlockIndex->nHeight : -1,
+                  handler.params.size);
+    }
     if (!pQuorumBaseBlockIndex || !handler.InitNewQuorum(pQuorumBaseBlockIndex)) {
+        if (handler.params.type ==
+            Consensus::LLMQType::LLMQ_VIVO_INSTANTSEND) {
+            LogPrintf("R397C_TRAP stage=INIT_FAILED "
+                      "type=8 index=%d hash=%s "
+                      "reason=%s\n",
+                      handler.QuorumIndex(),
+                      curQuorumHash.ToString(),
+                      pQuorumBaseBlockIndex ?
+                          "INIT_RETURNED_FALSE" :
+                          "BASE_BLOCK_MISSING");
+        }
+
         // should actually never happen
         handler.WaitForNewQuorum(curQuorumHash);
         throw AbortPhaseException();
     }
 
+    if (handler.params.type ==
+        Consensus::LLMQType::LLMQ_VIVO_INSTANTSEND) {
+        LogPrintf("R397C_TRAP stage=INIT_SUCCESS "
+                  "type=8 index=%d hash=%s height=%d\n",
+                  handler.QuorumIndex(),
+                  curQuorumHash.ToString(),
+                  pQuorumBaseBlockIndex->nHeight);
+    }
     active.dkgdbgman.MarkPhaseAdvanced(handler.params.type, handler.QuorumIndex(), QuorumPhase::Initialized);
 
     auto* curSession = handler.GetCurSession();
@@ -926,8 +957,31 @@ void NetDKG::HandleDKGRound(ActiveDKGSessionHandler& handler)
     handler.HandlePhase(QuorumPhase::Commit, QuorumPhase::Finalize, curQuorumHash, 0.1, fCommitStart, fCommitWait);
 
     auto finalCommitments = curSession->FinalizeCommitments();
+    if (handler.params.type ==
+        Consensus::LLMQType::LLMQ_VIVO_INSTANTSEND) {
+        LogPrintf("R397C_TRAP stage=FINALIZE_RESULT "
+                  "type=8 index=%d hash=%s count=%d\n",
+                  handler.QuorumIndex(),
+                  curQuorumHash.ToString(),
+                  int(finalCommitments.size()));
+    }
+
     for (const auto& fqc : finalCommitments) {
-        if (auto inv_opt = active.qblockman.AddMineableCommitment(fqc); inv_opt.has_value()) {
+        auto inv_opt =
+            active.qblockman.AddMineableCommitment(fqc);
+
+        if (handler.params.type ==
+            Consensus::LLMQType::LLMQ_VIVO_INSTANTSEND) {
+            LogPrintf("R397C_TRAP stage=MINEABLE_RESULT "
+                      "type=8 hash=%s count_signers=%d "
+                      "valid_members=%d inventory=%d\n",
+                      fqc.quorumHash.ToString(),
+                      fqc.CountSigners(),
+                      fqc.CountValidMembers(),
+                      int(inv_opt.has_value()));
+        }
+
+        if (inv_opt.has_value()) {
             m_peer_manager->PeerRelayInv(inv_opt.value());
         }
     }

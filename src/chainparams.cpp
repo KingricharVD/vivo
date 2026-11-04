@@ -195,18 +195,19 @@ public:
         // VIVO deterministic MN migration: registration +500 blocks, enforcement +1000.
         // R41A: future quorum recovery height not yet selected.
         consensus.VivoQuorumRecoveryHeight = 2188700;
+        consensus.VivoPlatformEvoOnlyHeight = 2147483647;
         // Remains disabled until quorum-readiness tests pass.
         consensus.VivoChainLocksHandoverHeight = 2189000;
         // R52E: no mainnet MnHF role handover is approved.
-        consensus.VivoMnhfHeight = 2147483647;
+        consensus.VivoMnhfHeight = 2196864;
         consensus.DIP0003Height = 2182235;
         consensus.DIP0003EnforcementHeight = 2182735;
         consensus.DIP0003EnforcementHash = uint256();
-        consensus.DIP0008Height = 2147483647; // 00000000000000112e41e4b3afda8b233b8cc07c532d2eac5de097b68358c43e
+        consensus.DIP0008Height = 2189964; // 00000000000000112e41e4b3afda8b233b8cc07c532d2eac5de097b68358c43e
         consensus.BRRHeight = 2147483647; // 000000000000000c5a124f3eccfbe6e17876dca79cec9e63dfa70d269113c926
-        consensus.DIP0020Height = 2147483647; // 000000000000000f64ed3bd9af1078177ac026f6aa2677aa4d8beeae43be56cc
-        consensus.DIP0024Height = 2147483647; // 0000000000000001342be9c0b75ad40c276beaad91616423c4d9cb101b3db438
-        consensus.DIP0024QuorumsHeight = 2147483647; // 000000000000001aa25181e4c466e593992c98f9eb21c69ee757b8bb0af50244
+        consensus.DIP0020Height = 2147483647; // VIVO v25.0.6.1 proposed activation
+        consensus.DIP0024Height = 2192111; // VIVO v25.0.6.1 proposed activation
+        consensus.DIP0024QuorumsHeight = 2192298; // VIVO v25.0.6.1 proposed activation
         consensus.V19Height = 2184029; // VIVO v25.0.4.0 // 0000000000000015e32e73052d663626327004c81c5c22cb8b42c361015c0eae
         consensus.V20Height = 2187065; // VIVO v25.0.5.0 proposed V20 mainnet activation // 000000000000001bf41cff06b76780050682ca29e61a91c391893d4745579777
         consensus.MN_RRHeight = 2147483647; // 0000000000000009a9696da93d3807eb14eb00a4ff449206d689156a21b27f26
@@ -234,7 +235,7 @@ public:
         consensus.vDeployments[Consensus::DEPLOYMENT_V24].nThresholdMin = 2420;       // 60% of 4032
         consensus.vDeployments[Consensus::DEPLOYMENT_V24].nFalloffCoeff = 5;          // this corresponds to 10 periods
         consensus.vDeployments[Consensus::DEPLOYMENT_V24].useEHF = true;
-        consensus.vDeployments[Consensus::DEPLOYMENT_V24].min_activation_height = 2184529; // VIVO: 500 blocks after V19
+        consensus.vDeployments[Consensus::DEPLOYMENT_V24].min_activation_height = 2190014; // VIVO: 500 blocks after V19
 
         consensus.nMinimumChainWork = uint256S("0x00"); // 2487500
         consensus.defaultAssumeValid = uint256S("0x00"); // 2487500
@@ -306,10 +307,10 @@ public:
         AddLLMQ(Consensus::LLMQType::LLMQ_VIVO_INSTANTSEND);
         AddLLMQ(Consensus::LLMQType::LLMQ_VIVO_PLATFORM);
         AddLLMQ(Consensus::LLMQType::LLMQ_VIVO_MNHF);
-        consensus.llmqTypeChainLocks = Consensus::LLMQType::LLMQ_400_60;
-        consensus.llmqTypeDIP0024InstantSend = Consensus::LLMQType::LLMQ_60_75;
-        consensus.llmqTypePlatform = Consensus::LLMQType::LLMQ_100_67;
-        consensus.llmqTypeMnhf = Consensus::LLMQType::LLMQ_400_85;
+        consensus.llmqTypeChainLocks = Consensus::LLMQType::LLMQ_VIVO_CHAINLOCKS;
+        consensus.llmqTypeDIP0024InstantSend = Consensus::LLMQType::LLMQ_VIVO_INSTANTSEND;
+        consensus.llmqTypePlatform = Consensus::LLMQType::LLMQ_VIVO_PLATFORM;
+        consensus.llmqTypeMnhf = Consensus::LLMQType::LLMQ_VIVO_MNHF;
 
         fDefaultConsistencyChecks = false;
         fRequireStandard = true;

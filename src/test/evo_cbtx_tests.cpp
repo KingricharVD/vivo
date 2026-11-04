@@ -16,6 +16,9 @@
 #include <evo/specialtx.h>
 #include <evo/specialtxman.h>
 #include <hash.h>
+
+#include <node/miner.h>
+#include <script/script.h>
 #include <llmq/blockprocessor.h>
 #include <llmq/commitment.h>
 #include <llmq/context.h>
@@ -190,6 +193,152 @@ BOOST_FIXTURE_TEST_CASE(qc_hash_cache_invalidated_by_undoblock, Dip3ActiveSetup)
     }
 
     ExpectQuorumMerkleRoot(empty_block, &pindex_mined, qblockman, qc_b);
+}
+
+
+// R75: Template-only regression. No consensus validity claim is made
+// for helper-generated quorum signatures.
+struct V20BeforeDip8MiningSetup : TestChainSetup {
+    V20BeforeDip8MiningSetup()
+        : TestChainSetup{
+              105,
+              CBaseChainParams::REGTEST,
+              {"-testactivationheight=dip0008@200"}
+          }
+    {
+    }
+};
+
+BOOST_FIXTURE_TEST_CASE(
+    v20_before_dip8_quorum_root_template,
+    V20BeforeDip8MiningSetup)
+{
+    auto& chainman = *Assert(m_node.chainman);
+    auto& qblockman =
+        *Assert(Assert(m_node.llmq_ctx)->quorum_block_processor);
+
+    const auto& params =
+        GetLLMQParams(Consensus::LLMQType::LLMQ_TEST);
+
+    uint256 base_hash;
+
+    {
+        LOCK(cs_main);
+        const auto& chain = chainman.ActiveChain();
+        BOOST_REQUIRE_EQUAL(chain.Height(), 105);
+        BOOST_REQUIRE(chain[96] != nullptr);
+
+        base_hash = chain[96]->GetBlockHash();
+
+        BOOST_REQUIRE(
+            DeploymentActiveAfter(
+                chain.Tip(),
+                chainman.GetConsensus(),
+                Consensus::DEPLOYMENT_V20
+            )
+        );
+
+        BOOST_REQUIRE(
+            !DeploymentActiveAfter(
+                chain.Tip(),
+                chainman.GetConsensus(),
+                Consensus::DEPLOYMENT_DIP0008
+            )
+        );
+    }
+
+    CFinalCommitment commitment =
+        CreateValidCommitment(params, base_hash);
+
+    commitment.quorumIndex = 0;
+
+    {
+        LOCK(cs_main);
+        commitment.nVersion = CFinalCommitment::GetVersion(
+            false,
+            DeploymentActiveAfter(
+                chainman.ActiveChain()[96],
+                chainman.GetConsensus(),
+                Consensus::DEPLOYMENT_V19
+            )
+        );
+    }
+
+    BOOST_REQUIRE(!commitment.IsNull());
+    BOOST_REQUIRE(qblockman.AddMineableCommitment(commitment).has_value());
+
+    node::BlockAssembler::Options options;
+    options.test_block_validity = false;
+
+    const CScript scriptPubKey{CScript() << OP_TRUE};
+
+    auto block_template =
+        node::BlockAssembler(
+            chainman.ActiveChainstate(),
+            m_node,
+            nullptr,
+            options
+        ).CreateNewBlock(scriptPubKey);
+
+    BOOST_REQUIRE(block_template != nullptr);
+
+    const CBlock& block = block_template->block;
+    BOOST_REQUIRE(!block.vtx.empty());
+
+    const auto cbtx = GetTxPayload<CCbTx>(*block.vtx[0]);
+    BOOST_REQUIRE(cbtx.has_value());
+
+    BOOST_CHECK(
+        cbtx->nVersion == CCbTx::Version::CLSIG_AND_BALANCE
+    );
+
+    bool found_non_null{false};
+
+    for (size_t i = 1; i < block.vtx.size(); ++i) {
+        if (block.vtx[i]->nType != TRANSACTION_QUORUM_COMMITMENT) {
+            continue;
+        }
+
+        const auto payload =
+            GetTxPayload<CFinalCommitmentTxPayload>(*block.vtx[i]);
+
+        BOOST_REQUIRE(payload.has_value());
+
+        if (!payload->commitment.IsNull() &&
+            payload->commitment.quorumHash == base_hash &&
+            payload->commitment.llmqType == params.type) {
+            found_non_null = true;
+        }
+    }
+
+    BOOST_REQUIRE_MESSAGE(
+        found_non_null,
+        "R75 requires a non-null quorum commitment in the template"
+    );
+
+    BlockValidationState state;
+    uint256 expected_root;
+
+    {
+        LOCK(cs_main);
+
+        BOOST_REQUIRE(
+            CalcCbTxMerkleRootQuorums(
+                block,
+                chainman.ActiveChain().Tip(),
+                qblockman,
+                expected_root,
+                state
+            )
+        );
+    }
+
+    BOOST_REQUIRE(!expected_root.IsNull());
+
+    BOOST_CHECK_EQUAL(
+        cbtx->merkleRootQuorums.ToString(),
+        expected_root.ToString()
+    );
 }
 
 BOOST_AUTO_TEST_SUITE_END()

@@ -288,7 +288,9 @@ std::unique_ptr<CBlockTemplate> BlockAssembler::CreateNewBlock(const CScript& sc
         if (!CalcCbTxMerkleRootMNList(cbTx.merkleRootMNList, mn_list.to_sml(), state)) {
             throw std::runtime_error(strprintf("%s: CalcCbTxMerkleRootMNList failed: %s", __func__, state.ToString()));
         }
-        if (fDIP0008Active_context) {
+        // A V20 CbTx includes the quorum Merkle root even
+        // when DIP0008 is not separately activated.
+        if (fDIP0008Active_context || fV20Active_context) {
             if (!CalcCbTxMerkleRootQuorums(*pblock, pindexPrev, m_quorum_block_processor, cbTx.merkleRootQuorums, state)) {
                 throw std::runtime_error(strprintf("%s: CalcCbTxMerkleRootQuorums failed: %s", __func__, state.ToString()));
             }

@@ -316,9 +316,106 @@ BOOST_FIXTURE_TEST_CASE(AbandonedSpendRestoresActiveMasternodeCollateralLock, Av
         CreateAndProcessBlock({}, wallet_script);
     }
 
+    // R361: mature the EXISTING fixture coinbases before ProReg.
+    // No consensus constants, collateral rules, or UTXO checks
+    // are modified. Stop before the regtest DIP0024 boundary.
+    constexpr int funding_height_limit = 129;
+
+    while (true) {
+        const int current_height{
+            WITH_LOCK(m_node.chainman->GetMutex(),
+                      return m_node.chainman->ActiveChain().Height())
+        };
+
+        const auto funding_coins{
+            BuildSimpleUtxoMap(m_coinbase_txns)
+        };
+
+        CAmount eligible_funding{0};
+
+        for (const auto& entry : funding_coins) {
+            const auto& coin = entry.second;
+
+            if (current_height - coin.nHeight >= 101) {
+                eligible_funding += coin.out.nValue;
+            }
+        }
+
+        if (eligible_funding >= dmn_types::Regular.collat_amount) {
+            BOOST_TEST_MESSAGE(
+                "R361_FUNDING_READY height=" << current_height
+                << " eligible_satoshis=" << eligible_funding
+                << " required_satoshis="
+                << dmn_types::Regular.collat_amount
+            );
+            break;
+        }
+
+        BOOST_REQUIRE_MESSAGE(
+            current_height < funding_height_limit,
+            "R361_FUNDING_LIMIT_REACHED"
+            << " height=" << current_height
+            << " eligible_satoshis=" << eligible_funding
+            << " required_satoshis="
+            << dmn_types::Regular.collat_amount
+        );
+
+        CreateAndProcessBlock({}, wallet_script);
+
+        const int new_height{
+            WITH_LOCK(m_node.chainman->GetMutex(),
+                      return m_node.chainman->ActiveChain().Height())
+        };
+
+        BOOST_REQUIRE_MESSAGE(
+            new_height == current_height + 1,
+            "R361_BLOCK_ADVANCEMENT_FAILED"
+            << " previous_height=" << current_height
+            << " actual_height=" << new_height
+        );
+    }
+
     CKey owner_key;
     CBLSSecretKey operator_key;
     auto utxos{BuildSimpleUtxoMap(m_coinbase_txns)};
+
+    // R359: report actual fixture funding before ProReg construction.
+    // Keep collateral requirements and UTXO maturity checks intact.
+    const int funding_height{
+        WITH_LOCK(m_node.chainman->GetMutex(),
+                  return m_node.chainman->ActiveChain().Height())
+    };
+    CAmount eligible_amount{0};
+    size_t eligible_count{0};
+    CAmount total_amount{0};
+
+    for (const auto& entry : utxos) {
+        const auto& coin = entry.second;
+        total_amount += coin.out.nValue;
+        if (funding_height - coin.nHeight >= 101) {
+            eligible_amount += coin.out.nValue;
+            ++eligible_count;
+        }
+    }
+
+    BOOST_TEST_MESSAGE(
+        "R359_FUNDING chain_height=" << funding_height
+        << " coinbase_count=" << m_coinbase_txns.size()
+        << " utxo_count=" << utxos.size()
+        << " eligible_count=" << eligible_count
+        << " total_satoshis=" << total_amount
+        << " eligible_satoshis=" << eligible_amount
+        << " required_satoshis=" << dmn_types::Regular.collat_amount
+    );
+
+    BOOST_REQUIRE_MESSAGE(
+        eligible_amount >= dmn_types::Regular.collat_amount,
+        "R359_INSUFFICIENT_ELIGIBLE_FUNDING"
+        << " height=" << funding_height
+        << " eligible_utxos=" << eligible_count
+        << " eligible_satoshis=" << eligible_amount
+        << " required_satoshis=" << dmn_types::Regular.collat_amount
+    );
     CMutableTransaction pro_reg_mtx{CreateProRegTx(*m_node.chainman, utxos, /*port=*/1, wallet_script,
                                                    coinbaseKey, owner_key, operator_key)};
     const CTransactionRef pro_reg_tx{MakeTransactionRef(pro_reg_mtx)};

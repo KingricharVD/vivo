@@ -829,6 +829,12 @@ bool CSpecialTxProcessor::ProcessSpecialTxsInBlock(Chainstate& chainstate, const
                     return false;
                 }
                 if (calculatedMerkleRootQuorums != opt_cbTx->merkleRootQuorums) {
+                    // R44: Diagnostic-only. Preserve the original consensus result.
+                    LogPrintf("[R44-QROOT-MISMATCH] height=%d prev=%s expected=%s calculated=%s\n",
+                              pindex->nHeight,
+                              pindex->pprev->GetBlockHash().ToString(),
+                              opt_cbTx->merkleRootQuorums.ToString(),
+                              calculatedMerkleRootQuorums.ToString());
                     return state.Invalid(BlockValidationResult::BLOCK_CONSENSUS, "bad-cbtx-quorummerkleroot");
                 }
             }

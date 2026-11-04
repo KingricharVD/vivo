@@ -31,6 +31,7 @@ from test_framework.crypto.siphash import siphash256
 from test_framework.util import assert_equal
 
 import dash_hash # type: ignore[import]
+from . import vivo_neoscrypt
 
 MAX_LOCATOR_SZ = 101
 MAX_BASE_BLOCK_HASHES = 4096
@@ -662,8 +663,8 @@ class CBlockHeader:
             r += struct.pack("<I", self.nTime)
             r += struct.pack("<I", self.nBits)
             r += struct.pack("<I", self.nNonce)
-            self.sha256 = uint256_from_str(dashhash(r))
-            self.hash = dashhash(r)[::-1].hex()
+            self.sha256 = uint256_from_str(vivo_neoscrypt.getPoWHash(r))
+            self.hash = vivo_neoscrypt.getPoWHash(r)[::-1].hex()
 
     def rehash(self):
         self.sha256 = None
@@ -824,8 +825,8 @@ class CompressibleBlockHeader:
             r += struct.pack("<I", self.nTime)
             r += struct.pack("<I", self.nBits)
             r += struct.pack("<I", self.nNonce)
-            self.sha256 = uint256_from_str(dashhash(r))
-            self.hash = int(dashhash(r)[::-1].hex(), 16)
+            self.sha256 = uint256_from_str(vivo_neoscrypt.getPoWHash(r))
+            self.hash = int(vivo_neoscrypt.getPoWHash(r)[::-1].hex(), 16)
 
     def rehash(self):
         self.sha256 = None

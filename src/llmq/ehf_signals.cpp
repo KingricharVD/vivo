@@ -54,7 +54,23 @@ void CEHFSignalsHandler::trySignEHFSignal(int bit, const CBlockIndex* const pind
     mnhfPayload.signal.versionBit = bit;
     const uint256 requestId = mnhfPayload.GetRequestId();
 
-    const Consensus::LLMQType& llmqType = Params().GetConsensus().llmqTypeMnhf;
+    const auto& consensus = Params().GetConsensus();
+
+    // Use the legacy signing domain before the coordinated
+    // MNHF activation. Never change historical signatures.
+    // Regtest must retain its legacy LLMQ_TEST signing
+    // domain before the custom MNHF activation boundary.
+    // Mainnet retains its configured legacy signing domain.
+    const auto legacyType =
+        Params().NetworkIDString() == "regtest"
+            ? Consensus::LLMQType::LLMQ_TEST
+            : (Params().NetworkIDString() == "main" ? Consensus::LLMQType::LLMQ_400_85 : consensus.llmqTypeMnhf);
+
+    const auto llmqType =
+        (consensus.VivoMnhfHeight < 2147483647 &&
+         pindex->nHeight >= consensus.VivoMnhfHeight)
+            ? Consensus::LLMQType::LLMQ_VIVO_MNHF
+            : legacyType;
     const auto& llmq_params_opt = Params().GetLLMQ(llmqType);
     if (!llmq_params_opt.has_value()) {
         return;
@@ -72,6 +88,23 @@ void CEHFSignalsHandler::trySignEHFSignal(int bit, const CBlockIndex* const pind
     if (!quorum) {
         LogPrintf("CEHFSignalsHandler::trySignEHFSignal no quorum for id=%s\n", requestId.ToString());
         return;
+    }
+
+    // R59: Never sign with a custom MNHF quorum whose base
+    // block precedes the approved signature-domain transition.
+    // The validator selects the signature domain using this
+    // same quorum-base height, not the current tip height.
+    if (llmqType == Consensus::LLMQType::LLMQ_VIVO_MNHF) {
+        const CBlockIndex* quorumBase = WITH_LOCK(::cs_main,
+            return m_chainman.m_blockman.LookupBlockIndex(
+                quorum->qc->quorumHash));
+
+        if (quorumBase == nullptr ||
+            quorumBase->nHeight < consensus.VivoMnhfHeight) {
+            LogPrintf("CEHFSignalsHandler::trySignEHFSignal "
+                      "custom MNHF quorum predates activation\n");
+            return;
+        }
     }
 
     LogPrint(BCLog::EHF, "CEHFSignalsHandler::trySignEHFSignal: bit=%d at height=%d id=%s\n", bit, pindex->nHeight, requestId.ToString());

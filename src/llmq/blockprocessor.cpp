@@ -318,6 +318,21 @@ static bool IsMiningPhase(const Consensus::LLMQParams& llmqParams, const CChain&
 bool CQuorumBlockProcessor::ProcessCommitment(Chainstate& chainstate, int nHeight, const uint256& blockHash, const CFinalCommitment& qc,
                                               BlockValidationState& state, bool fJustCheck)
 {
+    if (qc.llmqType ==
+        Consensus::LLMQType::LLMQ_VIVO_INSTANTSEND) {
+        LogPrintf("R397C_TRAP stage=PROCESS_COMMITMENT_ENTRY "
+                  "type=8 height=%d block=%s "
+                  "quorum=%s null=%d "
+                  "signers=%d valid=%d justcheck=%d\n",
+                  nHeight,
+                  blockHash.ToString(),
+                  qc.quorumHash.ToString(),
+                  int(qc.IsNull()),
+                  qc.CountSigners(),
+                  qc.CountValidMembers(),
+                  int(fJustCheck));
+    }
+
     AssertLockHeld(::cs_main);
 
     const auto& llmq_params_opt = Params().GetLLMQ(qc.llmqType);
@@ -424,6 +439,17 @@ bool CQuorumBlockProcessor::ProcessCommitment(Chainstate& chainstate, int nHeigh
     if (!m_evoDb.WriteDerived(std::make_pair(DB_MINED_COMMITMENT, cacheKey), std::make_pair(qc, blockHash))) {
         return AbortNode(state, strprintf("CQuorumBlockProcessor::%s -- EvoDB quorum commitment mismatch for quorum %s",
                                           __func__, quorumHash.ToString()));
+    }
+
+    if (qc.llmqType ==
+        Consensus::LLMQType::LLMQ_VIVO_INSTANTSEND) {
+        LogPrintf("R397C_TRAP stage=COMMITMENT_DB_STORED "
+                  "type=8 height=%d block=%s "
+                  "quorum=%s signers=%d\n",
+                  nHeight,
+                  blockHash.ToString(),
+                  qc.quorumHash.ToString(),
+                  qc.CountSigners());
     }
 
     if (rotation_enabled) {
@@ -863,6 +889,17 @@ bool CQuorumBlockProcessor::HasMineableCommitment(const uint256& hash) const
 
 std::optional<CInv> CQuorumBlockProcessor::AddMineableCommitment(const CFinalCommitment& fqc)
 {
+    if (fqc.llmqType ==
+        Consensus::LLMQType::LLMQ_VIVO_INSTANTSEND) {
+        LogPrintf("R397C_TRAP stage=ADD_MINEABLE_ENTRY "
+                  "type=8 quorum=%s null=%d "
+                  "signers=%d valid=%d\n",
+                  fqc.quorumHash.ToString(),
+                  int(fqc.IsNull()),
+                  fqc.CountSigners(),
+                  fqc.CountValidMembers());
+    }
+
     const uint256 commitmentHash = ::SerializeHash(fqc);
 
     const bool relay = [&]() {

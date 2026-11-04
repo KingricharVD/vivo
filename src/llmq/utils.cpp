@@ -291,11 +291,15 @@ std::vector<QuorumMembers> GetQuorumQuarterMembersBySnapshot(const Consensus::LL
 QuorumMembers ComputeQuorumMembers(Consensus::LLMQType llmqType, const CChainParams& chainparams,
                                    const CDeterministicMNList& mn_list, const CBlockIndex* pQuorumBaseBlockIndex)
 {
-    bool EvoOnly = (chainparams.GetConsensus().llmqTypePlatform == llmqType) &&
-                   DeploymentActiveAfter(pQuorumBaseBlockIndex, chainparams.GetConsensus(), Consensus::DEPLOYMENT_V19);
+    const auto& vivoConsensus = chainparams.GetConsensus();
+    bool EvoOnly = (((chainparams.NetworkIDString() == "main" ? Consensus::LLMQType::LLMQ_100_67 : vivoConsensus.llmqTypePlatform) == llmqType) &&
+                    DeploymentActiveAfter(pQuorumBaseBlockIndex, vivoConsensus, Consensus::DEPLOYMENT_V19)) ||
+                   ((llmqType == Consensus::LLMQType::LLMQ_VIVO_PLATFORM) &&
+                    (pQuorumBaseBlockIndex->nHeight >= vivoConsensus.VivoPlatformEvoOnlyHeight));
     const auto& llmq_params_opt = chainparams.GetLLMQ(llmqType);
     assert(llmq_params_opt.has_value());
-    if (llmq_params_opt->useRotation || pQuorumBaseBlockIndex->nHeight % llmq_params_opt->dkgInterval != 0) {
+    if (llmq::IsQuorumRotationEnabled(llmq_params_opt.value(), pQuorumBaseBlockIndex) ||
+        pQuorumBaseBlockIndex->nHeight % llmq_params_opt->dkgInterval != 0) {
         ASSERT_IF_DEBUG(false);
         return {};
     }
@@ -617,8 +621,11 @@ std::optional<std::vector<CDeterministicMNCPtr>> ComputeQuorumMembersFromWorkBlo
         // Canonical member selection gates EvoOnly on V19 at the future quorum base block; V19
         // is a buried deployment, so that state is a pure height check even though the block
         // itself is not mined yet.
-        const bool EvoOnly = llmq_params.type == consensus.llmqTypePlatform &&
-                             quorumHeight + 1 >= consensus.DeploymentHeight(Consensus::DEPLOYMENT_V19);
+        const bool EvoOnly =
+            ((llmq_params.type == (util_params.m_chainman.GetParams().NetworkIDString() == "main" ? Consensus::LLMQType::LLMQ_100_67 : consensus.llmqTypePlatform)) &&
+             quorumHeight + 1 >= consensus.DeploymentHeight(Consensus::DEPLOYMENT_V19)) ||
+            ((llmq_params.type == Consensus::LLMQType::LLMQ_VIVO_PLATFORM) &&
+             (quorumHeight >= consensus.VivoPlatformEvoOnlyHeight));
         return CalculateQuorum(util_params.m_dmnman.GetListForBlock(pWorkBlockIndex), modifier, llmq_params.size,
                                EvoOnly);
     }
