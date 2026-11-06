@@ -1,0 +1,80 @@
+name: VIVO Synthetic Artifact Transfer Test
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  synthetic-producer:
+    name: Generate harmless synthetic files
+    if: ${{ github.repository == 'KingricharVD/vivo' }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      contents: read
+    env:
+      SHA_A: 0f37466cd6323db99a54e4e0425bd84add6e8e1d62a23fc6c9042d3f56fd166a
+      SHA_B: a539de4131bc7ca38605e938a1d7f9ea1f59887bc25b5a89dfe272e06b291f57
+    steps:
+      - name: Generate fixed harmless payloads
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p synthetic-input
+          cd synthetic-input
+          printf 'VIVO synthetic transfer test A v1\n' > synthetic-a.txt
+          printf 'VIVO synthetic transfer test B v1\n' > synthetic-b.txt
+          echo "$SHA_A  synthetic-a.txt" | sha256sum -c -
+          echo "$SHA_B  synthetic-b.txt" | sha256sum -c -
+          echo "SYNTHETIC_PRODUCER_HASHES=PASS"
+
+      - name: Upload synthetic-only artifact
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: vivo-synthetic-${{ github.run_id }}-${{ github.run_attempt }}
+          path: |
+            synthetic-input/synthetic-a.txt
+            synthetic-input/synthetic-b.txt
+          if-no-files-found: error
+          retention-days: 1
+
+  synthetic-consumer:
+    name: Validate synthetic transfer on Apple Silicon
+    needs: synthetic-producer
+    runs-on: macos-15
+    timeout-minutes: 15
+    permissions:
+      contents: read
+    env:
+      SHA_A: 0f37466cd6323db99a54e4e0425bd84add6e8e1d62a23fc6c9042d3f56fd166a
+      SHA_B: a539de4131bc7ca38605e938a1d7f9ea1f59887bc25b5a89dfe272e06b291f57
+    steps:
+      - name: Verify Apple Silicon runner
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$(uname -s)" = "Darwin"
+          test "$(uname -m)" = "arm64"
+          echo "APPLE_SILICON_RUNNER=PASS"
+
+      - name: Download synthetic artifact
+        uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4
+        with:
+          name: vivo-synthetic-${{ github.run_id }}-${{ github.run_attempt }}
+          path: synthetic-output
+
+      - name: Independently verify synthetic data
+        shell: bash
+        run: |
+          set -euo pipefail
+          cd synthetic-output
+          test "$(wc -c < synthetic-a.txt | tr -d ' ')" = 34
+          test "$(wc -c < synthetic-b.txt | tr -d ' ')" = 34
+          echo "$SHA_A  synthetic-a.txt" | shasum -a 256 -c -
+          echo "$SHA_B  synthetic-b.txt" | shasum -a 256 -c -
+          echo "SYNTHETIC_CONSUMER_HASHES=PASS"
+          echo "SAME_RUN_TRANSFER=PASS"
+          echo "REAL_RELEASE_ASSETS_USED=NO"
+          echo "PUBLIC_RELEASE_APPROVED=NO"
