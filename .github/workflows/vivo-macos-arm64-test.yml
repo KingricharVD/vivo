@@ -12,19 +12,74 @@ permissions:
   contents: read
 
 jobs:
+  stage-verified-assets:
+    name: Stage verified draft assets
+    if: ${{ github.repository == 'KingricharVD/vivo' }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    permissions:
+      contents: write
+
+    env:
+      GH_TOKEN: ${{ github.token }}
+      DMG_NAME: VIVO-v26.0.1.0-macOS-ARM64.dmg
+      ZIP_NAME: VIVO-v26.0.1.0-macOS-ARM64.zip
+      DMG_SHA: dfca3049e99418c342b05bc5dad769d83db63bd79583cd96cee4551b229f29fa
+      ZIP_SHA: b91b3f5eecfd55f77d51efd2553908dfaaac80795ff98f939e19e2a5c2c2a466
+
+    steps:
+      - name: Download and verify fixed draft assets
+        shell: bash
+        env:
+          RELEASE_TAG: ${{ inputs.release_tag }}
+        run: |
+          set -euo pipefail
+          test "$GITHUB_REPOSITORY" = "KingricharVD/vivo"
+          test "$RELEASE_TAG" = "v26.0.1.0-macos-test"
+          command -v gh
+          mkdir -p release-input
+          cd release-input
+
+          gh api \
+            "repos/$GITHUB_REPOSITORY/releases/assets/716694363" \
+            -H "Accept: application/octet-stream" \
+            > "$DMG_NAME"
+
+          gh api \
+            "repos/$GITHUB_REPOSITORY/releases/assets/716694367" \
+            -H "Accept: application/octet-stream" \
+            > "$ZIP_NAME"
+
+          test "$(wc -c < "$DMG_NAME" | tr -d ' ')" = 29587360
+          test "$(wc -c < "$ZIP_NAME" | tr -d ' ')" = 45823105
+
+          echo "$DMG_SHA  $DMG_NAME" | sha256sum -c -
+          echo "$ZIP_SHA  $ZIP_NAME" | sha256sum -c -
+          echo "PRODUCER_ORIGINAL_HASHES=PASS"
+
+      - name: Upload checksum-verified copies
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: vivo-macos-verified-${{ github.run_id }}
+          path: |
+            release-input/VIVO-v26.0.1.0-macOS-ARM64.dmg
+            release-input/VIVO-v26.0.1.0-macOS-ARM64.zip
+          if-no-files-found: error
+          retention-days: 3
+
   native-arm64-validation:
     name: Native Apple Silicon validation
+    needs: stage-verified-assets
     runs-on: macos-15
     timeout-minutes: 30
     permissions:
-      contents: write
+      contents: read
 
     env:
       DMG_NAME: VIVO-v26.0.1.0-macOS-ARM64.dmg
       ZIP_NAME: VIVO-v26.0.1.0-macOS-ARM64.zip
       DMG_SHA: dfca3049e99418c342b05bc5dad769d83db63bd79583cd96cee4551b229f29fa
       ZIP_SHA: b91b3f5eecfd55f77d51efd2553908dfaaac80795ff98f939e19e2a5c2c2a466
-      GH_TOKEN: ${{ github.token }}
 
     steps:
       - name: Verify Apple Silicon runner
@@ -37,40 +92,22 @@ jobs:
           test "$(uname -m)" = "arm64"
           echo "APPLE_SILICON_RUNNER=PASS"
 
-      - name: Download verified release candidates
+      - name: Download staged verified copies
+        uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4
+        with:
+          name: vivo-macos-verified-${{ github.run_id }}
+          path: release-input
+
+      - name: Verify downloaded file hashes
         shell: bash
-        env:
-          RELEASE_TAG: ${{ inputs.release_tag }}
         run: |
           set -euo pipefail
-
-          mkdir -p release-input
           cd release-input
-
-          command -v gh
-
-          # Use verified asset IDs, not draft tag lookup.
-          # Authentication uses the ephemeral GITHUB_TOKEN.
-          # Draft access remains unverified until native execution.
-          test "$RELEASE_TAG" = "v26.0.1.0-macos-test"
-
-          gh api \
-            "repos/$GITHUB_REPOSITORY/releases/assets/716694363" \
-            -H "Accept: application/octet-stream" \
-            > "$DMG_NAME"
-
-          gh api \
-            "repos/$GITHUB_REPOSITORY/releases/assets/716694367" \
-            -H "Accept: application/octet-stream" \
-            > "$ZIP_NAME"
-
           test -s "$DMG_NAME"
           test -s "$ZIP_NAME"
-
           echo "$DMG_SHA  $DMG_NAME" | shasum -a 256 -c -
           echo "$ZIP_SHA  $ZIP_NAME" | shasum -a 256 -c -
-
-          echo "RELEASE_ARTIFACT_CHECKSUMS=PASS"
+          echo "CONSUMER_ORIGINAL_HASHES=PASS"
 
       - name: Verify and mount DMG
         shell: bash
