@@ -7,68 +7,12 @@ on:
         description: "Draft release tag containing the verified ARM64 DMG and ZIP"
         required: true
         default: "v26.0.1.0-macos-test"
-      validation_mode:
-        description: "macos or auth_probe"
-        required: true
-        type: choice
-        options:
-          - macos
-          - auth_probe
-        default: macos
 
 permissions:
   contents: read
 
 jobs:
-  draft-auth-probe:
-    name: Draft asset access on Linux
-    if: ${{ inputs.validation_mode == 'auth_probe' }}
-    runs-on: ubuntu-latest
-    timeout-minutes: 10
-    permissions:
-      contents: write
-    env:
-      GH_TOKEN: ${{ github.token }}
-      DMG_SHA: dfca3049e99418c342b05bc5dad769d83db63bd79583cd96cee4551b229f29fa
-      ZIP_SHA: b91b3f5eecfd55f77d51efd2553908dfaaac80795ff98f939e19e2a5c2c2a466
-
-    steps:
-      - name: Verify draft asset access
-        shell: bash
-        run: |
-          set -euo pipefail
-          test "$GITHUB_REPOSITORY" = "KingricharVD/vivo"
-          command -v gh
-          mkdir -p "$RUNNER_TEMP/vivo-auth-probe"
-          cd "$RUNNER_TEMP/vivo-auth-probe"
-
-          gh api \
-            "repos/$GITHUB_REPOSITORY/releases/assets/716694363" \
-            -H "Accept: application/octet-stream" \
-            > VIVO-v26.0.1.0-macOS-ARM64.dmg
-
-          test "$(wc -c < VIVO-v26.0.1.0-macOS-ARM64.dmg | tr -d ' ')" = 29587360
-
-          echo "$DMG_SHA  VIVO-v26.0.1.0-macOS-ARM64.dmg" |
-            sha256sum -c -
-
-          gh api \
-            "repos/$GITHUB_REPOSITORY/releases/assets/716694367" \
-            -H "Accept: application/octet-stream" \
-            > VIVO-v26.0.1.0-macOS-ARM64.zip
-
-          test "$(wc -c < VIVO-v26.0.1.0-macOS-ARM64.zip | tr -d ' ')" = 45823105
-
-          echo "$ZIP_SHA  VIVO-v26.0.1.0-macOS-ARM64.zip" |
-            sha256sum -c -
-
-          echo "DRAFT_ASSET_ACCESS=PASS"
-          echo "BOTH_CHECKSUMS=PASS"
-          echo "MACOS_TEST_EXECUTED=NO"
-          echo "PUBLIC_RELEASE_APPROVED=NO"
-
   native-arm64-validation:
-    if: ${{ inputs.validation_mode != 'auth_probe' }}
     name: Native Apple Silicon validation
     runs-on: macos-15
     timeout-minutes: 30
