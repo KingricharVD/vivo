@@ -1,0 +1,173 @@
+name: VIVO v26.0.1.0 macOS ARM64 Native Test
+
+on:
+  workflow_dispatch:
+    inputs:
+      release_tag:
+        description: "Draft release tag containing the verified ARM64 DMG and ZIP"
+        required: true
+        default: "v26.0.1.0-macos-test"
+
+permissions:
+  contents: read
+
+jobs:
+  native-arm64-validation:
+    name: Native Apple Silicon validation
+    runs-on: macos-15
+    timeout-minutes: 30
+
+    env:
+      DMG_NAME: VIVO-v26.0.1.0-macOS-ARM64.dmg
+      ZIP_NAME: VIVO-v26.0.1.0-macOS-ARM64.zip
+      DMG_SHA: dfca3049e99418c342b05bc5dad769d83db63bd79583cd96cee4551b229f29fa
+      ZIP_SHA: b91b3f5eecfd55f77d51efd2553908dfaaac80795ff98f939e19e2a5c2c2a466
+      GH_TOKEN: ${{ github.token }}
+
+    steps:
+      - name: Verify Apple Silicon runner
+        shell: bash
+        run: |
+          set -euo pipefail
+          uname -a
+          sw_vers
+          test "$(uname -s)" = "Darwin"
+          test "$(uname -m)" = "arm64"
+          echo "APPLE_SILICON_RUNNER=PASS"
+
+      - name: Download verified release candidates
+        shell: bash
+        env:
+          RELEASE_TAG: ${{ inputs.release_tag }}
+        run: |
+          set -euo pipefail
+
+          mkdir -p release-input
+          cd release-input
+
+          command -v gh
+
+          gh release download "$RELEASE_TAG" \
+            --repo "$GITHUB_REPOSITORY" \
+            --pattern "$DMG_NAME" \
+            --pattern "$ZIP_NAME"
+
+          test -s "$DMG_NAME"
+          test -s "$ZIP_NAME"
+
+          echo "$DMG_SHA  $DMG_NAME" | shasum -a 256 -c -
+          echo "$ZIP_SHA  $ZIP_NAME" | shasum -a 256 -c -
+
+          echo "RELEASE_ARTIFACT_CHECKSUMS=PASS"
+
+      - name: Verify and mount DMG
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          DMG="$PWD/release-input/$DMG_NAME"
+          MOUNT="$RUNNER_TEMP/vivo-mount"
+
+          mkdir -p "$MOUNT"
+
+          hdiutil verify "$DMG"
+
+          hdiutil attach "$DMG" \
+            -readonly \
+            -nobrowse \
+            -mountpoint "$MOUNT"
+
+          test -d "$MOUNT/Vivo-Qt.app"
+          test -f "$MOUNT/Vivo-Qt.app/Contents/MacOS/Vivo-Qt"
+
+          test -L "$MOUNT/Applications"
+          test "$(readlink "$MOUNT/Applications")" = "/Applications"
+
+          echo "DMG_NATIVE_MOUNT=PASS"
+          echo "APPLICATIONS_SYMLINK=PASS"
+
+      - name: Validate native application
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          APP="$RUNNER_TEMP/vivo-mount/Vivo-Qt.app"
+          EXE="$APP/Contents/MacOS/Vivo-Qt"
+
+          file "$EXE"
+          lipo -info "$EXE"
+          lipo -archs "$EXE" | grep -qw arm64
+
+          test "$(/usr/libexec/PlistBuddy \
+            -c 'Print :CFBundleExecutable' \
+            "$APP/Contents/Info.plist")" = "Vivo-Qt"
+
+          test "$(/usr/libexec/PlistBuddy \
+            -c 'Print :CFBundleIdentifier' \
+            "$APP/Contents/Info.plist")" = "org.vivo.Vivo-Qt"
+
+          otool -L "$EXE"
+
+          echo "NATIVE_ARM64_APP_STRUCTURE=PASS"
+
+      - name: Check signing and Gatekeeper status
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          APP="$RUNNER_TEMP/vivo-mount/Vivo-Qt.app"
+
+          if codesign --verify --deep --strict --verbose=2 "$APP"; then
+            echo "CODESIGN=PASS"
+          else
+            echo "CODESIGN=PENDING"
+          fi
+
+          if spctl --assess --type execute --verbose=2 "$APP"; then
+            echo "GATEKEEPER=ACCEPTED"
+          else
+            echo "GATEKEEPER=NOT_ACCEPTED"
+          fi
+
+          echo "SIGNING_IS_DIAGNOSTIC_ONLY=YES"
+
+      - name: Validate ZIP command-line binaries
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          mkdir -p "$RUNNER_TEMP/vivo-zip"
+
+          ditto -x -k \
+            "$PWD/release-input/$ZIP_NAME" \
+            "$RUNNER_TEMP/vivo-zip"
+
+          ROOT="$RUNNER_TEMP/vivo-zip/VIVO-v26.0.1.0-macOS-ARM64"
+
+          for BIN in vivod vivo-cli vivo-wallet vivo-tx; do
+            FILE="$ROOT/Command-Line/$BIN"
+            test -f "$FILE"
+            lipo -archs "$FILE" | grep -qw arm64
+            echo "ARM64_CLI_PASS=$BIN"
+          done
+
+          echo "ZIP_CLI_ARCHITECTURES=PASS"
+
+      - name: Unmount DMG
+        if: always()
+        shell: bash
+        run: |
+          MOUNT="$RUNNER_TEMP/vivo-mount"
+          if mount | grep -Fq " on $MOUNT ("; then
+            hdiutil detach "$MOUNT" || true
+          fi
+
+      - name: Record release gate
+        shell: bash
+        run: |
+          echo "R397E68=NATIVE_MACOS_STRUCTURE_VALIDATED"
+          echo "GUI_RUNTIME_TESTED=NO"
+          echo "WALLET_RUNTIME_TESTED=NO"
+          echo "CODE_SIGNING_APPROVED=NO"
+          echo "NOTARIZATION_COMPLETED=NO"
+          echo "PUBLIC_RELEASE_APPROVED=NO"
