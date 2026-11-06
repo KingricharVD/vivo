@@ -47,10 +47,20 @@ jobs:
 
           command -v gh
 
-          gh release download "$RELEASE_TAG" \
-            --repo "$GITHUB_REPOSITORY" \
-            --pattern "$DMG_NAME" \
-            --pattern "$ZIP_NAME"
+          # Use verified asset IDs, not draft tag lookup.
+          # Authentication uses the ephemeral GITHUB_TOKEN.
+          # Draft access remains unverified until native execution.
+          test "$RELEASE_TAG" = "v26.0.1.0-macos-test"
+
+          gh api \
+            "repos/$GITHUB_REPOSITORY/releases/assets/716694363" \
+            -H "Accept: application/octet-stream" \
+            > "$DMG_NAME"
+
+          gh api \
+            "repos/$GITHUB_REPOSITORY/releases/assets/716694367" \
+            -H "Accept: application/octet-stream" \
+            > "$ZIP_NAME"
 
           test -s "$DMG_NAME"
           test -s "$ZIP_NAME"
